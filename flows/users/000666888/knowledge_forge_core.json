@@ -1,0 +1,1346 @@
+{
+  "project": "knowledge_forge_core",
+  "user": "000666888",
+  "projectName": "knowledge_forge_core",
+  "version": 2,
+  "currentFlowId": "main",
+  "view": {
+    "x": 220.1726347869774,
+    "y": -81.80766207464659,
+    "scale": 0.8699999999999999
+  },
+  "flows": [
+    {
+      "id": "main",
+      "name": "主流程",
+      "parentFlowId": null,
+      "ownerNodeId": null
+    },
+    {
+      "id": "flow_ingest",
+      "name": "ingest() 子流程",
+      "parentFlowId": "main",
+      "ownerNodeId": "ingest"
+    },
+    {
+      "id": "flow_llmExtract",
+      "name": "llmExtract() 子流程",
+      "parentFlowId": "flow_ingest",
+      "ownerNodeId": "llmExtract_in_ingest"
+    },
+    {
+      "id": "flow_handleLlmExtract",
+      "name": "handleLlmExtract() 子流程",
+      "parentFlowId": "flow_llmExtract",
+      "ownerNodeId": "handleLlmExtract_in_llmExtract"
+    },
+    {
+      "id": "flow_callOpenAIExtraction",
+      "name": "callOpenAIExtraction() 子流程",
+      "parentFlowId": "flow_handleLlmExtract",
+      "ownerNodeId": "callOpenAIExtraction_in_handleLlmExtract"
+    },
+    {
+      "id": "flow_handleIngest",
+      "name": "handleIngest() 子流程",
+      "parentFlowId": "flow_ingest",
+      "ownerNodeId": "handleIngest_in_ingest"
+    },
+    {
+      "id": "flow_saveRaw",
+      "name": "saveRaw() 子流程",
+      "parentFlowId": "flow_handleIngest",
+      "ownerNodeId": "saveRaw_in_handleIngest"
+    },
+    {
+      "id": "flow_updateUsageRawPath",
+      "name": "updateUsageRawPath() 子流程",
+      "parentFlowId": "flow_handleIngest",
+      "ownerNodeId": "updateUsageRawPath_in_handleIngest"
+    },
+    {
+      "id": "flow_runForgeIngest",
+      "name": "runForge() 子流程",
+      "parentFlowId": "flow_handleIngest",
+      "ownerNodeId": "runForgeIngest_in_handleIngest"
+    },
+    {
+      "id": "flow_runForgeLint",
+      "name": "runForge() 子流程",
+      "parentFlowId": "flow_handleIngest",
+      "ownerNodeId": "runForgeLint_in_handleIngest"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "saveAndIngestClick",
+      "flowId": "main",
+      "x": 80,
+      "y": 100,
+      "w": 260,
+      "h": 101,
+      "tags": [
+        "DOM"
+      ],
+      "title": "Save and Ingest",
+      "body": "使用者按下儲存並匯入"
+    },
+    {
+      "id": "ingest",
+      "flowId": "main",
+      "x": 80,
+      "y": 250,
+      "w": 260,
+      "h": 101,
+      "tags": [
+        "CORE"
+      ],
+      "title": "ingest()",
+      "body": "檢查預覽並送出匯入",
+      "subflowId": "flow_ingest"
+    },
+    {
+      "id": "checkPreviewEmpty",
+      "flowId": "flow_ingest",
+      "x": 80,
+      "y": 100,
+      "w": 260,
+      "h": 80,
+      "tags": [
+        "RISK"
+      ],
+      "title": "previewEmptyCheck()",
+      "body": "確認 Raw Preview 是否空"
+    },
+    {
+      "id": "llmExtract_in_ingest",
+      "flowId": "flow_ingest",
+      "x": 80,
+      "y": 250,
+      "w": 260,
+      "h": 80,
+      "tags": [
+        "CORE"
+      ],
+      "title": "llmExtract()",
+      "body": "先用 GPT 產生預覽",
+      "subflowId": "flow_llmExtract"
+    },
+    {
+      "id": "previewRawFallback_in_ingest",
+      "flowId": "flow_ingest",
+      "x": 398.98989898989896,
+      "y": 399.4276094276094,
+      "w": 260,
+      "h": 105,
+      "tags": [
+        "CORE"
+      ],
+      "title": "previewRaw()",
+      "body": "GPT 未成功時建立預覽"
+    },
+    {
+      "id": "setResultSaving_in_ingest",
+      "flowId": "flow_ingest",
+      "x": 80,
+      "y": 400,
+      "w": 260,
+      "h": 107,
+      "tags": [
+        "DOM"
+      ],
+      "title": "setResult()",
+      "body": "顯示儲存與 lint 狀態"
+    },
+    {
+      "id": "formPayload_in_ingest",
+      "flowId": "flow_ingest",
+      "x": 80,
+      "y": 550,
+      "w": 260,
+      "h": 105,
+      "tags": [
+        "DOM"
+      ],
+      "title": "formPayload()",
+      "body": "收集表單與模型資料"
+    },
+    {
+      "id": "apiIngest_in_ingest",
+      "flowId": "flow_ingest",
+      "x": 80,
+      "y": 700,
+      "w": 260,
+      "h": 102,
+      "tags": [
+        "API"
+      ],
+      "title": "api()",
+      "body": "POST 到後端匯入 API"
+    },
+    {
+      "id": "handleIngest_in_ingest",
+      "flowId": "flow_ingest",
+      "x": 80,
+      "y": 850,
+      "w": 260,
+      "h": 111,
+      "tags": [
+        "API"
+      ],
+      "title": "handleIngest()",
+      "body": "保存 raw 並執行匯入",
+      "subflowId": "flow_handleIngest"
+    },
+    {
+      "id": "setResultDone_in_ingest",
+      "flowId": "flow_ingest",
+      "x": 80,
+      "y": 1000,
+      "w": 260,
+      "h": 105,
+      "tags": [
+        "DOM"
+      ],
+      "title": "setResult()",
+      "body": "顯示匯入結果"
+    },
+    {
+      "id": "activateSheet_in_ingest",
+      "flowId": "flow_ingest",
+      "x": 80,
+      "y": 1150,
+      "w": 260,
+      "h": 105,
+      "tags": [
+        "DOM"
+      ],
+      "title": "activateSheet()",
+      "body": "切換到查詢結果頁"
+    },
+    {
+      "id": "formPayload_in_llmExtract",
+      "flowId": "flow_llmExtract",
+      "x": 80,
+      "y": 100,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "DOM"
+      ],
+      "title": "formPayload()",
+      "body": "收集 GPT 提取輸入"
+    },
+    {
+      "id": "validateContent_in_llmExtract",
+      "flowId": "flow_llmExtract",
+      "x": 80,
+      "y": 250,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "RISK"
+      ],
+      "title": "contentCheck()",
+      "body": "無來源內容則停止"
+    },
+    {
+      "id": "setResultRunning_in_llmExtract",
+      "flowId": "flow_llmExtract",
+      "x": 80,
+      "y": 400,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "DOM"
+      ],
+      "title": "setResult()",
+      "body": "顯示 GPT 執行中"
+    },
+    {
+      "id": "apiLlmExtract_in_llmExtract",
+      "flowId": "flow_llmExtract",
+      "x": 80,
+      "y": 550,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "API"
+      ],
+      "title": "api()",
+      "body": "POST 到 GPT 提取 API"
+    },
+    {
+      "id": "handleLlmExtract_in_llmExtract",
+      "flowId": "flow_llmExtract",
+      "x": 80,
+      "y": 700,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "API"
+      ],
+      "title": "handleLlmExtract()",
+      "body": "後端執行 GPT 提取",
+      "subflowId": "flow_handleLlmExtract"
+    },
+    {
+      "id": "applyExtraction_in_llmExtract",
+      "flowId": "flow_llmExtract",
+      "x": 80,
+      "y": 850,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "DOM"
+      ],
+      "title": "applyExtraction()",
+      "body": "回填提取欄位"
+    },
+    {
+      "id": "setPreview_in_llmExtract",
+      "flowId": "flow_llmExtract",
+      "x": 80,
+      "y": 1000,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "DOM"
+      ],
+      "title": "setPreview()",
+      "body": "寫入 Raw Preview"
+    },
+    {
+      "id": "activateSheet_in_llmExtract",
+      "flowId": "flow_llmExtract",
+      "x": 80,
+      "y": 1150,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "DOM"
+      ],
+      "title": "activateSheet()",
+      "body": "切到 Raw Preview"
+    },
+    {
+      "id": "loadUsage_in_llmExtract",
+      "flowId": "flow_llmExtract",
+      "x": 80,
+      "y": 1300,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "API"
+      ],
+      "title": "loadUsage()",
+      "body": "刷新 GPT 用量"
+    },
+    {
+      "id": "readRequestJson_in_handleLlmExtract",
+      "flowId": "flow_handleLlmExtract",
+      "x": 80,
+      "y": 100,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "API"
+      ],
+      "title": "readRequestJson()",
+      "body": "讀取前端提取資料"
+    },
+    {
+      "id": "validateContent_in_handleLlmExtract",
+      "flowId": "flow_handleLlmExtract",
+      "x": 80,
+      "y": 250,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "RISK"
+      ],
+      "title": "contentCheck()",
+      "body": "缺少內容則回錯誤"
+    },
+    {
+      "id": "callOpenAIExtraction_in_handleLlmExtract",
+      "flowId": "flow_handleLlmExtract",
+      "x": 80,
+      "y": 400,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "API"
+      ],
+      "title": "callOpenAIExtraction()",
+      "body": "呼叫 OpenAI 產生 JSON",
+      "subflowId": "flow_callOpenAIExtraction"
+    },
+    {
+      "id": "buildRawMarkdown_in_handleLlmExtract",
+      "flowId": "flow_handleLlmExtract",
+      "x": 80,
+      "y": 550,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "buildRawMarkdown()",
+      "body": "把提取結果轉成 raw"
+    },
+    {
+      "id": "estimateCost_in_handleLlmExtract",
+      "flowId": "flow_handleLlmExtract",
+      "x": 80,
+      "y": 700,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "estimateCost()",
+      "body": "依模型費率估算費用"
+    },
+    {
+      "id": "appendUsage_in_handleLlmExtract",
+      "flowId": "flow_handleLlmExtract",
+      "x": 80,
+      "y": 850,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "appendUsage()",
+      "body": "寫入 GPT 用量紀錄"
+    },
+    {
+      "id": "jsonResponse_in_handleLlmExtract",
+      "flowId": "flow_handleLlmExtract",
+      "x": 80,
+      "y": 1000,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "API"
+      ],
+      "title": "jsonResponse()",
+      "body": "回傳預覽與用量"
+    },
+    {
+      "id": "loadPricing_in_callOpenAIExtraction",
+      "flowId": "flow_callOpenAIExtraction",
+      "x": 80,
+      "y": 100,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "loadPricing()",
+      "body": "讀取預設模型費率"
+    },
+    {
+      "id": "apiKeyCheck_in_callOpenAIExtraction",
+      "flowId": "flow_callOpenAIExtraction",
+      "x": 80,
+      "y": 250,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "RISK"
+      ],
+      "title": "apiKeyCheck()",
+      "body": "確認 OpenAI key 存在"
+    },
+    {
+      "id": "extractionPrompt_in_callOpenAIExtraction",
+      "flowId": "flow_callOpenAIExtraction",
+      "x": 80,
+      "y": 400,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "extractionPrompt()",
+      "body": "建立知識提取提示"
+    },
+    {
+      "id": "openAIRequest_in_callOpenAIExtraction",
+      "flowId": "flow_callOpenAIExtraction",
+      "x": 80,
+      "y": 550,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "API"
+      ],
+      "title": "callResponsesApi()",
+      "body": "送出 Responses 請求"
+    },
+    {
+      "id": "extractOutputText_in_callOpenAIExtraction",
+      "flowId": "flow_callOpenAIExtraction",
+      "x": 80,
+      "y": 700,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "extractOutputText()",
+      "body": "取出模型文字輸出"
+    },
+    {
+      "id": "parseExtraction_in_callOpenAIExtraction",
+      "flowId": "flow_callOpenAIExtraction",
+      "x": 80,
+      "y": 850,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "parseExtraction()",
+      "body": "解析提取 JSON 結果"
+    },
+    {
+      "id": "readRequestJson_in_handleIngest",
+      "flowId": "flow_handleIngest",
+      "x": 80,
+      "y": 100,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "API"
+      ],
+      "title": "readRequestJson()",
+      "body": "讀取匯入請求資料"
+    },
+    {
+      "id": "deriveTitle_in_handleIngest",
+      "flowId": "flow_handleIngest",
+      "x": 80,
+      "y": 250,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "deriveTitle()",
+      "body": "決定 raw 檔案標題"
+    },
+    {
+      "id": "saveRaw_in_handleIngest",
+      "flowId": "flow_handleIngest",
+      "x": 80,
+      "y": 400,
+      "w": 260,
+      "h": 102,
+      "tags": [
+        "CORE"
+      ],
+      "title": "saveRaw()",
+      "body": "保存 Raw Markdown",
+      "subflowId": "flow_saveRaw"
+    },
+    {
+      "id": "updateUsageRawPath_in_handleIngest",
+      "flowId": "flow_handleIngest",
+      "x": 80,
+      "y": 550,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "updateUsageRawPath()",
+      "body": "補上 usage raw 路徑",
+      "subflowId": "flow_updateUsageRawPath"
+    },
+    {
+      "id": "runForgeIngest_in_handleIngest",
+      "flowId": "flow_handleIngest",
+      "x": 80,
+      "y": 700,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "runForge()",
+      "body": "執行 forge ingest",
+      "subflowId": "flow_runForgeIngest"
+    },
+    {
+      "id": "runForgeLint_in_handleIngest",
+      "flowId": "flow_handleIngest",
+      "x": 80,
+      "y": 850,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "runForge()",
+      "body": "執行 strict lint",
+      "subflowId": "flow_runForgeLint"
+    },
+    {
+      "id": "jsonResponse_in_handleIngest",
+      "flowId": "flow_handleIngest",
+      "x": 80,
+      "y": 1000,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "API"
+      ],
+      "title": "jsonResponse()",
+      "body": "回傳匯入與 lint 結果"
+    },
+    {
+      "id": "ensureDirs_in_saveRaw",
+      "flowId": "flow_saveRaw",
+      "x": 80,
+      "y": 100,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "ensureDirs()",
+      "body": "確保資料夾存在"
+    },
+    {
+      "id": "slugify_in_saveRaw",
+      "flowId": "flow_saveRaw",
+      "x": 80,
+      "y": 250,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "slugify()",
+      "body": "建立安全檔名"
+    },
+    {
+      "id": "saveUploadedFiles_in_saveRaw",
+      "flowId": "flow_saveRaw",
+      "x": 80,
+      "y": 400,
+      "w": 260,
+      "h": 101,
+      "tags": [
+        "CORE"
+      ],
+      "title": "saveUploadedFiles()",
+      "body": "保存上傳附件"
+    },
+    {
+      "id": "writeRawFile_in_saveRaw",
+      "flowId": "flow_saveRaw",
+      "x": 80,
+      "y": 550,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "writeRawFile()",
+      "body": "寫入 raw markdown"
+    },
+    {
+      "id": "readUsageRecords_in_updateUsageRawPath",
+      "flowId": "flow_updateUsageRawPath",
+      "x": 80,
+      "y": 100,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "readUsageRecords()",
+      "body": "讀取既有用量紀錄"
+    },
+    {
+      "id": "matchResponseId_in_updateUsageRawPath",
+      "flowId": "flow_updateUsageRawPath",
+      "x": 80,
+      "y": 250,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "matchResponseId()",
+      "body": "找到對應 response id"
+    },
+    {
+      "id": "writeUsageRecords_in_updateUsageRawPath",
+      "flowId": "flow_updateUsageRawPath",
+      "x": 80,
+      "y": 400,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "writeUsageRecords()",
+      "body": "回寫 raw 路徑"
+    },
+    {
+      "id": "selectPython_in_runForgeIngest",
+      "flowId": "flow_runForgeIngest",
+      "x": 80,
+      "y": 100,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "selectPython()",
+      "body": "挑選可用 Python"
+    },
+    {
+      "id": "execForgeIngest_in_runForgeIngest",
+      "flowId": "flow_runForgeIngest",
+      "x": 80,
+      "y": 250,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "execFile()",
+      "body": "執行 forge.py ingest"
+    },
+    {
+      "id": "returnIngestResult_in_runForgeIngest",
+      "flowId": "flow_runForgeIngest",
+      "x": 80,
+      "y": 400,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "returnResult()",
+      "body": "整理 ingest 執行結果"
+    },
+    {
+      "id": "selectPython_in_runForgeLint",
+      "flowId": "flow_runForgeLint",
+      "x": 80,
+      "y": 100,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "selectPython()",
+      "body": "挑選可用 Python"
+    },
+    {
+      "id": "execForgeLint_in_runForgeLint",
+      "flowId": "flow_runForgeLint",
+      "x": 80,
+      "y": 250,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "execFile()",
+      "body": "執行 forge.py lint"
+    },
+    {
+      "id": "returnLintResult_in_runForgeLint",
+      "flowId": "flow_runForgeLint",
+      "x": 80,
+      "y": 400,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "returnResult()",
+      "body": "整理 lint 執行結果"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e_001",
+      "flowId": "main",
+      "from": "saveAndIngestClick",
+      "to": "ingest",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 222
+      }
+    },
+    {
+      "id": "e_002",
+      "flowId": "flow_ingest",
+      "from": "checkPreviewEmpty",
+      "to": "llmExtract_in_ingest",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 222
+      }
+    },
+    {
+      "id": "e_003",
+      "flowId": "flow_ingest",
+      "from": "llmExtract_in_ingest",
+      "to": "setResultSaving_in_ingest",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 372
+      }
+    },
+    {
+      "id": "e_005",
+      "flowId": "flow_ingest",
+      "from": "setResultSaving_in_ingest",
+      "to": "formPayload_in_ingest",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 522
+      }
+    },
+    {
+      "id": "e_006",
+      "flowId": "flow_ingest",
+      "from": "formPayload_in_ingest",
+      "to": "apiIngest_in_ingest",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 672
+      }
+    },
+    {
+      "id": "e_007",
+      "flowId": "flow_ingest",
+      "from": "apiIngest_in_ingest",
+      "to": "handleIngest_in_ingest",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 822
+      }
+    },
+    {
+      "id": "e_008",
+      "flowId": "flow_ingest",
+      "from": "handleIngest_in_ingest",
+      "to": "setResultDone_in_ingest",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 972
+      }
+    },
+    {
+      "id": "e_009",
+      "flowId": "flow_ingest",
+      "from": "setResultDone_in_ingest",
+      "to": "activateSheet_in_ingest",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 1122
+      }
+    },
+    {
+      "id": "e_010",
+      "flowId": "flow_llmExtract",
+      "from": "formPayload_in_llmExtract",
+      "to": "validateContent_in_llmExtract",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 222
+      }
+    },
+    {
+      "id": "e_011",
+      "flowId": "flow_llmExtract",
+      "from": "validateContent_in_llmExtract",
+      "to": "setResultRunning_in_llmExtract",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 372
+      }
+    },
+    {
+      "id": "e_012",
+      "flowId": "flow_llmExtract",
+      "from": "setResultRunning_in_llmExtract",
+      "to": "apiLlmExtract_in_llmExtract",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 522
+      }
+    },
+    {
+      "id": "e_013",
+      "flowId": "flow_llmExtract",
+      "from": "apiLlmExtract_in_llmExtract",
+      "to": "handleLlmExtract_in_llmExtract",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 672
+      }
+    },
+    {
+      "id": "e_014",
+      "flowId": "flow_llmExtract",
+      "from": "handleLlmExtract_in_llmExtract",
+      "to": "applyExtraction_in_llmExtract",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 822
+      }
+    },
+    {
+      "id": "e_015",
+      "flowId": "flow_llmExtract",
+      "from": "applyExtraction_in_llmExtract",
+      "to": "setPreview_in_llmExtract",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 972
+      }
+    },
+    {
+      "id": "e_016",
+      "flowId": "flow_llmExtract",
+      "from": "setPreview_in_llmExtract",
+      "to": "activateSheet_in_llmExtract",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 1122
+      }
+    },
+    {
+      "id": "e_017",
+      "flowId": "flow_llmExtract",
+      "from": "activateSheet_in_llmExtract",
+      "to": "loadUsage_in_llmExtract",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 1272
+      }
+    },
+    {
+      "id": "e_018",
+      "flowId": "flow_handleLlmExtract",
+      "from": "readRequestJson_in_handleLlmExtract",
+      "to": "validateContent_in_handleLlmExtract"
+    },
+    {
+      "id": "e_019",
+      "flowId": "flow_handleLlmExtract",
+      "from": "validateContent_in_handleLlmExtract",
+      "to": "callOpenAIExtraction_in_handleLlmExtract"
+    },
+    {
+      "id": "e_020",
+      "flowId": "flow_handleLlmExtract",
+      "from": "callOpenAIExtraction_in_handleLlmExtract",
+      "to": "buildRawMarkdown_in_handleLlmExtract"
+    },
+    {
+      "id": "e_021",
+      "flowId": "flow_handleLlmExtract",
+      "from": "buildRawMarkdown_in_handleLlmExtract",
+      "to": "estimateCost_in_handleLlmExtract"
+    },
+    {
+      "id": "e_022",
+      "flowId": "flow_handleLlmExtract",
+      "from": "estimateCost_in_handleLlmExtract",
+      "to": "appendUsage_in_handleLlmExtract"
+    },
+    {
+      "id": "e_023",
+      "flowId": "flow_handleLlmExtract",
+      "from": "appendUsage_in_handleLlmExtract",
+      "to": "jsonResponse_in_handleLlmExtract"
+    },
+    {
+      "id": "e_024",
+      "flowId": "flow_callOpenAIExtraction",
+      "from": "loadPricing_in_callOpenAIExtraction",
+      "to": "apiKeyCheck_in_callOpenAIExtraction"
+    },
+    {
+      "id": "e_025",
+      "flowId": "flow_callOpenAIExtraction",
+      "from": "apiKeyCheck_in_callOpenAIExtraction",
+      "to": "extractionPrompt_in_callOpenAIExtraction"
+    },
+    {
+      "id": "e_026",
+      "flowId": "flow_callOpenAIExtraction",
+      "from": "extractionPrompt_in_callOpenAIExtraction",
+      "to": "openAIRequest_in_callOpenAIExtraction"
+    },
+    {
+      "id": "e_027",
+      "flowId": "flow_callOpenAIExtraction",
+      "from": "openAIRequest_in_callOpenAIExtraction",
+      "to": "extractOutputText_in_callOpenAIExtraction"
+    },
+    {
+      "id": "e_028",
+      "flowId": "flow_callOpenAIExtraction",
+      "from": "extractOutputText_in_callOpenAIExtraction",
+      "to": "parseExtraction_in_callOpenAIExtraction"
+    },
+    {
+      "id": "e_029",
+      "flowId": "flow_handleIngest",
+      "from": "readRequestJson_in_handleIngest",
+      "to": "deriveTitle_in_handleIngest",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 222
+      }
+    },
+    {
+      "id": "e_030",
+      "flowId": "flow_handleIngest",
+      "from": "deriveTitle_in_handleIngest",
+      "to": "saveRaw_in_handleIngest",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 372
+      }
+    },
+    {
+      "id": "e_031",
+      "flowId": "flow_handleIngest",
+      "from": "saveRaw_in_handleIngest",
+      "to": "updateUsageRawPath_in_handleIngest",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 522
+      }
+    },
+    {
+      "id": "e_032",
+      "flowId": "flow_handleIngest",
+      "from": "updateUsageRawPath_in_handleIngest",
+      "to": "runForgeIngest_in_handleIngest",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 672
+      }
+    },
+    {
+      "id": "e_033",
+      "flowId": "flow_handleIngest",
+      "from": "runForgeIngest_in_handleIngest",
+      "to": "runForgeLint_in_handleIngest",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 822
+      }
+    },
+    {
+      "id": "e_034",
+      "flowId": "flow_handleIngest",
+      "from": "runForgeLint_in_handleIngest",
+      "to": "jsonResponse_in_handleIngest",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 972
+      }
+    },
+    {
+      "id": "e_035",
+      "flowId": "flow_saveRaw",
+      "from": "ensureDirs_in_saveRaw",
+      "to": "slugify_in_saveRaw",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 222
+      }
+    },
+    {
+      "id": "e_036",
+      "flowId": "flow_saveRaw",
+      "from": "slugify_in_saveRaw",
+      "to": "saveUploadedFiles_in_saveRaw",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 372
+      }
+    },
+    {
+      "id": "e_037",
+      "flowId": "flow_saveRaw",
+      "from": "saveUploadedFiles_in_saveRaw",
+      "to": "writeRawFile_in_saveRaw",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 522
+      }
+    },
+    {
+      "id": "e_038",
+      "flowId": "flow_updateUsageRawPath",
+      "from": "readUsageRecords_in_updateUsageRawPath",
+      "to": "matchResponseId_in_updateUsageRawPath"
+    },
+    {
+      "id": "e_039",
+      "flowId": "flow_updateUsageRawPath",
+      "from": "matchResponseId_in_updateUsageRawPath",
+      "to": "writeUsageRecords_in_updateUsageRawPath"
+    },
+    {
+      "id": "e_040",
+      "flowId": "flow_runForgeIngest",
+      "from": "selectPython_in_runForgeIngest",
+      "to": "execForgeIngest_in_runForgeIngest"
+    },
+    {
+      "id": "e_041",
+      "flowId": "flow_runForgeIngest",
+      "from": "execForgeIngest_in_runForgeIngest",
+      "to": "returnIngestResult_in_runForgeIngest"
+    },
+    {
+      "id": "e_042",
+      "flowId": "flow_runForgeLint",
+      "from": "selectPython_in_runForgeLint",
+      "to": "execForgeLint_in_runForgeLint"
+    },
+    {
+      "id": "e_043",
+      "flowId": "flow_runForgeLint",
+      "from": "execForgeLint_in_runForgeLint",
+      "to": "returnLintResult_in_runForgeLint"
+    },
+    {
+      "id": "eqs29bmy",
+      "from": "previewRawFallback_in_ingest",
+      "to": "setResultSaving_in_ingest",
+      "fromPort": {
+        "side": "left",
+        "offset": 60
+      },
+      "toPort": {
+        "side": "right",
+        "offset": 60
+      },
+      "flowId": "flow_ingest",
+      "elbow": {
+        "x": 370.98989898989896,
+        "y": 460.45454545454544
+      }
+    }
+  ]
+}

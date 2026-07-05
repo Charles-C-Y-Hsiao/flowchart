@@ -1,0 +1,776 @@
+{
+  "project": "gpt-extract-flow",
+  "projectName": "GPT Extract Flow",
+  "version": 2,
+  "view": {
+    "x": 17.158220068322976,
+    "y": -822.657066163521,
+    "scale": 1.27
+  },
+  "nodes": [
+    {
+      "id": "gptExtract",
+      "flowId": "main",
+      "x": 77.27272727272727,
+      "y": 154.7244094488189,
+      "w": 240,
+      "h": 123,
+      "tags": [
+        "CORE"
+      ],
+      "title": "GPT Extract",
+      "body": "User clicks GPT Extract"
+    },
+    {
+      "id": "llmExtract",
+      "flowId": "main",
+      "subflowId": "flow_llmExtract",
+      "x": 370,
+      "y": 150,
+      "w": 280,
+      "h": 100,
+      "tags": [
+        "DOM"
+      ],
+      "title": "llmExtract()",
+      "body": "Frontend executes GPT extraction"
+    },
+    {
+      "id": "handleLlmExtract",
+      "flowId": "main",
+      "subflowId": "flow_handleLlmExtract",
+      "x": 703.1496062992126,
+      "y": 149.21259842519686,
+      "w": 320,
+      "h": 100,
+      "tags": [
+        "API"
+      ],
+      "title": "handleLlmExtract()",
+      "body": "Backend handles GPT extraction                                                                                                       "
+    },
+    {
+      "id": "callOpenAIExtraction_main",
+      "flowId": "main",
+      "x": 733.1496062992126,
+      "y": 300.12168933428774,
+      "w": 248.3464566929134,
+      "h": 96,
+      "tags": [
+        "API"
+      ],
+      "title": "callOpenAIExtraction()",
+      "body": "Call OpenAI Responses API"
+    },
+    {
+      "id": "buildRawMarkdown_main",
+      "flowId": "main",
+      "x": 733.3333333333333,
+      "y": 455.45454545454544,
+      "w": 300,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "buildRawMarkdown()",
+      "body": "Build raw markdown result",
+      "subflowId": "flow_buildRawMarkdown_main"
+    },
+    {
+      "id": "estimateCost_main",
+      "flowId": "main",
+      "x": 756.0777587192681,
+      "y": 611.4179531160663,
+      "w": 270,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "estimateCost()",
+      "body": "Estimate request cost"
+    },
+    {
+      "id": "appendUsage_main",
+      "flowId": "main",
+      "x": 784.0430357032465,
+      "y": 767.2666781083609,
+      "w": 260,
+      "h": 106,
+      "tags": [
+        "CORE"
+      ],
+      "title": "appendUsage()",
+      "body": "Write usage JSONL"
+    },
+    {
+      "id": "applyExtraction_main",
+      "flowId": "main",
+      "x": 784.248709487811,
+      "y": 899.9773614772654,
+      "w": 270,
+      "h": 101,
+      "tags": [
+        "DOM"
+      ],
+      "title": "applyExtraction()",
+      "body": "Fill extracted fields"
+    },
+    {
+      "id": "loadUsage_main",
+      "flowId": "main",
+      "x": 785.3990839836814,
+      "y": 1034.459788978706,
+      "w": 260,
+      "h": 106,
+      "tags": [
+        "DOM"
+      ],
+      "title": "loadUsage()",
+      "body": "Refresh usage panel"
+    },
+    {
+      "id": "formPayload",
+      "flowId": "flow_llmExtract",
+      "x": 80,
+      "y": 130,
+      "w": 280,
+      "h": 93,
+      "tags": [
+        "DOM"
+      ],
+      "title": "formPayload()",
+      "body": "Collect form and model data"
+    },
+    {
+      "id": "apiPost",
+      "flowId": "flow_llmExtract",
+      "x": 430,
+      "y": 130,
+      "w": 300,
+      "h": 93,
+      "tags": [
+        "API"
+      ],
+      "title": "api('/api/llm-extract')",
+      "body": "POST extraction request"
+    },
+    {
+      "id": "applyExtraction",
+      "flowId": "flow_llmExtract",
+      "x": 800,
+      "y": 130,
+      "w": 290,
+      "h": 93,
+      "tags": [
+        "DOM"
+      ],
+      "title": "applyExtraction()",
+      "body": "Fill GPT extraction fields"
+    },
+    {
+      "id": "loadUsage",
+      "flowId": "flow_llmExtract",
+      "subflowId": "flow_loadUsage",
+      "x": 1160,
+      "y": 130,
+      "w": 280,
+      "h": 93,
+      "tags": [
+        "DOM"
+      ],
+      "title": "loadUsage()",
+      "body": "Refresh usage panel"
+    },
+    {
+      "id": "readRequestJson",
+      "flowId": "flow_handleLlmExtract",
+      "x": 80,
+      "y": 130,
+      "w": 280,
+      "h": 90,
+      "tags": [
+        "API"
+      ],
+      "title": "readRequestJson()",
+      "body": "Read frontend JSON"
+    },
+    {
+      "id": "loadPricing",
+      "flowId": "flow_handleLlmExtract",
+      "x": 430,
+      "y": 130,
+      "w": 270,
+      "h": 90,
+      "tags": [
+        "CORE"
+      ],
+      "title": "loadPricing()",
+      "body": "Read model pricing config"
+    },
+    {
+      "id": "callOpenAIExtraction",
+      "flowId": "flow_handleLlmExtract",
+      "subflowId": "flow_callOpenAIExtraction",
+      "x": 770,
+      "y": 130,
+      "w": 320,
+      "h": 90,
+      "tags": [
+        "API"
+      ],
+      "title": "callOpenAIExtraction()",
+      "body": "Call OpenAI API"
+    },
+    {
+      "id": "buildRawMarkdown",
+      "flowId": "flow_handleLlmExtract",
+      "subflowId": "flow_buildRawMarkdown",
+      "x": 1160,
+      "y": 130,
+      "w": 310,
+      "h": 90,
+      "tags": [
+        "CORE"
+      ],
+      "title": "buildRawMarkdown()",
+      "body": "Generate raw markdown"
+    },
+    {
+      "id": "estimateCost",
+      "flowId": "flow_handleLlmExtract",
+      "subflowId": "flow_estimateCost",
+      "x": 1540,
+      "y": 130,
+      "w": 280,
+      "h": 90,
+      "tags": [
+        "CORE"
+      ],
+      "title": "estimateCost()",
+      "body": "Estimate token cost"
+    },
+    {
+      "id": "appendUsage",
+      "flowId": "flow_handleLlmExtract",
+      "x": 1890,
+      "y": 130,
+      "w": 280,
+      "h": 90,
+      "tags": [
+        "CORE"
+      ],
+      "title": "appendUsage()",
+      "body": "Write usage JSONL"
+    },
+    {
+      "id": "jsonResponse",
+      "flowId": "flow_handleLlmExtract",
+      "x": 2240,
+      "y": 130,
+      "w": 260,
+      "h": 90,
+      "tags": [
+        "API"
+      ],
+      "title": "jsonResponse()",
+      "body": "Return extraction result"
+    },
+    {
+      "id": "extractionPrompt",
+      "flowId": "flow_callOpenAIExtraction",
+      "x": 80,
+      "y": 130,
+      "w": 300,
+      "h": 90,
+      "tags": [
+        "CORE"
+      ],
+      "title": "extractionPrompt()",
+      "body": "Build knowledge extraction prompt"
+    },
+    {
+      "id": "loadPricing_call",
+      "flowId": "flow_callOpenAIExtraction",
+      "x": 450,
+      "y": 130,
+      "w": 280,
+      "h": 90,
+      "tags": [
+        "CORE"
+      ],
+      "title": "loadPricing()",
+      "body": "Get default model"
+    },
+    {
+      "id": "responsesApi",
+      "flowId": "flow_callOpenAIExtraction",
+      "x": 800,
+      "y": 130,
+      "w": 300,
+      "h": 90,
+      "tags": [
+        "API"
+      ],
+      "title": "fetch()",
+      "body": "Call Responses API"
+    },
+    {
+      "id": "extractOutputText",
+      "flowId": "flow_callOpenAIExtraction",
+      "x": 1170,
+      "y": 130,
+      "w": 300,
+      "h": 90,
+      "tags": [
+        "CORE"
+      ],
+      "title": "extractOutputText()",
+      "body": "Extract model text output"
+    },
+    {
+      "id": "deriveTitle",
+      "flowId": "flow_buildRawMarkdown",
+      "x": 80,
+      "y": 120,
+      "w": 270,
+      "h": 86,
+      "tags": [
+        "CORE"
+      ],
+      "title": "deriveTitle()",
+      "body": "Decide knowledge title"
+    },
+    {
+      "id": "inferProblem",
+      "flowId": "flow_buildRawMarkdown",
+      "x": 420,
+      "y": 120,
+      "w": 270,
+      "h": 86,
+      "tags": [
+        "CORE"
+      ],
+      "title": "inferProblem()",
+      "body": "Fill default problem"
+    },
+    {
+      "id": "inferCause",
+      "flowId": "flow_buildRawMarkdown",
+      "x": 760,
+      "y": 120,
+      "w": 270,
+      "h": 86,
+      "tags": [
+        "CORE"
+      ],
+      "title": "inferCause()",
+      "body": "Fill tentative cause"
+    },
+    {
+      "id": "inferSolution",
+      "flowId": "flow_buildRawMarkdown",
+      "x": 1100,
+      "y": 120,
+      "w": 270,
+      "h": 86,
+      "tags": [
+        "CORE"
+      ],
+      "title": "inferSolution()",
+      "body": "Fill default solution"
+    },
+    {
+      "id": "attachmentList",
+      "flowId": "flow_buildRawMarkdown",
+      "x": 1440,
+      "y": 120,
+      "w": 270,
+      "h": 86,
+      "tags": [
+        "CORE"
+      ],
+      "title": "attachmentList()",
+      "body": "Format attachments"
+    },
+    {
+      "id": "indentBlock",
+      "flowId": "flow_buildRawMarkdown",
+      "x": 1780,
+      "y": 120,
+      "w": 270,
+      "h": 86,
+      "tags": [
+        "CORE"
+      ],
+      "title": "indentBlock()",
+      "body": "Indent raw data"
+    },
+    {
+      "id": "modelPrice",
+      "flowId": "flow_estimateCost",
+      "x": 90,
+      "y": 130,
+      "w": 280,
+      "h": 90,
+      "tags": [
+        "CORE"
+      ],
+      "title": "modelPrice()",
+      "body": "Lookup model unit price"
+    },
+    {
+      "id": "normalizeUsage",
+      "flowId": "flow_estimateCost",
+      "x": 450,
+      "y": 130,
+      "w": 300,
+      "h": 90,
+      "tags": [
+        "CORE"
+      ],
+      "title": "normalizeUsage()",
+      "body": "Normalize token fields"
+    },
+    {
+      "id": "renderUsageCards",
+      "flowId": "flow_loadUsage",
+      "x": 80,
+      "y": 130,
+      "w": 300,
+      "h": 90,
+      "tags": [
+        "DOM"
+      ],
+      "title": "renderUsageCards()",
+      "body": "Show today and monthly usage"
+    },
+    {
+      "id": "renderUsageRows",
+      "flowId": "flow_loadUsage",
+      "x": 450,
+      "y": 130,
+      "w": 300,
+      "h": 90,
+      "tags": [
+        "DOM"
+      ],
+      "title": "renderUsageRows()",
+      "body": "Show recent calls"
+    },
+    {
+      "id": "renderByModel",
+      "flowId": "flow_loadUsage",
+      "x": 820,
+      "y": 130,
+      "w": 300,
+      "h": 90,
+      "tags": [
+        "DOM"
+      ],
+      "title": "renderByModel()",
+      "body": "Group usage by model"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e_main_1",
+      "flowId": "main",
+      "from": "gptExtract",
+      "to": "llmExtract",
+      "fromPort": {
+        "side": "right",
+        "offset": 44
+      },
+      "toPort": {
+        "side": "left",
+        "offset": 49
+      },
+      "elbow": {
+        "x": 342,
+        "y": 196.5
+      }
+    },
+    {
+      "id": "e_main_2",
+      "flowId": "main",
+      "from": "llmExtract",
+      "to": "handleLlmExtract",
+      "fromPort": {
+        "side": "right",
+        "offset": 49
+      },
+      "toPort": {
+        "side": "left",
+        "offset": 49
+      },
+      "elbow": {
+        "x": 675.1496062992126,
+        "y": 199
+      }
+    },
+    {
+      "id": "e_main_3",
+      "flowId": "main",
+      "from": "handleLlmExtract",
+      "to": "callOpenAIExtraction_main",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 150
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 120
+      },
+      "elbow": {
+        "x": 853.1496062992126,
+        "y": 272.12168933428774
+      }
+    },
+    {
+      "id": "e_main_4",
+      "flowId": "main",
+      "from": "callOpenAIExtraction_main",
+      "to": "buildRawMarkdown_main",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 120
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 120
+      },
+      "elbow": {
+        "x": 855.3030303030303,
+        "y": 427.45454545454544
+      }
+    },
+    {
+      "id": "e_main_5",
+      "flowId": "main",
+      "from": "buildRawMarkdown_main",
+      "to": "estimateCost_main",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 154
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 131
+      },
+      "elbow": {
+        "x": 885.5303030303032,
+        "y": 583.4179531160663
+      }
+    },
+    {
+      "id": "e_front_1",
+      "flowId": "flow_llmExtract",
+      "from": "formPayload",
+      "to": "apiPost",
+      "fromPort": {
+        "side": "right",
+        "offset": 45
+      },
+      "toPort": {
+        "side": "left",
+        "offset": 45
+      },
+      "elbow": {
+        "x": 395,
+        "y": 175
+      }
+    },
+    {
+      "id": "e_front_2",
+      "flowId": "flow_llmExtract",
+      "from": "apiPost",
+      "to": "applyExtraction",
+      "fromPort": {
+        "side": "right",
+        "offset": 45
+      },
+      "toPort": {
+        "side": "left",
+        "offset": 45
+      },
+      "elbow": {
+        "x": 765,
+        "y": 175
+      }
+    },
+    {
+      "id": "e_front_3",
+      "flowId": "flow_llmExtract",
+      "from": "applyExtraction",
+      "to": "loadUsage",
+      "fromPort": {
+        "side": "right",
+        "offset": 45
+      },
+      "toPort": {
+        "side": "left",
+        "offset": 45
+      },
+      "elbow": {
+        "x": 1125,
+        "y": 175
+      }
+    },
+    {
+      "id": "e_back_1",
+      "flowId": "flow_handleLlmExtract",
+      "from": "readRequestJson",
+      "to": "loadPricing"
+    },
+    {
+      "id": "e_back_2",
+      "flowId": "flow_handleLlmExtract",
+      "from": "loadPricing",
+      "to": "callOpenAIExtraction"
+    },
+    {
+      "id": "e_back_3",
+      "flowId": "flow_handleLlmExtract",
+      "from": "callOpenAIExtraction",
+      "to": "buildRawMarkdown"
+    },
+    {
+      "id": "e_back_4",
+      "flowId": "flow_handleLlmExtract",
+      "from": "buildRawMarkdown",
+      "to": "estimateCost"
+    },
+    {
+      "id": "e_back_5",
+      "flowId": "flow_handleLlmExtract",
+      "from": "estimateCost",
+      "to": "appendUsage"
+    },
+    {
+      "id": "e_back_6",
+      "flowId": "flow_handleLlmExtract",
+      "from": "appendUsage",
+      "to": "jsonResponse"
+    },
+    {
+      "id": "e_call_1",
+      "flowId": "flow_callOpenAIExtraction",
+      "from": "extractionPrompt",
+      "to": "loadPricing_call"
+    },
+    {
+      "id": "e_call_2",
+      "flowId": "flow_callOpenAIExtraction",
+      "from": "loadPricing_call",
+      "to": "responsesApi"
+    },
+    {
+      "id": "e_call_3",
+      "flowId": "flow_callOpenAIExtraction",
+      "from": "responsesApi",
+      "to": "extractOutputText"
+    },
+    {
+      "id": "e_md_1",
+      "flowId": "flow_buildRawMarkdown",
+      "from": "deriveTitle",
+      "to": "inferProblem"
+    },
+    {
+      "id": "e_md_2",
+      "flowId": "flow_buildRawMarkdown",
+      "from": "inferProblem",
+      "to": "inferCause"
+    },
+    {
+      "id": "e_md_3",
+      "flowId": "flow_buildRawMarkdown",
+      "from": "inferCause",
+      "to": "inferSolution"
+    },
+    {
+      "id": "e_md_4",
+      "flowId": "flow_buildRawMarkdown",
+      "from": "inferSolution",
+      "to": "attachmentList"
+    },
+    {
+      "id": "e_md_5",
+      "flowId": "flow_buildRawMarkdown",
+      "from": "attachmentList",
+      "to": "indentBlock"
+    },
+    {
+      "id": "e_cost_1",
+      "flowId": "flow_estimateCost",
+      "from": "modelPrice",
+      "to": "normalizeUsage"
+    },
+    {
+      "id": "e_usage_1",
+      "flowId": "flow_loadUsage",
+      "from": "renderUsageCards",
+      "to": "renderUsageRows"
+    },
+    {
+      "id": "e_usage_2",
+      "flowId": "flow_loadUsage",
+      "from": "renderUsageRows",
+      "to": "renderByModel"
+    },
+    {
+      "id": "e0w7rqmu",
+      "from": "appendUsage_main",
+      "to": "applyExtraction_main",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 120
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 120
+      },
+      "flowId": "main",
+      "elbow": {
+        "x": 904.1719121519118,
+        "y": 871.9773614772654
+      }
+    },
+    {
+      "id": "ey4axbah",
+      "from": "applyExtraction_main",
+      "to": "loadUsage_main",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 120
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 120
+      },
+      "flowId": "main",
+      "elbow": {
+        "x": 904.036495160943,
+        "y": 1006.459788978706
+      }
+    },
+    {
+      "id": "eue80seh",
+      "from": "estimateCost_main",
+      "to": "appendUsage_main",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 120
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 120
+      },
+      "flowId": "main",
+      "elbow": {
+        "x": 888.7808696522022,
+        "y": 739.2666781083609
+      }
+    }
+  ]
+}

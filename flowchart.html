@@ -1,0 +1,3464 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/3.0.0/uicons-regular-chubby/css/uicons-regular-chubby.css">
+  <title>資料流 × DOM × API — Flow Editor</title>
+  <style>
+    :root{
+      color-scheme: light;
+      --bg:#f4f7fb;
+      --panel:#ffffff;
+      --card:#ffffff;
+      --card2:#f7f9fc;
+      --text:#172033;
+      --muted:#69758a;
+      --line:#d9e2ef;
+      --accent:#2f7ee6;
+      --accent-deep:#1759b7;
+      --danger:#bf4a4a;
+      --ok:#27885c;
+      --shadow: 0 10px 24px rgba(23,32,51,.08);
+      --radius: 6px;
+    }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; margin:0; font-family: Calibri, "Segoe UI", "Noto Sans TC", Arial, sans-serif; color:var(--text); background: var(--bg); }
+    .app{ width:100%; max-width:100vw; height:100%; display:grid; grid-template-rows:auto 1fr; overflow:hidden; }
+    header{
+      display:flex; align-items:center; justify-content:space-between; gap:18px;
+      width:100%; max-width:100vw; min-width:0;
+      padding:14px 20px; background: var(--panel);
+      border-bottom:1px solid var(--line);
+      position: sticky; top:0; z-index:10;
+      overflow:visible;
+      box-shadow: 0 8px 24px rgba(23,32,51,.06);
+    }
+    header .title{
+      position:relative;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      align-items:flex-start;
+      flex:0 0 auto;
+      min-width:280px;
+    }
+    header .title h1{ display:inline-block; font-size:16px; margin:0; letter-spacing:.3px; }
+    header .title .sub{ color:var(--muted); font-size:12px; }
+    .project-tool{
+      position:relative;
+      width:var(--project-tool-width, 100%);
+      flex:0 0 auto;
+      min-width:0;
+    }
+    .account-tool{
+      position:relative;
+      width:var(--project-tool-width, 100%);
+      flex:0 0 auto;
+      min-width:0;
+    }
+    .project-trigger{
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:5px;
+      padding:3px 0 0;
+      background:transparent;
+      border:0;
+      border-radius:0;
+      color:var(--muted);
+    }
+    .account-trigger{
+      align-items:center;
+      justify-content:flex-start;
+      padding-top:0;
+      color:var(--text);
+      font-size:12px;
+      font-weight:700;
+      line-height:1.2;
+    }
+    .account-mark{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:12px;
+      height:12px;
+      flex:0 0 12px;
+      color:var(--accent-deep);
+      line-height:1;
+    }
+    .account-mark .fi{
+      display:block;
+      font-size:15px;
+      line-height:1;
+      transform:translateY(1px);
+    }
+    .project-trigger:hover,
+    .project-tool.open .project-trigger,
+    .account-tool.open .project-trigger{
+      background:transparent;
+      color:var(--accent-deep);
+    }
+    .project-trigger-text{
+      min-width:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      text-align:left;
+    }
+    .project-panel{
+      position:absolute;
+      left:0;
+      top:calc(100% + 8px);
+      width:320px;
+      max-width:calc(100vw - 32px);
+      display:none;
+      grid-template-columns:1fr;
+      gap:8px;
+      padding:10px;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:rgba(255,255,255,.97);
+      box-shadow:var(--shadow);
+      z-index:45;
+    }
+    .project-tool.open .project-panel,
+    .account-tool.open .project-panel{ display:grid; }
+    .project-search{
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:#f8fafc;
+      color:var(--text);
+      padding:8px 10px;
+      font-size:12px;
+      outline:none;
+    }
+    .project-search:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 2px rgba(47,126,230,.14);
+      background:#ffffff;
+    }
+    .project-list{
+      display:grid;
+      gap:4px;
+      max-height:240px;
+      overflow:auto;
+    }
+    .project-option{
+      width:100%;
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:4px 10px;
+      align-items:center;
+      padding:8px 10px;
+      border:1px solid transparent;
+      background:transparent;
+      color:var(--text);
+      text-align:left;
+      white-space:normal;
+    }
+    .project-option:hover,
+    .project-option.active{
+      background:#f4f9ff;
+      border-color:#c9d8eb;
+      color:var(--accent-deep);
+    }
+    .project-option-name{
+      min-width:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      font-weight:700;
+      font-size:12px;
+    }
+    .project-option-meta{
+      grid-column:1 / -1;
+      color:var(--muted);
+      font-size:11px;
+    }
+    .project-option-badge{
+      color:var(--ok);
+      font-size:11px;
+    }
+    .project-empty{
+      padding:10px;
+      color:var(--muted);
+      font-size:12px;
+      text-align:center;
+    }
+    .project-create{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:8px;
+      padding-top:8px;
+      border-top:1px solid var(--line);
+    }
+    .project-create-input{
+      min-width:0;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:#f8fafc;
+      color:var(--text);
+      padding:8px 10px;
+      font-size:12px;
+      outline:none;
+    }
+    .project-create-input:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 2px rgba(47,126,230,.14);
+      background:#ffffff;
+    }
+    .project-create-button{
+      padding:8px 10px;
+    }
+    .toolbar{
+      position:relative;
+      flex:1 1 0;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      align-items:flex-end;
+      min-width:0;
+      overflow:visible;
+    }
+    .toolbar-row{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      justify-content:flex-end;
+      width:100%;
+      max-width:100%;
+      overflow:hidden;
+    }
+    .toolbar-actions{ flex-wrap:nowrap; }
+    .toolbar-hints{ flex-wrap:nowrap; }
+    .toolbar-more{
+      position:absolute;
+      right:0;
+      top:calc(100% + 8px);
+      width:320px;
+      max-width:calc(100vw - 32px);
+      display:none;
+      grid-template-columns:1fr;
+      gap:8px;
+      padding:10px;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:rgba(255,255,255,.96);
+      box-shadow:var(--shadow);
+      z-index:40;
+    }
+    .toolbar.open .toolbar-more{ display:grid; }
+    .toolbar-more .pill{
+      width:100%;
+      text-align:left;
+    }
+    .toolbar-more-section{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:8px;
+    }
+    .toolbar-more-section:empty{ display:none; }
+    .toolbar-more .overflow-item{
+      width:100%;
+      text-align:left;
+      justify-content:flex-start;
+    }
+    button, .pill{
+      border:1px solid var(--line);
+      background: #ffffff;
+      color:var(--text);
+      padding:8px 10px;
+      border-radius: var(--radius);
+      font-size:12px;
+      cursor:pointer;
+      user-select:none;
+      white-space:nowrap;
+      flex:0 0 auto;
+      transition: transform .06s ease, background .12s ease, border-color .12s ease;
+    }
+    button:hover{ background: #f4f9ff; border-color: #9fc5f4; color: var(--accent-deep); }
+    button:active{ transform: translateY(1px); }
+    button.primary{ background: #f4f9ff; border-color: #9fc5f4; color: var(--accent-deep); }
+    button.danger{ background: #fff7f7; border-color: #efb5b5; color: var(--danger); }
+    button.ok{ background: #f2fbf6; border-color: #a9dcc2; color: var(--ok); }
+    button.help-toggle{ min-width:84px; }
+    button.icon-button{
+      width:42px;
+      height:42px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:0;
+      font-size:21px;
+      line-height:1;
+    }
+    button.icon-button .fi{
+      display:block;
+      line-height:1;
+      transform:translateY(2px);
+    }
+    .pill{ cursor:default; }
+    .pill kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size:11px;
+      padding:2px 6px;
+      border:1px solid var(--line);
+      border-radius:4px;
+      margin:0 4px;
+      background: #f1f5f9;
+    }
+
+    .stage{
+      position:relative;
+      overflow:hidden;
+    }
+    /* 背景格線 */
+    .grid{
+      position:absolute; inset:0;
+      background-image:
+        linear-gradient(rgba(157,166,179,.18) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(157,166,179,.18) 1px, transparent 1px);
+      background-size: 34px 34px;
+      opacity:.75;
+      pointer-events:none;
+      transform: translateZ(0);
+    }
+
+    /* 可縮放/平移的 viewport */
+    .viewport{
+      position:absolute; inset:0;
+      transform-origin: 0 0;
+      z-index:2;
+      pointer-events:none;
+    }
+
+    /* SVG 線層 */
+    svg#edges{
+      position:absolute; inset:0;
+      width:100%;
+      height:100%;
+      overflow:visible;
+      pointer-events:none;
+      z-index:3;
+    }
+    .edge{
+      stroke: rgba(47,126,230,.74);
+      stroke-width: 1.55;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      filter: drop-shadow(0 1px 1px rgba(23,32,51,.1));
+    }
+    .edge-hit{
+      stroke: transparent;
+      stroke-width: 28;
+      fill: none;
+      pointer-events: stroke;
+      cursor: pointer;
+    }
+    .edge.selected{
+      stroke: var(--accent-deep);
+      stroke-width: 1.5px;
+    }
+    .edge-edit-guide{
+      stroke: rgba(47,126,230,.24);
+      stroke-width: 1.2;
+      stroke-dasharray: 5 4;
+      fill: none;
+      pointer-events: none;
+    }
+    .edge-edit-halo{
+      stroke: rgba(47,126,230,.28);
+      stroke-width: 10;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      pointer-events: none;
+    }
+    .edge.preview{
+      stroke: rgba(47,126,230,.74);
+      stroke-dasharray: 5 4;
+      opacity:.78;
+    }
+    .edge-grip{
+      fill:var(--accent);
+      stroke:#ffffff;
+      stroke-width:2.5;
+      cursor:move;
+      pointer-events:auto;
+      opacity:1;
+      filter: drop-shadow(0 2px 4px rgba(23,32,51,.24));
+      transition: opacity .14s ease, fill .14s ease;
+    }
+    .edge-grip:hover{
+      opacity:1;
+      fill: var(--accent-deep);
+    }
+    .edge-grip-x{ cursor: ew-resize; }
+    .edge-grip-y{ cursor: ns-resize; }
+    .edge-end-grip{
+      fill:#ffffff;
+      stroke:var(--accent);
+      stroke-width:2.5;
+      cursor:crosshair;
+      pointer-events:auto;
+      filter: drop-shadow(0 2px 4px rgba(23,32,51,.22));
+      transform-box: fill-box;
+      transform-origin: center;
+      transition: fill .14s ease, stroke .14s ease;
+    }
+    .edge-end-grip:hover{
+      fill:#eef6ff;
+      stroke:var(--accent-deep);
+    }
+    .edge-end-grip-to{
+      fill:var(--accent);
+      stroke:#ffffff;
+    }
+    .stage.reconnecting .connector-point{
+      opacity:1;
+      pointer-events:auto;
+    }
+    marker#arrowHead path,
+    marker#arrowHeadSelected path{
+      fill:none;
+      stroke: context-stroke;
+      stroke-width:1.45;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    /* 節點 */
+    .node{
+      position:absolute;
+      pointer-events:auto;
+      width: 260px;
+      min-height: 72px;
+      background: linear-gradient(180deg, #ffffff, #f8fbff);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 8px 12px 9px;
+      cursor: default;
+      user-select:none;
+    }
+    .node.selected{
+      outline: 2px solid rgba(47,126,230,.45);
+      outline-offset: 2px;
+      border-color: #9fc5f4;
+    }
+    .stage.moving .node.selected{
+      outline-color: rgba(47,126,230,.8);
+      box-shadow: 0 12px 26px rgba(47,126,230,.18), var(--shadow);
+    }
+    .stage.moving .node.selected .node-move-handle{ cursor:grabbing; }
+    .selection-marquee{
+      position:absolute;
+      border:1px solid rgba(47,126,230,.82);
+      background: rgba(47,126,230,.12);
+      box-shadow: 0 0 0 1px rgba(255,255,255,.48) inset;
+      border-radius:4px;
+      pointer-events:none;
+      display:none;
+      z-index:6;
+    }
+    .node .tagrow{
+      display:flex; gap:4px 6px; flex-wrap:wrap; margin-bottom:5px; align-items:center;
+      padding-right:32px;
+      min-height:20px;
+    }
+    .node.move-ready{
+      border-color:#9fc5f4;
+      box-shadow:0 10px 24px rgba(47,126,230,.14), var(--shadow);
+    }
+    .tag{
+      font-size:11px;
+      line-height:1.15;
+      padding:2px 7px;
+      border-radius: 999px;
+      border:1px solid var(--line);
+      background: #f7f9fc;
+      color: var(--muted);
+    }
+    .tag[contenteditable="true"]{
+      cursor:text;
+      min-width:30px;
+      user-select:text;
+      outline:none;
+    }
+    .tag[contenteditable="true"]:focus{
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(47,126,230,.14);
+      background:#ffffff;
+    }
+    .tag.core{ color:#8a6510; border-color: #ead68f; background: #fff8dc; }
+    .tag.dom{ color:#1759b7; border-color: #b9d7f8; background: #eef6ff; }
+    .tag.api{ color:#27885c; border-color: #a9dcc2; background: #f2fbf6; }
+    .tag.risk{ color:#bf4a4a; border-color: #efb5b5; background: #fff7f7; }
+    .tag-select{
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:#ffffff;
+      color:var(--muted);
+      font-size:11px;
+      height:20px;
+      padding:0 6px;
+      cursor:pointer;
+      outline:none;
+      display:none;
+    }
+    .node.controls-open .tag-select,
+    .node.selected .tag-select{ display:inline-block; }
+    .tag-select:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 2px rgba(47,126,230,.14);
+    }
+
+    .node .title{
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: .2px;
+      line-height: 1.2;
+      margin-bottom: 3px;
+    }
+    .node .body{
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.28;
+      white-space: pre-wrap;
+    }
+    /* 可編輯 */
+    .node [contenteditable="true"]{
+      user-select:text;
+      cursor:text;
+      outline:none;
+    }
+    .node .title[contenteditable="true"]{ color: var(--text); }
+    .node .body[contenteditable="true"]{ color: var(--muted); }
+
+    /* resize handle */
+    .resize{
+      position:absolute; right:8px; bottom:8px;
+      width:14px; height:14px;
+      border-right:2px solid rgba(105,117,138,.45);
+      border-bottom:2px solid rgba(105,117,138,.45);
+      border-radius: 2px;
+      cursor: nwse-resize;
+      opacity:.75;
+    }
+    .node.selected .resize{ border-color: var(--accent); }
+
+    .connector-point{
+      position:absolute;
+      width:7px;
+      height:7px;
+      padding:0;
+      border:1px solid rgba(47,126,230,.45);
+      border-radius:999px;
+      background: rgba(255,255,255,.72);
+      box-shadow: 0 1px 2px rgba(23,32,51,.1);
+      z-index:3;
+      cursor: crosshair;
+      opacity:0;
+      pointer-events:none;
+      transform: translate(-50%, -50%);
+      transition: opacity .12s ease, transform .12s ease, background .12s ease, border-color .12s ease;
+    }
+    .node.show-connectors .connector-point,
+    .node:hover .connector-point,
+    .stage.reconnecting .connector-point,
+    .connector-point.active{
+      opacity:1;
+      pointer-events:auto;
+    }
+    .connector-point:hover,
+    .connector-point.active{
+      background: var(--accent);
+      border-color: #fff;
+      box-shadow: 0 0 0 4px rgba(47,126,230,.18);
+      transform: translate(-50%, -50%) scale(1.45);
+    }
+
+    /* 層級欄（可選） */
+    .lane{
+      position:absolute;
+      top: 16px;
+      width: 240px;
+      border: 1px dashed #b9c6d8;
+      background: rgba(255,255,255,.78);
+      border-radius: var(--radius);
+      padding: 10px 10px 12px;
+      color: var(--text);
+      font-size: 12px;
+      box-shadow: var(--shadow);
+    }
+    .lane h3{
+      margin:0 0 8px;
+      font-size: 12px;
+      letter-spacing:.3px;
+      color: var(--text);
+    }
+    .lane p{ margin:0; color: var(--muted); font-size: 11px; line-height:1.4; }
+    .lane .hint{ margin-top:8px; font-size:11px; color: var(--muted); }
+    .lane .hint kbd{ font-size:10px; }
+
+    .flow-nav{
+      position:absolute;
+      left:16px;
+      top:16px;
+      z-index:8;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      max-width:calc(100% - 32px);
+      padding:7px 9px;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:rgba(255,255,255,.9);
+      box-shadow:0 8px 18px rgba(23,32,51,.06);
+      backdrop-filter:blur(10px);
+    }
+    .flow-nav-path{
+      min-width:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      color:var(--muted);
+      font-size:12px;
+    }
+    .flow-nav-path strong{
+      color:var(--text);
+      font-weight:700;
+    }
+    .flow-back{
+      display:none;
+      padding:5px 8px;
+    }
+    .flow-nav.can-back .flow-back{ display:inline-flex; }
+    .node-move-handle{
+      position:absolute;
+      right:10px;
+      top:10px;
+      z-index:5;
+      width:24px;
+      height:22px;
+      display:grid;
+      place-items:center;
+      padding:0;
+      border-color:#c9d8eb;
+      background:#f8fbff;
+      color:var(--accent-deep);
+      cursor:grab;
+    }
+    .node-move-handle:hover,
+    .node-move-handle:focus{
+      background:#eef6ff;
+      border-color:#9fc5f4;
+      box-shadow:0 0 0 2px rgba(47,126,230,.14);
+    }
+    .node-move-handle:active{
+      cursor:grabbing;
+    }
+    .node-move-icon{
+      width:13px;
+      height:13px;
+      display:block;
+      background-image:radial-gradient(currentColor 1.4px, transparent 1.5px);
+      background-size:6px 6px;
+      background-position:0 0;
+      opacity:.92;
+    }
+    .node-subflow{
+      margin-left:0;
+      padding:2px 7px;
+      border-radius:999px;
+      border-color:#c9d8eb;
+      background:#f8fbff;
+      color:var(--accent-deep);
+      font-size:11px;
+      line-height:1.2;
+      display:none;
+    }
+    .node.controls-open .node-subflow,
+    .node.selected .node-subflow{
+      display:inline-flex;
+      width:max-content;
+    }
+    .node-subflow.has-subflow{
+      display:inline-flex;
+      width:max-content;
+      background:#f2fbf6;
+      border-color:#a9dcc2;
+      color:var(--ok);
+    }
+
+    /* 右側匯入匯出面板 */
+    .drawer{
+      position:absolute;
+      top: 70px;
+      right: 16px;
+      width: 360px;
+      max-width: calc(100% - 32px);
+      background: rgba(255,255,255,.94);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 10px;
+      display:none;
+      z-index: 20;
+      backdrop-filter: blur(10px);
+    }
+    .drawer.open{ display:block; }
+    .drawer .row{ display:flex; justify-content:space-between; align-items:center; gap:8px; }
+    .drawer .row .muted{ color:var(--muted); font-size:12px; }
+    .prompt-drawer{
+      width:640px;
+      max-height:calc(100% - 96px);
+      overflow:auto;
+    }
+    .prompt-drawer .prompt-header{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      padding-bottom:10px;
+      border-bottom:1px solid var(--line);
+    }
+    .prompt-drawer h2{
+      margin:0;
+      font-size:18px;
+      line-height:1.25;
+    }
+    .prompt-drawer .prompt-subtitle{
+      margin-top:4px;
+      color:var(--muted);
+      font-size:12px;
+    }
+    .prompt-field{
+      display:grid;
+      gap:6px;
+      margin-top:12px;
+    }
+    .prompt-field label{
+      color:var(--muted);
+      font-size:12px;
+    }
+    .prompt-input{
+      min-height:92px;
+      margin-top:0;
+      font-family:inherit;
+      font-size:13px;
+      line-height:1.5;
+    }
+    .prompt-output{
+      min-height:280px;
+      margin-top:0;
+    }
+    .prompt-actions{
+      display:flex;
+      justify-content:flex-end;
+      gap:8px;
+      margin-top:10px;
+    }
+    textarea{
+      width:100%;
+      min-height: 240px;
+      margin-top:10px;
+      background: #f8fafc;
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      color: var(--text);
+      padding: 10px;
+      resize: vertical;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.45;
+      outline:none;
+    }
+    .toast{
+      position:absolute;
+      left:50%;
+      bottom:18px;
+      transform: translateX(-50%);
+      background: #ffffff;
+      border:1px solid var(--line);
+      padding: 10px 14px;
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 12px;
+      display:none;
+      z-index: 30;
+      backdrop-filter: blur(10px);
+    }
+    .toast.show{ display:block; }
+    .confirm-overlay{
+      position:absolute;
+      inset:0;
+      z-index:60;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      background:rgba(23,32,51,.22);
+      backdrop-filter:blur(3px);
+    }
+    .confirm-overlay.open{ display:flex; }
+    .confirm-dialog{
+      width:360px;
+      max-width:100%;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:#ffffff;
+      box-shadow:0 18px 42px rgba(23,32,51,.18);
+      padding:16px;
+    }
+    .confirm-dialog h2{
+      margin:0 0 6px;
+      font-size:16px;
+      line-height:1.3;
+    }
+    .confirm-dialog p{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.5;
+    }
+    .confirm-id{
+      display:block;
+      margin:12px 0 0;
+      padding:10px 12px;
+      border:1px solid #c9d8eb;
+      border-radius:var(--radius);
+      background:#f8fbff;
+      color:var(--accent-deep);
+      font-weight:700;
+      font-size:14px;
+      letter-spacing:.5px;
+    }
+    .confirm-actions{
+      display:flex;
+      justify-content:flex-end;
+      gap:8px;
+      margin-top:14px;
+    }
+    .move-hint{
+      position:absolute;
+      left:0;
+      top:0;
+      display:none;
+      z-index:35;
+      transform:translate(12px, 12px);
+      pointer-events:none;
+      padding:7px 10px;
+      border:1px solid #9fc5f4;
+      border-radius:var(--radius);
+      background:rgba(244,249,255,.96);
+      color:var(--accent-deep);
+      font-size:12px;
+      font-weight:700;
+      box-shadow:0 8px 18px rgba(23,32,51,.1);
+      backdrop-filter:blur(10px);
+      white-space:nowrap;
+    }
+    .move-hint.show{ display:block; }
+
+    .mini{ font-size: 11px; color: var(--muted); }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="title">
+      <h1>資料流 × DOM × API — Flow Editor</h1>
+      <div class="account-tool" id="accountTool">
+        <button class="project-trigger account-trigger" id="accountTrigger" type="button" aria-expanded="false" aria-haspopup="listbox" title="Switch user">
+          <span class="account-mark" aria-hidden="true"><i class="fi fi-rc-user-pen"></i></span>
+          <span class="project-trigger-text" id="accountCurrent">Hi, 000666888</span>
+        </button>
+        <div class="project-panel" id="accountPanel">
+          <input class="project-search" id="accountSearch" type="search" placeholder="搜尋使用者" autocomplete="off" />
+          <div class="project-list" id="accountList" role="listbox" aria-label="Flow users"></div>
+          <div class="project-create">
+            <input class="project-create-input" id="accountCreateName" type="text" placeholder="新增使用者 ID" inputmode="numeric" pattern="[1-9]{8}" maxlength="8" autocomplete="off" />
+            <button class="project-create-button primary" id="btnCreateUser" type="button">新增</button>
+          </div>
+        </div>
+      </div>
+      <div class="project-tool" id="projectTool">
+        <button class="project-trigger" id="projectTrigger" type="button" aria-expanded="false" aria-haspopup="listbox">
+          <span class="project-trigger-text" id="projectCurrent">flowchart</span>
+        </button>
+        <div class="project-panel" id="projectPanel">
+          <input class="project-search" id="projectSearch" type="search" placeholder="搜尋 flow 專案" autocomplete="off" />
+          <div class="project-list" id="projectList" role="listbox" aria-label="Flow projects"></div>
+          <div class="project-create">
+            <input class="project-create-input" id="projectCreateName" type="text" placeholder="新增專案名稱" autocomplete="off" />
+            <button class="project-create-button primary" id="btnCreateProject" type="button">新增</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="toolbar" id="toolbar">
+      <div class="toolbar-row toolbar-actions">
+        <button class="primary" id="btnAdd" data-overflow-row="actions" data-overflow-priority="1">＋ 新增文字框</button>
+        <button id="btnAddLane" data-overflow-row="actions" data-overflow-priority="4">＋ 加上四層標籤區</button>
+        <button class="danger" id="btnDelete" data-overflow-row="actions" data-overflow-priority="2">刪除選取</button>
+        <button class="ok" id="btnIO" data-overflow-row="actions" data-overflow-priority="3">匯入 / 匯出</button>
+        <button class="icon-button" id="btnPromptGuide" type="button" title="產生抽取題詞" aria-label="產生抽取題詞" data-overflow-row="actions" data-overflow-priority="3.5">
+          <i class="fi fi-rc-book-user" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="toolbar-row toolbar-hints">
+        <span class="pill" data-overflow-row="hints" data-overflow-priority="1">連線：按住 <kbd>Shift</kbd> 從框拖到另一框</span>
+        <span class="pill" data-overflow-row="hints" data-overflow-priority="2">框選：空白處拖曳，可一次移動多個框</span>
+        <span class="pill" data-overflow-row="hints" data-overflow-priority="3">多選：按住 <kbd>Ctrl</kbd> 點選多個框</span>
+        <button class="help-toggle" id="btnHelpToggle" aria-expanded="false">更多說明</button>
+      </div>
+      <div class="toolbar-more" id="toolbarMore" aria-label="更多操作說明">
+        <div class="toolbar-more-section" id="toolbarOverflow"></div>
+        <div class="toolbar-more-section">
+          <span class="pill">平移：按住 <kbd>Space</kbd> 拖曳工作區</span>
+          <span class="pill">縮放：<kbd>Ctrl</kbd> + 滾輪</span>
+          <span class="pill">編輯：Double click 文字後輸入</span>
+          <span class="pill">大小：拖曳框右下角調整尺寸</span>
+          <span class="pill">刪除：選取後按 <kbd>Delete</kbd></span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="stage" id="stage">
+    <div class="grid"></div>
+    <div class="flow-nav" id="flowNav">
+      <button class="flow-back" id="btnFlowBack" type="button">上層</button>
+      <div class="flow-nav-path" id="flowBreadcrumb"></div>
+    </div>
+
+    <!-- 可選：層級提示欄（按「加上四層標籤區」才顯示） -->
+    <div id="lanes"></div>
+
+    <!-- SVG 線層 -->
+    <svg id="edges">
+      <defs>
+        <marker id="arrowHead" markerWidth="10" markerHeight="8" refX="10" refY="4" orient="auto">
+          <path d="M 2.5 1.4 L 9 4 L 2.5 6.6"></path>
+        </marker>
+        <marker id="arrowHeadSelected" markerWidth="10" markerHeight="8" refX="10" refY="4" orient="auto">
+          <path d="M 2.5 1.4 L 9 4 L 2.5 6.6"></path>
+        </marker>
+      </defs>
+    </svg>
+
+    <!-- viewport：所有 nodes 會在這裡（可縮放/平移） -->
+    <div class="viewport" id="viewport"></div>
+    <div class="selection-marquee" id="selectionMarquee"></div>
+
+    <!-- Import/Export Drawer -->
+    <div class="drawer" id="drawer">
+      <div class="row">
+        <div class="muted">JSON（含節點與連線）</div>
+        <div style="display:flex; gap:8px;">
+          <button id="btnSaveFile" class="ok">Save JSON</button>
+          <button id="btnMermaid">Mermaid</button>
+          <button id="btnCopy">複製</button>
+          <button id="btnApply" class="ok">套用匯入</button>
+          <button id="btnClose">關閉</button>
+        </div>
+      </div>
+      <textarea id="ioArea" spellcheck="false"></textarea>
+      <div class="mini">提示：你可以把 JSON 貼到 Git、md 檔或當作備份。</div>
+    </div>
+
+    <div class="drawer prompt-drawer" id="promptDrawer">
+      <div class="prompt-header">
+        <div>
+          <h2>抽取功能題詞</h2>
+          <div class="prompt-subtitle">輸入要抽出的功能，產生可交給其他 Codex 專案的 JSON 匯入題詞。</div>
+        </div>
+        <button id="btnPromptClose" type="button">Close</button>
+      </div>
+      <div class="prompt-field">
+        <label for="promptFeatureInput">要抽出的功能</label>
+        <textarea class="prompt-input" id="promptFeatureInput" spellcheck="false" placeholder="例如：登入流程、付款模組、GPT Extract、排程拖曳功能"></textarea>
+      </div>
+      <div class="prompt-field">
+        <label for="promptOutput">完整題詞</label>
+        <textarea class="prompt-output" id="promptOutput" spellcheck="false" readonly></textarea>
+      </div>
+      <div class="prompt-actions">
+        <button id="btnPromptRefresh" type="button">更新</button>
+        <button class="ok" id="btnPromptCopy" type="button">Copy</button>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+    <div class="confirm-overlay" id="userConfirmOverlay" role="dialog" aria-modal="true" aria-labelledby="userConfirmTitle">
+      <div class="confirm-dialog">
+        <h2 id="userConfirmTitle">確認新增使用者</h2>
+        <p id="userConfirmMessage">請確認要新增並切換到這個使用者 ID。</p>
+        <span class="confirm-id" id="userConfirmId"></span>
+        <div class="confirm-actions">
+          <button id="btnUserConfirmCancel" type="button">取消</button>
+          <button class="ok" id="btnUserConfirmOk" type="button">確定</button>
+        </div>
+      </div>
+    </div>
+    <div class="move-hint" id="moveHint"></div>
+  </div>
+</div>
+
+<script>
+(async () => {
+  const stage = document.getElementById('stage');
+  const viewport = document.getElementById('viewport');
+  const svg = document.getElementById('edges');
+  const lanesWrap = document.getElementById('lanes');
+  const selectionMarquee = document.getElementById('selectionMarquee');
+  const flowNav = document.getElementById('flowNav');
+  const btnFlowBack = document.getElementById('btnFlowBack');
+  const flowBreadcrumb = document.getElementById('flowBreadcrumb');
+  const toolbar = document.getElementById('toolbar');
+  const toolbarActions = toolbar.querySelector('.toolbar-actions');
+  const toolbarHints = toolbar.querySelector('.toolbar-hints');
+  const toolbarOverflow = document.getElementById('toolbarOverflow');
+  const accountTool = document.getElementById('accountTool');
+  const accountTrigger = document.getElementById('accountTrigger');
+  const accountCurrent = document.getElementById('accountCurrent');
+  const accountSearch = document.getElementById('accountSearch');
+  const accountList = document.getElementById('accountList');
+  const accountCreateName = document.getElementById('accountCreateName');
+  const btnCreateUser = document.getElementById('btnCreateUser');
+  const projectTool = document.getElementById('projectTool');
+  const projectTitle = document.querySelector('header .title h1');
+  const projectTrigger = document.getElementById('projectTrigger');
+  const projectCurrent = document.getElementById('projectCurrent');
+  const projectSearch = document.getElementById('projectSearch');
+  const projectList = document.getElementById('projectList');
+  const projectCreateName = document.getElementById('projectCreateName');
+  const btnCreateProject = document.getElementById('btnCreateProject');
+
+  const btnAdd = document.getElementById('btnAdd');
+  const btnAddLane = document.getElementById('btnAddLane');
+  const btnDelete = document.getElementById('btnDelete');
+  const btnIO = document.getElementById('btnIO');
+  const btnPromptGuide = document.getElementById('btnPromptGuide');
+  const btnHelpToggle = document.getElementById('btnHelpToggle');
+
+  const drawer = document.getElementById('drawer');
+  const ioArea = document.getElementById('ioArea');
+  const btnCopy = document.getElementById('btnCopy');
+  const btnSaveFile = document.getElementById('btnSaveFile');
+  const btnMermaid = document.getElementById('btnMermaid');
+  const btnApply = document.getElementById('btnApply');
+  const btnClose = document.getElementById('btnClose');
+  const promptDrawer = document.getElementById('promptDrawer');
+  const promptFeatureInput = document.getElementById('promptFeatureInput');
+  const promptOutput = document.getElementById('promptOutput');
+  const btnPromptClose = document.getElementById('btnPromptClose');
+  const btnPromptRefresh = document.getElementById('btnPromptRefresh');
+  const btnPromptCopy = document.getElementById('btnPromptCopy');
+
+  const toast = document.getElementById('toast');
+  const userConfirmOverlay = document.getElementById('userConfirmOverlay');
+  const userConfirmMessage = document.getElementById('userConfirmMessage');
+  const userConfirmId = document.getElementById('userConfirmId');
+  const btnUserConfirmCancel = document.getElementById('btnUserConfirmCancel');
+  const btnUserConfirmOk = document.getElementById('btnUserConfirmOk');
+  const moveHint = document.getElementById('moveHint');
+  const CONNECTOR_POINT_SPACING = 30; // px: change this to adjust the point interval on each node edge.
+  const CONNECTOR_CLEARANCE = 28; // px: distance a connector leaves a box before turning.
+  const TAG_PRESETS = ['CORE', 'DOM', 'API', 'RISK'];
+  const STORAGE_KEY = 'flow-editor-state-v2';
+  const CURRENT_PROJECT_KEY = 'flow-editor-current-project';
+  const CURRENT_USER_KEY = 'flow-editor-current-user';
+  const USER_LIST_KEY = 'flow-editor-users';
+  const API_BASE = '';
+  const DEFAULT_USER = { id: '000666888', name: '000666888' };
+  const DEFAULT_PROJECT = { id: 'flowchart', name: 'flowchart' };
+  let currentUser = { ...DEFAULT_USER };
+  let users = [{ ...DEFAULT_USER }];
+  let currentProject = { ...DEFAULT_PROJECT };
+  let projects = [{ ...DEFAULT_PROJECT }];
+  let isBooting = true;
+  let saveTimer = null;
+  let toolbarLayoutTimer = null;
+  const toolbarRows = {
+    actions: toolbarActions,
+    hints: toolbarHints
+  };
+  const toolbarOverflowItems = [...toolbar.querySelectorAll('[data-overflow-row]')].map((el, index) => ({
+    el,
+    index,
+    row: el.dataset.overflowRow,
+    priority: Number(el.dataset.overflowPriority || 0)
+  }));
+
+  // ─────────────────────────────────────────────────────────────
+  // State
+  // ─────────────────────────────────────────────────────────────
+  const state = {
+    flows: new Map([['main', { id: 'main', name: '主流程', parentFlowId: null, ownerNodeId: null }]]),
+    currentFlowId: 'main',
+    nodes: new Map(),   // id -> {id,x,y,w,h,tags,title,body}
+    edges: new Map(),   // id -> {id,from,to}
+    selected: { kind: null, id: null }, // {kind:'node'|'edge', id}
+    selectedNodeIds: new Set(),
+    hoverEdge: null,
+    draftEdge: null, // {from, x2, y2} while connecting
+    pendingPort: null, // {nodeId, port} after clicking the first connector point
+    connectFrom: null, // nodeId when Shift drag starts
+    drag: null, // {ids, origins, edgeOrigins, startX, startY}
+    marquee: null, // {startClient, currentClient, startWorld, currentWorld, baseIds, moved}
+    connectorDrag: null, // {id, axis} or {id, endpoint:'from'|'to'}
+    resize: null, // {id, startW, startH, startX, startY}
+    view: { x: 0, y: 0, scale: 1 }, // viewport transform
+    panning: null // {startX,startY, ox, oy}
+  };
+
+  // ─────────────────────────────────────────────────────────────
+  // Helpers
+  // ─────────────────────────────────────────────────────────────
+  const uid = (p='n') => p + Math.random().toString(36).slice(2, 9);
+
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toast.classList.remove('show'), 1400);
+  }
+
+  function confirmUserCreation(userId){
+    userConfirmMessage.textContent = '請確認要新增並切換到這個使用者 ID。';
+    userConfirmId.textContent = userId;
+    userConfirmOverlay.classList.add('open');
+    btnUserConfirmOk.focus();
+
+    return new Promise(resolve => {
+      const done = confirmed => {
+        userConfirmOverlay.classList.remove('open');
+        btnUserConfirmOk.removeEventListener('click', onOk);
+        btnUserConfirmCancel.removeEventListener('click', onCancel);
+        userConfirmOverlay.removeEventListener('click', onOverlay);
+        document.removeEventListener('keydown', onKeydown);
+        resolve(confirmed);
+      };
+      const onOk = () => done(true);
+      const onCancel = () => done(false);
+      const onOverlay = event => {
+        if (event.target === userConfirmOverlay) done(false);
+      };
+      const onKeydown = event => {
+        if (event.key === 'Escape') done(false);
+      };
+      btnUserConfirmOk.addEventListener('click', onOk);
+      btnUserConfirmCancel.addEventListener('click', onCancel);
+      userConfirmOverlay.addEventListener('click', onOverlay);
+      document.addEventListener('keydown', onKeydown);
+    });
+  }
+
+  function positionMoveHint(clientX, clientY){
+    const rect = stage.getBoundingClientRect();
+    const x = Math.min(Math.max(clientX - rect.left, 8), rect.width - 160);
+    const y = Math.min(Math.max(clientY - rect.top, 8), rect.height - 44);
+    moveHint.style.left = x + 'px';
+    moveHint.style.top = y + 'px';
+  }
+
+  function showMoveHint(clientX, clientY, count = 1){
+    moveHint.textContent = count > 1 ? `拖曳移動 ${count} 個節點` : '拖曳移動節點';
+    positionMoveHint(clientX, clientY);
+    moveHint.classList.add('show');
+    stage.classList.add('moving');
+  }
+
+  function updateMoveHint(clientX, clientY, moved = false){
+    if (!moveHint.classList.contains('show')) return;
+    if (moved) moveHint.textContent = '移動中';
+    positionMoveHint(clientX, clientY);
+  }
+
+  function hideMoveHint(){
+    moveHint.classList.remove('show');
+    stage.classList.remove('moving');
+  }
+
+  function setHelpPanel(open){
+    toolbar.classList.toggle('open', open);
+    btnHelpToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  function closeHelpPanel(){
+    setHelpPanel(false);
+  }
+
+  function userSlug(value){
+    const slug = String(value || '')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9_-]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    return slug || DEFAULT_USER.id;
+  }
+
+  function normalizeUser(value){
+    const id = userSlug(typeof value === 'string' ? value : value?.id || value?.name);
+    return { id, name: typeof value === 'object' && value?.name ? String(value.name) : id };
+  }
+
+  function loadLocalUsers(){
+    try{
+      const parsed = JSON.parse(window.localStorage.getItem(USER_LIST_KEY) || '[]');
+      const normalized = Array.isArray(parsed) ? parsed.map(normalizeUser) : [];
+      const byId = new Map([[DEFAULT_USER.id, { ...DEFAULT_USER }]]);
+      normalized.forEach(user => byId.set(user.id, user));
+      users = [...byId.values()];
+    }catch{
+      users = [{ ...DEFAULT_USER }];
+    }
+    const preferred = userSlug(window.localStorage.getItem(CURRENT_USER_KEY) || DEFAULT_USER.id);
+    currentUser = users.find(user => user.id === preferred) || users[0] || { ...DEFAULT_USER };
+  }
+
+  function saveLocalUsers(){
+    window.localStorage.setItem(USER_LIST_KEY, JSON.stringify(users));
+    window.localStorage.setItem(CURRENT_USER_KEY, currentUser.id);
+  }
+
+  function projectStorageKey(projectId = currentProject.id){
+    return `${STORAGE_KEY}:${currentUser.id}:${projectId || 'flowchart'}`;
+  }
+
+  function currentProjectKey(){
+    return `${CURRENT_PROJECT_KEY}:${currentUser.id}`;
+  }
+
+  function projectSlug(value){
+    const slug = String(value || '')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9_-]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    return slug || `flow-${new Date().toISOString().slice(0, 10)}`;
+  }
+
+  function uniqueProjectSlug(name){
+    const base = projectSlug(name);
+    const used = new Set(projects.map(project => project.id));
+    if (!used.has(base)) return base;
+    let index = 2;
+    while (used.has(`${base}-${index}`)) index += 1;
+    return `${base}-${index}`;
+  }
+
+  function syncProjectToolWidth(){
+    const width = Math.ceil(projectTitle.getBoundingClientRect().width);
+    if (width > 0) {
+      projectTool.style.setProperty('--project-tool-width', `${width}px`);
+      accountTool.style.setProperty('--project-tool-width', `${width}px`);
+    }
+  }
+
+  function setProjectMenu(open){
+    syncProjectToolWidth();
+    if (open) setAccountMenu(false);
+    projectTool.classList.toggle('open', open);
+    projectTrigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) {
+      projectSearch.focus();
+      projectSearch.select();
+    }
+  }
+
+  function setAccountMenu(open){
+    syncProjectToolWidth();
+    if (open) setProjectMenu(false);
+    accountTool.classList.toggle('open', open);
+    accountTrigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) {
+      accountSearch.focus();
+      accountSearch.select();
+    }
+  }
+
+  function updateProjectLabel(){
+    projectCurrent.textContent = currentProject.name || currentProject.id || 'flowchart';
+  }
+
+  function updateAccountLabel(){
+    accountCurrent.textContent = `Hi, ${currentUser.name || currentUser.id}`;
+  }
+
+  function rootFlow(){
+    if (!state.flows.has('main')){
+      state.flows.set('main', { id: 'main', name: '主流程', parentFlowId: null, ownerNodeId: null });
+    }
+    return state.flows.get('main');
+  }
+
+  function currentFlow(){
+    return state.flows.get(state.currentFlowId) || rootFlow();
+  }
+
+  function nodeFlowId(node){
+    return node.flowId || 'main';
+  }
+
+  function edgeFlowId(edge){
+    return edge.flowId || 'main';
+  }
+
+  function currentNodes(){
+    return [...state.nodes.values()].filter(node => nodeFlowId(node) === state.currentFlowId);
+  }
+
+  function currentEdges(){
+    return [...state.edges.values()].filter(edge => edgeFlowId(edge) === state.currentFlowId);
+  }
+
+  function flowPath(flowId = state.currentFlowId){
+    const path = [];
+    let flow = state.flows.get(flowId) || rootFlow();
+    const seen = new Set();
+    while (flow && !seen.has(flow.id)){
+      seen.add(flow.id);
+      path.unshift(flow);
+      flow = flow.parentFlowId ? state.flows.get(flow.parentFlowId) : null;
+    }
+    return path;
+  }
+
+  function updateFlowNav(){
+    const path = flowPath();
+    flowBreadcrumb.innerHTML = path
+      .map((flow, index) => index === path.length - 1
+        ? `<strong>${escapeHtml(flow.name || flow.id)}</strong>`
+        : escapeHtml(flow.name || flow.id))
+      .join(' / ');
+    flowNav.classList.toggle('can-back', state.currentFlowId !== 'main');
+  }
+
+  function escapeHtml(value){
+    return String(value || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function clearRenderedFlow(){
+    viewport.innerHTML = '';
+    svg.querySelectorAll('path.edge, path.edge-hit, .edge-grip, .edge-end-grip, .edge-edit-guide, .edge-edit-halo').forEach(el => el.remove());
+  }
+
+  function renderCurrentFlow(){
+    clearRenderedFlow();
+    clearSelection();
+    currentNodes().forEach(node => renderNode(node));
+    normalizeAllEdges();
+    redrawEdges();
+    updateFlowNav();
+  }
+
+  function setCurrentFlow(flowId){
+    if (!state.flows.has(flowId)) return;
+    hideMoveHint();
+    state.currentFlowId = flowId;
+    state.pendingPort = null;
+    state.connectFrom = null;
+    state.draftEdge = null;
+    renderCurrentFlow();
+    saveState();
+  }
+
+  function ensureNodeSubflow(nodeId){
+    const node = state.nodes.get(nodeId);
+    if (!node) return null;
+    if (node.subflowId && state.flows.has(node.subflowId)) return node.subflowId;
+    const flowId = `flow_${nodeId}`;
+    node.subflowId = flowId;
+    state.flows.set(flowId, {
+      id: flowId,
+      name: node.title || node.id,
+      parentFlowId: node.flowId || 'main',
+      ownerNodeId: node.id
+    });
+    return flowId;
+  }
+
+  function descendantFlowIds(flowId, result = new Set()){
+    if (!flowId || result.has(flowId)) return result;
+    result.add(flowId);
+    state.flows.forEach(flow => {
+      if (flow.parentFlowId === flowId) descendantFlowIds(flow.id, result);
+    });
+    return result;
+  }
+
+  function deleteFlows(flowIds){
+    flowIds.forEach(flowId => {
+      if (flowId === 'main') return;
+      state.flows.delete(flowId);
+    });
+    for (const [nodeId, node] of [...state.nodes.entries()]){
+      if (flowIds.has(nodeFlowId(node))) state.nodes.delete(nodeId);
+    }
+    for (const [edgeId, edge] of [...state.edges.entries()]){
+      if (flowIds.has(edgeFlowId(edge))) state.edges.delete(edgeId);
+    }
+  }
+
+  function renderUserList(){
+    const query = accountSearch.value.trim().toLowerCase();
+    const filtered = users.filter(user => {
+      const haystack = `${user.name || ''} ${user.id || ''}`.toLowerCase();
+      return !query || haystack.includes(query);
+    });
+
+    accountList.innerHTML = '';
+    if (!filtered.length){
+      const empty = document.createElement('div');
+      empty.className = 'project-empty';
+      empty.textContent = '沒有符合的使用者';
+      accountList.appendChild(empty);
+      return;
+    }
+
+    filtered.forEach(user => {
+      const option = document.createElement('button');
+      option.type = 'button';
+      option.className = 'project-option';
+      option.classList.toggle('active', user.id === currentUser.id);
+      option.setAttribute('role', 'option');
+      option.setAttribute('aria-selected', user.id === currentUser.id ? 'true' : 'false');
+      option.innerHTML = `
+        <span class="project-option-name"></span>
+        <span class="project-option-badge">${user.id === currentUser.id ? '目前' : ''}</span>
+        <span class="project-option-meta">flows/users/${user.id}</span>
+      `;
+      option.querySelector('.project-option-name').textContent = user.name || user.id;
+      option.addEventListener('click', () => selectUser(user.id));
+      accountList.appendChild(option);
+    });
+  }
+
+  function renderProjectList(){
+    const query = projectSearch.value.trim().toLowerCase();
+    const filtered = projects.filter(project => {
+      const haystack = `${project.name || ''} ${project.id || ''}`.toLowerCase();
+      return !query || haystack.includes(query);
+    });
+
+    projectList.innerHTML = '';
+    if (!filtered.length){
+      const empty = document.createElement('div');
+      empty.className = 'project-empty';
+      empty.textContent = '找不到符合的 flow 專案';
+      projectList.appendChild(empty);
+      return;
+    }
+
+    filtered.forEach(project => {
+      const option = document.createElement('button');
+      option.type = 'button';
+      option.className = 'project-option';
+      option.classList.toggle('active', project.id === currentProject.id);
+      option.setAttribute('role', 'option');
+      option.setAttribute('aria-selected', project.id === currentProject.id ? 'true' : 'false');
+      option.innerHTML = `
+        <span class="project-option-name"></span>
+        <span class="project-option-badge">${project.id === currentProject.id ? '目前' : ''}</span>
+        <span class="project-option-meta">${project.nodes ?? 0} nodes / ${project.edges ?? 0} edges</span>
+      `;
+      option.querySelector('.project-option-name').textContent = project.name || project.id;
+      option.addEventListener('click', () => selectProject(project.id));
+      projectList.appendChild(option);
+    });
+  }
+
+  async function loadProjects(){
+    try{
+      const user = encodeURIComponent(currentUser.id || DEFAULT_USER.id);
+      const response = await fetch(`${API_BASE}/api/projects?user=${user}`);
+      if (!response.ok) throw new Error('Project list failed');
+      const data = await response.json();
+      projects = Array.isArray(data.projects) && data.projects.length ? data.projects : [{ id: 'flowchart', name: 'flowchart' }];
+    }catch{
+      projects = [{ id: 'flowchart', name: 'flowchart' }];
+    }
+    const preferred = window.localStorage.getItem(currentProjectKey()) ||
+      (currentUser.id === DEFAULT_USER.id ? window.localStorage.getItem(CURRENT_PROJECT_KEY) : null);
+    currentProject = projects.find(project => project.id === preferred) || projects[0] || currentProject;
+    updateProjectLabel();
+    renderProjectList();
+  }
+
+  async function refreshProjects(){
+    const activeId = currentProject.id;
+    await loadProjects();
+    currentProject = projects.find(project => project.id === activeId) || currentProject;
+    updateProjectLabel();
+    renderProjectList();
+  }
+
+  async function selectProject(projectId){
+    const next = projects.find(project => project.id === projectId);
+    if (!next || next.id === currentProject.id){
+      setProjectMenu(false);
+      return;
+    }
+
+    clearTimeout(saveTimer);
+    await saveProjectFile(exportJSON());
+    currentProject = next;
+    updateProjectLabel();
+    window.localStorage.setItem(currentProjectKey(), currentProject.id);
+    setProjectMenu(false);
+
+    isBooting = true;
+    const savedState = await loadSavedState(currentProject.id);
+    if (savedState) {
+      importJSON(savedState, { skipSave: true, quiet: true });
+    } else {
+      clearAll();
+      state.view = { x: 0, y: 0, scale: 1 };
+      setViewportTransform();
+    }
+    isBooting = false;
+    renderProjectList();
+    showToast(`已切換到 ${currentProject.name || currentProject.id}`);
+  }
+
+  async function createProject(){
+    const name = projectCreateName.value.trim();
+    if (!name){
+      projectCreateName.focus();
+      showToast('請輸入新專案名稱');
+      return;
+    }
+
+    clearTimeout(saveTimer);
+    await saveProjectFile(exportJSON());
+
+    const next = { id: uniqueProjectSlug(name), name };
+    currentProject = next;
+    window.localStorage.setItem(currentProjectKey(), currentProject.id);
+    updateProjectLabel();
+    projectCreateName.value = '';
+    setProjectMenu(false);
+
+    isBooting = true;
+    clearAll();
+    state.view = { x: 0, y: 0, scale: 1 };
+    setViewportTransform();
+    isBooting = false;
+
+    const ok = await saveProjectFile(exportJSON());
+    await refreshProjects();
+    currentProject = projects.find(project => project.id === next.id) || next;
+    updateProjectLabel();
+    renderProjectList();
+    showToast(ok ? `已新增 ${currentProject.name || currentProject.id}` : '新增失敗，已保留在瀏覽器');
+  }
+
+  async function selectUser(userId){
+    const next = users.find(user => user.id === userId);
+    if (!next || next.id === currentUser.id){
+      setAccountMenu(false);
+      return;
+    }
+
+    clearTimeout(saveTimer);
+    await saveProjectFile(exportJSON());
+    currentUser = next;
+    saveLocalUsers();
+    updateAccountLabel();
+    setAccountMenu(false);
+
+    isBooting = true;
+    await loadProjects();
+    const savedState = await loadSavedState(currentProject.id);
+    if (savedState){
+      importJSON(savedState, { skipSave: true, quiet: true });
+    } else {
+      clearAll();
+      state.view = { x: 0, y: 0, scale: 1 };
+      setViewportTransform();
+    }
+    isBooting = false;
+    renderUserList();
+    renderProjectList();
+    showToast(`Switched to ${currentUser.name || currentUser.id}`);
+  }
+
+  async function createUser(){
+    const userId = accountCreateName.value.trim();
+    if (!userId){
+      accountCreateName.focus();
+      showToast('請輸入 8 碼使用者 ID');
+      return;
+    }
+    if (!/^[1-9]{8}$/.test(userId)){
+      accountCreateName.focus();
+      accountCreateName.select();
+      showToast('使用者 ID 限 1-9 數字，共 8 碼');
+      return;
+    }
+
+    const confirmed = await confirmUserCreation(userId);
+    if (!confirmed){
+      accountCreateName.focus();
+      return;
+    }
+
+    const next = { id: userId, name: userId };
+    if (!users.some(user => user.id === next.id)){
+      users.push(next);
+    }
+    accountCreateName.value = '';
+    renderUserList();
+    await selectUser(next.id);
+  }
+
+  function restoreToolbarItems(){
+    ['actions', 'hints'].forEach(rowName => {
+      toolbarOverflowItems
+        .filter(item => item.row === rowName)
+        .sort((a, b) => a.index - b.index)
+        .forEach(item => {
+          item.el.classList.remove('overflow-item');
+          if (rowName === 'hints') {
+            toolbarRows[rowName].insertBefore(item.el, btnHelpToggle);
+          } else {
+            toolbarRows[rowName].appendChild(item.el);
+          }
+        });
+    });
+    toolbarOverflowItems.forEach(item => item.el.classList.remove('overflow-item'));
+    toolbarOverflow.innerHTML = '';
+  }
+
+  function moveToolbarItemToOverflow(item, overflowed){
+    item.el.classList.add('overflow-item');
+    overflowed.push(item);
+    toolbarOverflow.appendChild(item.el);
+  }
+
+  function toolbarRowContentWidth(row){
+    const children = [...row.children].filter(el => getComputedStyle(el).display !== 'none');
+    const gap = Number.parseFloat(getComputedStyle(row).columnGap || getComputedStyle(row).gap || 0) || 0;
+    return children.reduce((total, el) => total + el.getBoundingClientRect().width, 0) +
+      Math.max(0, children.length - 1) * gap;
+  }
+
+  function fitToolbarRow(rowName, overflowed){
+    const row = toolbarRows[rowName];
+    const candidates = toolbarOverflowItems
+      .filter(item => item.row === rowName && item.el.parentElement === row)
+      .sort((a, b) => b.priority - a.priority || b.index - a.index);
+
+    while (toolbarRowContentWidth(row) > row.clientWidth + 1 && candidates.length){
+      moveToolbarItemToOverflow(candidates.shift(), overflowed);
+    }
+  }
+
+  function layoutToolbarOverflow(){
+    restoreToolbarItems();
+    const overflowed = [];
+    fitToolbarRow('actions', overflowed);
+    fitToolbarRow('hints', overflowed);
+    overflowed.sort((a, b) => a.index - b.index).forEach(item => toolbarOverflow.appendChild(item.el));
+    btnHelpToggle.classList.toggle('primary', overflowed.length > 0);
+  }
+
+  function scheduleToolbarLayout(){
+    clearTimeout(toolbarLayoutTimer);
+    toolbarLayoutTimer = setTimeout(layoutToolbarOverflow, 0);
+  }
+
+  function saveState(){
+    if (isBooting) return;
+    try{
+      normalizeAllEdges();
+      const json = exportJSON();
+      window.localStorage.setItem(projectStorageKey(), json);
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => saveProjectFile(json), 260);
+    }catch{}
+  }
+
+  async function saveProjectFile(json = exportJSON()){
+    try{
+      const project = encodeURIComponent(currentProject.id || 'flowchart');
+      const user = encodeURIComponent(currentUser.id || DEFAULT_USER.id);
+      const response = await fetch(`${API_BASE}/api/flowchart?user=${user}&project=${project}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: json
+      });
+      if (!response.ok) throw new Error('Save failed');
+      return true;
+    }catch{
+      return false;
+    }
+  }
+
+  async function loadSavedState(projectId = currentProject.id){
+    try{
+      const project = encodeURIComponent(projectId || 'flowchart');
+      const user = encodeURIComponent(currentUser.id || DEFAULT_USER.id);
+      const response = await fetch(`${API_BASE}/api/flowchart?user=${user}&project=${project}`);
+      if (response.ok) return await response.text();
+    }catch{}
+    try{
+      return window.localStorage.getItem(projectStorageKey(projectId)) ||
+        (currentUser.id === DEFAULT_USER.id ? window.localStorage.getItem(`${STORAGE_KEY}:${projectId || 'flowchart'}`) : null);
+    }catch{
+      return null;
+    }
+  }
+
+  function setViewportTransform(){
+    const {x,y,scale} = state.view;
+    viewport.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+    // 線層也跟著同步（用 viewBox 的方式會更複雜，這裡用同樣 transform）
+    svg.style.transformOrigin = '0 0';
+    svg.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+    redrawEdges();
+  }
+
+  function toWorld(clientX, clientY){
+    const rect = stage.getBoundingClientRect();
+    const sx = clientX - rect.left;
+    const sy = clientY - rect.top;
+    const {x,y,scale} = state.view;
+    return { x: (sx - x)/scale, y: (sy - y)/scale };
+  }
+
+  function nodeCenter(n){
+    return { x: n.x + n.w/2, y: n.y + n.h/2 };
+  }
+
+  function getConnectorPoints(n){
+    const spacing = CONNECTOR_POINT_SPACING;
+    const sides = [
+      { side: 'top', length: n.w },
+      { side: 'right', length: n.h },
+      { side: 'bottom', length: n.w },
+      { side: 'left', length: n.h },
+    ];
+    const points = [];
+
+    sides.forEach(({ side, length }) => {
+      const offsets = [];
+      for (let offset = spacing; offset < length; offset += spacing){
+        offsets.push(offset);
+      }
+      if (!offsets.length) offsets.push(length / 2);
+
+      offsets.forEach((offset, index) => {
+        const point = { side, offset: Math.round(offset), index };
+        if (side === 'top') Object.assign(point, { x: offset, y: 0 });
+        if (side === 'right') Object.assign(point, { x: n.w, y: offset });
+        if (side === 'bottom') Object.assign(point, { x: offset, y: n.h });
+        if (side === 'left') Object.assign(point, { x: 0, y: offset });
+        points.push(point);
+      });
+    });
+
+    return points;
+  }
+
+  function getPortPosition(n, port, fallbackSide){
+    if (!port){
+      if (fallbackSide === 'right') return { x: n.x + n.w, y: n.y + n.h / 2 };
+      if (fallbackSide === 'left') return { x: n.x, y: n.y + n.h / 2 };
+      return nodeCenter(n);
+    }
+
+    const maxOffset = (port.side === 'top' || port.side === 'bottom') ? n.w : n.h;
+    const offset = Math.min(Math.max(port.offset ?? maxOffset / 2, 0), maxOffset);
+    if (port.side === 'top') return { x: n.x + offset, y: n.y };
+    if (port.side === 'right') return { x: n.x + n.w, y: n.y + offset };
+    if (port.side === 'bottom') return { x: n.x + offset, y: n.y + n.h };
+    if (port.side === 'left') return { x: n.x, y: n.y + offset };
+    return nodeCenter(n);
+  }
+
+  function getPortDirection(port, fallbackSide){
+    const side = port?.side || fallbackSide || 'right';
+    if (side === 'top') return { x: 0, y: -1 };
+    if (side === 'right') return { x: 1, y: 0 };
+    if (side === 'bottom') return { x: 0, y: 1 };
+    if (side === 'left') return { x: -1, y: 0 };
+    return { x: 1, y: 0 };
+  }
+
+  function portKey(nodeId, port){
+    return `${nodeId}:${port.side}:${port.offset}`;
+  }
+
+  function makePort(side, offset){
+    return { side, offset };
+  }
+
+  function portFromConnectorElement(point){
+    if (!point) return null;
+    const side = point.dataset.side;
+    const offset = Number(point.dataset.offset);
+    if (!side || Number.isNaN(offset)) return null;
+    return makePort(side, offset);
+  }
+
+  function nearestPortForPoint(node, point){
+    const distances = [
+      { side: 'top', distance: Math.abs(point.y - node.y), offset: point.x - node.x, max: node.w },
+      { side: 'right', distance: Math.abs(point.x - (node.x + node.w)), offset: point.y - node.y, max: node.h },
+      { side: 'bottom', distance: Math.abs(point.y - (node.y + node.h)), offset: point.x - node.x, max: node.w },
+      { side: 'left', distance: Math.abs(point.x - node.x), offset: point.y - node.y, max: node.h }
+    ].sort((a, b) => a.distance - b.distance);
+    const nearest = distances[0];
+    const offset = Math.round(Math.min(Math.max(nearest.offset, 0), nearest.max));
+    return makePort(nearest.side, offset);
+  }
+
+  function reconnectTargetFromEvent(ev){
+    const target = document.elementFromPoint(ev.clientX, ev.clientY);
+    if (!target || !target.closest) return null;
+
+    const connector = target.closest('.connector-point');
+    if (connector){
+      return {
+        nodeId: connector.dataset.nodeId,
+        port: portFromConnectorElement(connector)
+      };
+    }
+
+    const nodeEl = target.closest('.node');
+    if (!nodeEl) return null;
+    const node = state.nodes.get(nodeEl.dataset.id);
+    if (!node) return null;
+    return {
+      nodeId: node.id,
+      port: nearestPortForPoint(node, toWorld(ev.clientX, ev.clientY))
+    };
+  }
+
+  function defaultEdgePorts(from, to){
+    const fromCenter = nodeCenter(from);
+    const toCenter = nodeCenter(to);
+    const dx = toCenter.x - fromCenter.x;
+    const dy = toCenter.y - fromCenter.y;
+
+    if (Math.abs(dx) >= Math.abs(dy)){
+      return dx >= 0
+        ? { fromPort: makePort('right', Math.round(from.h / 2)), toPort: makePort('left', Math.round(to.h / 2)) }
+        : { fromPort: makePort('left', Math.round(from.h / 2)), toPort: makePort('right', Math.round(to.h / 2)) };
+    }
+
+    return dy >= 0
+      ? { fromPort: makePort('bottom', Math.round(from.w / 2)), toPort: makePort('top', Math.round(to.w / 2)) }
+      : { fromPort: makePort('top', Math.round(from.w / 2)), toPort: makePort('bottom', Math.round(to.w / 2)) };
+  }
+
+  function setActiveConnectorPoint(){
+    viewport.querySelectorAll('.connector-point').forEach(point => {
+      const active = state.pendingPort &&
+        point.dataset.nodeId === state.pendingPort.nodeId &&
+        point.dataset.side === state.pendingPort.port.side &&
+        Number(point.dataset.offset) === state.pendingPort.port.offset;
+      point.classList.toggle('active', !!active);
+    });
+  }
+
+  function syncNodeHeightFromDom(id){
+    const n = state.nodes.get(id);
+    const el = viewport.querySelector(`.node[data-id="${id}"]`);
+    if (!n || !el) return false;
+
+    const measuredHeight = Math.ceil(el.getBoundingClientRect().height / state.view.scale);
+    if (measuredHeight > n.h){
+      n.h = measuredHeight;
+      return true;
+    }
+    return false;
+  }
+
+  function measureNodeContentHeight(id, width){
+    const el = viewport.querySelector(`.node[data-id="${id}"]`);
+    if (!el) return 60;
+
+    const prevWidth = el.style.width;
+    const prevMinHeight = el.style.minHeight;
+    el.style.width = width + 'px';
+    el.style.minHeight = '0px';
+    const height = Math.ceil(el.getBoundingClientRect().height / state.view.scale);
+    el.style.width = prevWidth;
+    el.style.minHeight = prevMinHeight;
+    return height;
+  }
+
+  function updateSelectionUI(){
+    viewport.querySelectorAll('.node').forEach(el => {
+      const selected = state.selectedNodeIds.has(el.dataset.id);
+      el.classList.toggle('selected', selected);
+      el.classList.toggle('controls-open', selected);
+    });
+    svg.querySelectorAll('path.edge').forEach(el => {
+      const selected = state.selected.kind === 'edge' && state.selected.id === el.dataset.id;
+      el.classList.toggle('selected', selected);
+      el.setAttribute('marker-end', selected ? 'url(#arrowHeadSelected)' : 'url(#arrowHead)');
+    });
+    setActiveConnectorPoint();
+  }
+
+  function selectNodes(ids){
+    const nextIds = ids.filter(id => state.nodes.has(id));
+    state.selectedNodeIds = new Set(nextIds);
+    state.selected = nextIds.length ? { kind: 'node', id: nextIds[0] } : { kind: null, id: null };
+    updateSelectionUI();
+  }
+
+  function addNodeToSelection(id){
+    if (!state.nodes.has(id)) return;
+    const ids = state.selectedNodeIds.has(id)
+      ? [...state.selectedNodeIds]
+      : [...state.selectedNodeIds, id];
+    state.selectedNodeIds = new Set(ids);
+    state.selected = { kind: 'node', id };
+    updateSelectionUI();
+  }
+
+  function select(kind, id){
+    state.selected = { kind, id };
+    state.selectedNodeIds.clear();
+    if (kind === 'node' && id) state.selectedNodeIds.add(id);
+    updateSelectionUI();
+  }
+
+  function clearSelection(){
+    select(null, null);
+    redrawEdges();
+  }
+
+  function isEdgeUiTarget(target){
+    return !!(target && target.closest && target.closest('.edge-hit, .edge-grip, .edge-end-grip, .edge, .edge-edit-guide, .edge-edit-halo'));
+  }
+
+  function normalizeRect(a, b){
+    return {
+      left: Math.min(a.x, b.x),
+      top: Math.min(a.y, b.y),
+      right: Math.max(a.x, b.x),
+      bottom: Math.max(a.y, b.y)
+    };
+  }
+
+  function rectsIntersect(a, b){
+    return a.left <= b.right && a.right >= b.left && a.top <= b.bottom && a.bottom >= b.top;
+  }
+
+  function updateMarqueeBox(){
+    if (!state.marquee) return;
+    const stageRect = stage.getBoundingClientRect();
+    const screenRect = normalizeRect(
+      { x: state.marquee.startClient.x - stageRect.left, y: state.marquee.startClient.y - stageRect.top },
+      { x: state.marquee.currentClient.x - stageRect.left, y: state.marquee.currentClient.y - stageRect.top }
+    );
+    selectionMarquee.style.left = screenRect.left + 'px';
+    selectionMarquee.style.top = screenRect.top + 'px';
+    selectionMarquee.style.width = Math.max(1, screenRect.right - screenRect.left) + 'px';
+    selectionMarquee.style.height = Math.max(1, screenRect.bottom - screenRect.top) + 'px';
+    selectionMarquee.style.display = 'block';
+  }
+
+  function updateMarqueeSelection(){
+    if (!state.marquee) return;
+    const worldRect = normalizeRect(state.marquee.startWorld, state.marquee.currentWorld);
+    const ids = [...(state.marquee.baseIds || [])];
+    for (const n of currentNodes()){
+      const nodeRect = { left: n.x, top: n.y, right: n.x + n.w, bottom: n.y + n.h };
+      if (rectsIntersect(worldRect, nodeRect)) ids.push(n.id);
+    }
+    selectNodes(ids);
+  }
+
+  function stopMarquee(){
+    if (!state.marquee) return false;
+    const moved = state.marquee.moved;
+    state.marquee = null;
+    selectionMarquee.style.display = 'none';
+    return moved;
+  }
+
+  function shortenPoint(point, toward, radius){
+    const dx = toward.x - point.x;
+    const dy = toward.y - point.y;
+    const length = Math.max(1, Math.hypot(dx, dy));
+    const amount = Math.min(radius, length / 2);
+    return {
+      x: point.x + (dx / length) * amount,
+      y: point.y + (dy / length) * amount
+    };
+  }
+
+  function compactConnectorPoints(points){
+    const threshold = 6;
+    return points.filter((point, index) => {
+      if (index === 0) return true;
+      const prev = points[index - 1];
+      return Math.abs(point.x - prev.x) > threshold || Math.abs(point.y - prev.y) > threshold;
+    });
+  }
+
+  function roundedOrthogonalPath(points, radius){
+    const [first, ...rest] = points;
+    let d = `M ${first.x} ${first.y}`;
+
+    rest.forEach((point, index) => {
+      const prev = points[index];
+      const next = points[index + 2];
+      if (!next){
+        d += ` L ${point.x} ${point.y}`;
+        return;
+      }
+
+      const before = shortenPoint(point, prev, radius);
+      const after = shortenPoint(point, next, radius);
+      d += ` L ${before.x} ${before.y} Q ${point.x} ${point.y} ${after.x} ${after.y}`;
+    });
+
+    return d;
+  }
+
+  function defaultConnectorElbow(startExit, endExit){
+    return {
+      x: (startExit.x + endExit.x) / 2,
+      y: (startExit.y + endExit.y) / 2
+    };
+  }
+
+  function clampElbowOutsideNode(elbow, node, port, pad = CONNECTOR_CLEARANCE){
+    if (!port) return elbow;
+    const next = { ...elbow };
+    if (port.side === 'top'){
+      next.y = Math.min(next.y, node.y - pad);
+    } else if (port.side === 'bottom'){
+      next.y = Math.max(next.y, node.y + node.h + pad);
+    } else if (port.side === 'left'){
+      next.x = Math.min(next.x, node.x - pad);
+    } else if (port.side === 'right'){
+      next.x = Math.max(next.x, node.x + node.w + pad);
+    }
+    return next;
+  }
+
+  function repairEdgeElbow(edge, from, to){
+    const route = edgeRoutePoints(from, to, edge);
+    let elbow = edge.elbow || route.elbow;
+    elbow = clampElbowOutsideNode(elbow, from, edge.fromPort);
+    elbow = clampElbowOutsideNode(elbow, to, edge.toPort);
+
+    if (!edge.elbow || Math.abs(edge.elbow.x - elbow.x) > 0.1 || Math.abs(edge.elbow.y - elbow.y) > 0.1){
+      edge.elbow = elbow;
+    }
+  }
+
+  // Rounded orthogonal connector, matching the progress_v2 marker link style.
+  function edgePath(start, end, fromDirection, toDirection, elbow){
+    const startExit = {
+      x: start.x + fromDirection.x * CONNECTOR_CLEARANCE,
+      y: start.y + fromDirection.y * CONNECTOR_CLEARANCE
+    };
+    const endExit = {
+      x: end.x + toDirection.x * CONNECTOR_CLEARANCE,
+      y: end.y + toDirection.y * CONNECTOR_CLEARANCE
+    };
+    const resolvedElbow = elbow || defaultConnectorElbow(startExit, endExit);
+
+    return roundedOrthogonalPath(compactConnectorPoints([
+      start,
+      startExit,
+      { x: resolvedElbow.x, y: startExit.y },
+      { x: resolvedElbow.x, y: resolvedElbow.y },
+      { x: endExit.x, y: resolvedElbow.y },
+      endExit,
+      end
+    ]), 8);
+  }
+
+  function edgeRoutePoints(from, to, e = {}){
+    const start = getPortPosition(from, e.fromPort, 'right');
+    const end = getPortPosition(to, e.toPort, 'left');
+    const fromDirection = getPortDirection(e.fromPort, 'right');
+    const toDirection = getPortDirection(e.toPort, 'left');
+    const startExit = {
+      x: start.x + fromDirection.x * CONNECTOR_CLEARANCE,
+      y: start.y + fromDirection.y * CONNECTOR_CLEARANCE
+    };
+    const endExit = {
+      x: end.x + toDirection.x * CONNECTOR_CLEARANCE,
+      y: end.y + toDirection.y * CONNECTOR_CLEARANCE
+    };
+    return {
+      start,
+      end,
+      fromDirection,
+      toDirection,
+      elbow: e.elbow || defaultConnectorElbow(startExit, endExit)
+    };
+  }
+
+  function normalizeEdge(edge){
+    const from = state.nodes.get(edge.from);
+    const to = state.nodes.get(edge.to);
+    if (!from || !to) return edge;
+
+    if (!edge.fromPort || !edge.toPort){
+      const defaults = defaultEdgePorts(from, to);
+      edge.fromPort = edge.fromPort || defaults.fromPort;
+      edge.toPort = edge.toPort || defaults.toPort;
+    }
+
+    if (!edge.elbow){
+      const route = edgeRoutePoints(from, to, edge);
+      edge.elbow = route.elbow;
+    }
+    repairEdgeElbow(edge, from, to);
+
+    return edge;
+  }
+
+  function normalizeAllEdges(){
+    for (const edge of currentEdges()){
+      normalizeEdge(edge);
+    }
+  }
+
+  function startConnectorDrag(edgeId, axis, ev){
+    ev.stopPropagation();
+    if (ev.preventDefault) ev.preventDefault();
+    select('edge', edgeId);
+    if (axis === 'from' || axis === 'to'){
+      state.connectorDrag = { id: edgeId, endpoint: axis };
+      stage.classList.add('reconnecting');
+      showToast(axis === 'from' ? 'Drag start point to reconnect' : 'Drag arrow point to reconnect');
+      return;
+    }
+    state.connectorDrag = { id: edgeId, axis };
+  }
+
+  function finishEndpointReconnect(ev){
+    const drag = state.connectorDrag;
+    if (!drag || !drag.endpoint) return false;
+
+    const edge = state.edges.get(drag.id);
+    if (!edge) return false;
+
+    const target = reconnectTargetFromEvent(ev);
+    if (!target || !target.nodeId || !target.port){
+      showToast('Drop on a node or connector point');
+      redrawEdges();
+      return false;
+    }
+
+    if (drag.endpoint === 'from'){
+      if (target.nodeId === edge.to){
+        showToast('Start and arrow cannot use the same node');
+        redrawEdges();
+        return false;
+      }
+      edge.from = target.nodeId;
+      edge.fromPort = target.port;
+    }else{
+      if (target.nodeId === edge.from){
+        showToast('Start and arrow cannot use the same node');
+        redrawEdges();
+        return false;
+      }
+      edge.to = target.nodeId;
+      edge.toPort = target.port;
+    }
+
+    edge.elbow = null;
+    normalizeEdge(edge);
+    select('edge', edge.id);
+    redrawEdges();
+    showToast('Connection point updated');
+    return true;
+  }
+
+  function selectEdgeForEdit(edgeId, ev){
+    ev.stopPropagation();
+    if (ev.preventDefault) ev.preventDefault();
+    if (state.selected.kind === 'edge' && state.selected.id === edgeId) return;
+    select('edge', edgeId);
+    redrawEdges();
+    showToast('已進入連線編輯：拖曳藍色控制點調整走線');
+  }
+
+  function updateConnectorDrag(ev){
+    if (!state.connectorDrag) return false;
+    const edge = state.edges.get(state.connectorDrag.id);
+    if (!edge) return true;
+    if (state.connectorDrag.endpoint){
+      return true;
+    }
+    const from = state.nodes.get(edge.from);
+    const to = state.nodes.get(edge.to);
+    if (!from || !to) return true;
+
+    const route = edgeRoutePoints(from, to, edge);
+    const w = toWorld(ev.clientX, ev.clientY);
+    edge.elbow = { ...route.elbow };
+    if (state.connectorDrag.axis === 'x') edge.elbow.x = w.x;
+    if (state.connectorDrag.axis === 'y') edge.elbow.y = w.y;
+    redrawEdges();
+    return true;
+  }
+
+  function redrawEdges(){
+    // keep only edges existing + preview
+    svg.querySelectorAll('path.edge:not(.preview)').forEach(p => p.remove());
+    svg.querySelectorAll('path.edge-hit').forEach(p => p.remove());
+    svg.querySelectorAll('.edge-edit-guide, .edge-edit-halo').forEach(g => g.remove());
+    svg.querySelectorAll('.edge-grip, .edge-end-grip').forEach(g => g.remove());
+
+    for (const e of currentEdges()){
+      const from = state.nodes.get(e.from);
+      const to   = state.nodes.get(e.to);
+      if (!from || !to) continue;
+      normalizeEdge(e);
+
+      const route = edgeRoutePoints(from, to, e);
+
+      const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+      path.classList.add('edge');
+      if (state.selected.kind === 'edge' && state.selected.id === e.id) path.classList.add('selected');
+      path.dataset.id = e.id;
+      const d = edgePath(route.start, route.end, route.fromDirection, route.toDirection, route.elbow);
+      path.setAttribute('d', d);
+      path.setAttribute('marker-end', (state.selected.kind==='edge' && state.selected.id===e.id) ? 'url(#arrowHeadSelected)' : 'url(#arrowHead)');
+      path.addEventListener('mousedown', (ev) => selectEdgeForEdit(e.id, ev));
+      path.addEventListener('pointerdown', (ev) => selectEdgeForEdit(e.id, ev));
+      path.addEventListener('click', (ev) => selectEdgeForEdit(e.id, ev));
+
+      const hitPath = document.createElementNS('http://www.w3.org/2000/svg','path');
+      hitPath.classList.add('edge-hit');
+      hitPath.dataset.id = e.id;
+      hitPath.setAttribute('d', d);
+      hitPath.addEventListener('mouseenter', () => { state.hoverEdge = e.id; });
+      hitPath.addEventListener('mouseleave', () => {
+        if (state.hoverEdge === e.id) state.hoverEdge = null;
+      });
+      hitPath.addEventListener('click', (ev) => selectEdgeForEdit(e.id, ev));
+      hitPath.addEventListener('mousedown', (ev) => {
+        selectEdgeForEdit(e.id, ev);
+        showToast('已選取連線，拖曳藍色控制點調整走線');
+      });
+      hitPath.addEventListener('pointerdown', (ev) => {
+        selectEdgeForEdit(e.id, ev);
+        showToast('已選取連線，拖曳藍色控制點調整走線');
+      });
+
+      if (state.selected.kind === 'edge' && state.selected.id === e.id){
+        const halo = document.createElementNS('http://www.w3.org/2000/svg','path');
+        halo.classList.add('edge-edit-halo');
+        halo.setAttribute('d', d);
+        svg.appendChild(halo);
+
+        const guideV = document.createElementNS('http://www.w3.org/2000/svg','path');
+        guideV.classList.add('edge-edit-guide');
+        guideV.setAttribute('d', `M ${route.elbow.x} ${route.start.y} L ${route.elbow.x} ${route.end.y}`);
+        svg.appendChild(guideV);
+
+        const guideH = document.createElementNS('http://www.w3.org/2000/svg','path');
+        guideH.classList.add('edge-edit-guide');
+        guideH.setAttribute('d', `M ${route.start.x} ${route.elbow.y} L ${route.end.x} ${route.elbow.y}`);
+        svg.appendChild(guideH);
+      }
+
+      svg.appendChild(path);
+      svg.appendChild(hitPath);
+
+      if (state.selected.kind === 'edge' && state.selected.id === e.id){
+        [
+          { endpoint: 'from', x: route.start.x, y: route.start.y },
+          { endpoint: 'to', x: route.end.x, y: route.end.y }
+        ].forEach(point => {
+          const grip = document.createElementNS('http://www.w3.org/2000/svg','circle');
+          grip.classList.add('edge-end-grip', `edge-end-grip-${point.endpoint}`);
+          grip.dataset.id = e.id;
+          grip.dataset.endpoint = point.endpoint;
+          grip.setAttribute('cx', point.x);
+          grip.setAttribute('cy', point.y);
+          grip.setAttribute('r', point.endpoint === 'to' ? 7 : 6);
+          grip.addEventListener('mousedown', (ev) => startConnectorDrag(e.id, point.endpoint, ev));
+          grip.addEventListener('pointerdown', (ev) => startConnectorDrag(e.id, point.endpoint, ev));
+          svg.appendChild(grip);
+        });
+
+        [
+          { axis: 'x', x: route.elbow.x, y: (route.start.y + route.elbow.y) / 2 },
+          { axis: 'y', x: (route.elbow.x + route.end.x) / 2, y: route.elbow.y }
+        ].forEach(gripPoint => {
+          const grip = document.createElementNS('http://www.w3.org/2000/svg','circle');
+          grip.classList.add('edge-grip', `edge-grip-${gripPoint.axis}`);
+          grip.dataset.id = e.id;
+          grip.dataset.axis = gripPoint.axis;
+          grip.setAttribute('cx', gripPoint.x);
+          grip.setAttribute('cy', gripPoint.y);
+          grip.setAttribute('r', 8);
+          grip.addEventListener('mousedown', (ev) => startConnectorDrag(e.id, gripPoint.axis, ev));
+          grip.addEventListener('pointerdown', (ev) => startConnectorDrag(e.id, gripPoint.axis, ev));
+          svg.appendChild(grip);
+        });
+      }
+    }
+
+    // preview edge
+    const preview = svg.querySelector('path.edge.preview');
+    if (state.draftEdge){
+      const from = state.nodes.get(state.draftEdge.from);
+      if (!from) return;
+      const a = getPortPosition(from, state.draftEdge.fromPort, 'right');
+      const b = { x: state.draftEdge.x2, y: state.draftEdge.y2 };
+      const fromDirection = getPortDirection(state.draftEdge.fromPort, 'right');
+      const toDirection = { x: 0, y: 0 };
+      if (!preview){
+        const p = document.createElementNS('http://www.w3.org/2000/svg','path');
+        p.classList.add('edge','preview');
+        p.setAttribute('marker-end','url(#arrowHeadSelected)');
+        svg.appendChild(p);
+      }
+      svg.querySelector('path.edge.preview').setAttribute('d', edgePath(a, b, fromDirection, toDirection));
+    } else if (preview){
+      preview.remove();
+    }
+  }
+
+  function handleConnectorPointClick(nodeId, port, ev){
+    ev.stopPropagation();
+    ev.preventDefault();
+
+    select('node', nodeId);
+
+    if (!state.pendingPort){
+      const fromNode = state.nodes.get(nodeId);
+      const start = getPortPosition(fromNode, port, 'right');
+      state.pendingPort = { nodeId, port };
+      state.draftEdge = { mode: 'connector-point', from: nodeId, fromPort: port, x2: start.x, y2: start.y };
+      setActiveConnectorPoint();
+      redrawEdges();
+      showToast('已選擇起點，請點另一個框的連線點');
+      return;
+    }
+
+    const from = state.pendingPort;
+    if (from.nodeId === nodeId && portKey(from.nodeId, from.port) === portKey(nodeId, port)){
+      state.pendingPort = null;
+      state.draftEdge = null;
+      setActiveConnectorPoint();
+      redrawEdges();
+      showToast('已取消連線起點');
+      return;
+    }
+
+    if (from.nodeId === nodeId){
+      showToast('請選另一個文字框的連線點');
+      return;
+    }
+
+    addEdge(from.nodeId, nodeId, from.port, port);
+    state.pendingPort = null;
+    state.draftEdge = null;
+    setActiveConnectorPoint();
+    redrawEdges();
+    showToast('已建立連線');
+  }
+
+  function renderConnectorPoints(el, n){
+    getConnectorPoints(n).forEach(port => {
+      const point = document.createElement('button');
+      point.type = 'button';
+      point.className = 'connector-point';
+      point.dataset.nodeId = n.id;
+      point.dataset.side = port.side;
+      point.dataset.offset = String(port.offset);
+      point.title = `連線點 ${port.side} ${port.offset}px`;
+      point.style.left = port.x + 'px';
+      point.style.top = port.y + 'px';
+      point.addEventListener('mousedown', ev => ev.stopPropagation());
+      point.addEventListener('click', ev => handleConnectorPointClick(n.id, {
+        side: port.side,
+        offset: port.offset
+      }, ev));
+      el.appendChild(point);
+    });
+  }
+
+  function normalizeTagText(text){
+    const value = (text || '').replace(/\s+/g, ' ').trim();
+    const preset = TAG_PRESETS.find(tag => tag.toLowerCase() === value.toLowerCase());
+    return preset || value;
+  }
+
+  function tagClass(tag){
+    const preset = TAG_PRESETS.find(item => item.toLowerCase() === String(tag).toLowerCase());
+    return 'tag tag-edit' + (preset ? ' ' + preset.toLowerCase() : '');
+  }
+
+  function syncTagsFromRow(nodeId, tagrow, commit = false){
+    const n = state.nodes.get(nodeId);
+    if (!n) return;
+    const tags = [];
+    tagrow.querySelectorAll('.tag-edit').forEach(tagEl => {
+      const tag = commit
+        ? normalizeTagText(tagEl.textContent)
+        : (tagEl.textContent || '').replace(/\s+/g, ' ').trim();
+      if (!tag) {
+        if (commit) tagEl.remove();
+        return;
+      }
+      if (!tags.includes(tag)) tags.push(tag);
+      if (commit) tagEl.textContent = tag;
+      tagEl.className = tagClass(tag);
+    });
+    n.tags = tags;
+    if (syncNodeHeightFromDom(nodeId)){
+      refreshNodePosition(nodeId);
+      redrawEdges();
+    }
+    saveState();
+  }
+
+  function focusTag(tagEl){
+    tagEl.focus();
+    const range = document.createRange();
+    range.selectNodeContents(tagEl);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
+
+  function createTagPill(nodeId, tag, tagrow){
+    const tagEl = document.createElement('span');
+    tagEl.className = tagClass(tag);
+    tagEl.contentEditable = 'true';
+    tagEl.spellcheck = false;
+    tagEl.textContent = normalizeTagText(tag) || 'TAG';
+    tagEl.title = 'Edit tag. Clear it to remove.';
+    tagEl.addEventListener('mousedown', ev => ev.stopPropagation());
+    tagEl.addEventListener('input', () => syncTagsFromRow(nodeId, tagrow));
+    tagEl.addEventListener('blur', () => syncTagsFromRow(nodeId, tagrow, true));
+    tagEl.addEventListener('keydown', ev => {
+      if (ev.key === 'Enter'){
+        ev.preventDefault();
+        tagEl.blur();
+      }
+    });
+    tagrow.insertBefore(tagEl, tagrow.querySelector('.tag-select'));
+    return tagEl;
+  }
+
+  function renderTagEditor(tagrow, n){
+    tagrow.addEventListener('mousedown', ev => ev.stopPropagation());
+    (n.tags || []).forEach(tag => createTagPill(n.id, tag, tagrow));
+
+    const select = document.createElement('select');
+    select.className = 'tag-select';
+    select.title = 'Add tag';
+    select.innerHTML = '<option value="">+ tag</option>' +
+      TAG_PRESETS.map(tag => `<option value="${tag}">${tag}</option>`).join('') +
+      '<option value="__custom">Custom...</option>';
+    select.addEventListener('mousedown', ev => ev.stopPropagation());
+    select.addEventListener('change', () => {
+      if (!select.value) return;
+      const tag = select.value === '__custom' ? 'TAG' : select.value;
+      const exists = (state.nodes.get(n.id)?.tags || []).some(item => item.toLowerCase() === tag.toLowerCase());
+      let tagEl = [...tagrow.querySelectorAll('.tag-edit')].find(item => item.textContent.trim().toLowerCase() === tag.toLowerCase());
+      if (!exists && !tagEl) tagEl = createTagPill(n.id, tag, tagrow);
+      syncTagsFromRow(n.id, tagrow, true);
+      select.value = '';
+      if (select.value === '__custom' || tag === 'TAG') focusTag(tagEl);
+    });
+    tagrow.appendChild(select);
+  }
+
+  function beginNodeDrag(n, ev){
+    if (ev.preventDefault) ev.preventDefault();
+    ev.stopPropagation();
+
+    if (ev.ctrlKey || ev.metaKey){
+      addNodeToSelection(n.id);
+    } else if (!state.selectedNodeIds.has(n.id)){
+      select('node', n.id);
+    }
+
+    const dragIds = state.selectedNodeIds.has(n.id) ? [...state.selectedNodeIds] : [n.id];
+    const dragIdSet = new Set(dragIds);
+    state.drag = {
+      ids: dragIds,
+      origins: dragIds.map(id => {
+        const node = state.nodes.get(id);
+        return { id, x: node.x, y: node.y };
+      }),
+      edgeOrigins: currentEdges()
+        .filter(edge => dragIdSet.has(edge.from) && dragIdSet.has(edge.to) && edge.elbow)
+        .map(edge => ({ id: edge.id, x: edge.elbow.x, y: edge.elbow.y })),
+      startX: ev.clientX,
+      startY: ev.clientY
+    };
+    showMoveHint(ev.clientX, ev.clientY, dragIds.length);
+  }
+
+  function setNodeControlsOpen(el, open){
+    el.classList.toggle('controls-open', open);
+  }
+
+  function renderNode(n){
+    const el = document.createElement('div');
+    el.className = 'node';
+    el.dataset.id = n.id;
+    el.style.left = n.x + 'px';
+    el.style.top  = n.y + 'px';
+    el.style.width = n.w + 'px';
+    el.style.minHeight = n.h + 'px';
+
+    const tagrow = document.createElement('div');
+    tagrow.className = 'tagrow';
+    renderTagEditor(tagrow, n);
+
+    const moveHandle = document.createElement('button');
+    moveHandle.type = 'button';
+    moveHandle.className = 'node-move-handle';
+    moveHandle.title = 'Move node';
+    moveHandle.setAttribute('aria-label', 'Move node');
+    moveHandle.innerHTML = '<span class="node-move-icon" aria-hidden="true"></span>';
+    moveHandle.addEventListener('mouseenter', () => {
+      el.classList.add('move-ready');
+      setNodeControlsOpen(el, true);
+    });
+    moveHandle.addEventListener('mouseleave', () => {
+      el.classList.remove('move-ready');
+      if (!state.selectedNodeIds.has(n.id)) setNodeControlsOpen(el, false);
+    });
+    moveHandle.addEventListener('focus', () => setNodeControlsOpen(el, true));
+    moveHandle.addEventListener('blur', () => {
+      if (!state.selectedNodeIds.has(n.id)) setNodeControlsOpen(el, false);
+    });
+    moveHandle.addEventListener('mousedown', ev => beginNodeDrag(n, ev));
+
+    const subflowButton = document.createElement('button');
+    subflowButton.type = 'button';
+    subflowButton.className = 'node-subflow' + (n.subflowId ? ' has-subflow' : '');
+    subflowButton.textContent = n.subflowId ? 'Subflow' : '+ Subflow';
+    subflowButton.title = n.subflowId ? 'Open subflow' : 'Create and open subflow';
+    subflowButton.addEventListener('mousedown', ev => ev.stopPropagation());
+    subflowButton.addEventListener('click', ev => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      const flowId = ensureNodeSubflow(n.id);
+      if (!flowId) return;
+      saveState();
+      setCurrentFlow(flowId);
+    });
+    tagrow.appendChild(subflowButton);
+
+    const title = document.createElement('div');
+    title.className = 'title';
+    title.contentEditable = "true";
+    title.spellcheck = false;
+    title.textContent = n.title || 'Untitled';
+
+    const body = document.createElement('div');
+    body.className = 'body';
+    body.contentEditable = "true";
+    body.spellcheck = false;
+    body.textContent = n.body || '';
+
+    const resize = document.createElement('div');
+    resize.className = 'resize';
+    resize.title = 'Resize';
+
+    el.appendChild(tagrow);
+    el.appendChild(moveHandle);
+    el.appendChild(title);
+    el.appendChild(body);
+    renderConnectorPoints(el, n);
+    el.appendChild(resize);
+
+    el.addEventListener('mouseenter', () => {
+      el.classList.add('show-connectors');
+    });
+    el.addEventListener('mouseleave', () => {
+      el.classList.remove('show-connectors');
+    });
+
+    // update state on edit
+    title.addEventListener('input', () => {
+      const nn = state.nodes.get(n.id);
+      if (nn) {
+        nn.title = title.textContent;
+        if (nn.subflowId && state.flows.has(nn.subflowId)){
+          state.flows.get(nn.subflowId).name = nn.title || nn.subflowId;
+          updateFlowNav();
+        }
+      }
+      if (syncNodeHeightFromDom(n.id)){
+        refreshNodePosition(n.id);
+        redrawEdges();
+      }
+      saveState();
+    });
+    body.addEventListener('input', () => {
+      const nn = state.nodes.get(n.id);
+      if (nn) nn.body = body.textContent;
+      if (syncNodeHeightFromDom(n.id)){
+        refreshNodePosition(n.id);
+        redrawEdges();
+      }
+      saveState();
+    });
+
+    resize.addEventListener('mousedown', (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      select('node', n.id);
+      state.resize = {
+        id: n.id,
+        startW: n.w, startH: n.h,
+        startX: ev.clientX, startY: ev.clientY
+      };
+    });
+
+    // select on click
+    el.addEventListener('mousedown', (ev) => {
+      ev.stopPropagation();
+
+      // shift drag to connect
+      if (ev.shiftKey){
+        select('node', n.id);
+        state.connectFrom = n.id;
+        const w = toWorld(ev.clientX, ev.clientY);
+        state.draftEdge = { mode: 'shift-drag', from: n.id, x2: w.x, y2: w.y };
+        redrawEdges();
+        return;
+      }
+
+      // ignore when editing text
+      const target = ev.target;
+      if (target && target.getAttribute && target.getAttribute('contenteditable') === 'true'){
+        return;
+      }
+
+      return;
+    });
+
+    viewport.appendChild(el);
+    if (syncNodeHeightFromDom(n.id)){
+      refreshNodePosition(n.id);
+    }
+  }
+
+  function refreshNodePosition(id){
+    const n = state.nodes.get(id);
+    const el = viewport.querySelector(`.node[data-id="${id}"]`);
+    if (!n || !el) return;
+    el.style.left = n.x + 'px';
+    el.style.top  = n.y + 'px';
+    el.style.width = n.w + 'px';
+    el.style.minHeight = n.h + 'px';
+    el.querySelectorAll('.connector-point').forEach(point => point.remove());
+    renderConnectorPoints(el, n);
+    setActiveConnectorPoint();
+  }
+
+  function addNode(partial = {}){
+    const id = uid('n');
+    const n = {
+      id,
+      x: partial.x ?? 80,
+      y: partial.y ?? 80,
+      w: partial.w ?? 280,
+      h: partial.h ?? 86,
+      tags: partial.tags ?? [],
+      title: partial.title ?? 'New Box',
+      body: partial.body ?? 'Double click / edit me.',
+      flowId: partial.flowId || state.currentFlowId,
+      subflowId: partial.subflowId || null
+    };
+    state.nodes.set(id, n);
+    renderNode(n);
+    redrawEdges();
+    select('node', id);
+    saveState();
+    return id;
+  }
+
+  function addEdge(from, to, fromPort = null, toPort = null){
+    if (!from || !to || from===to) return null;
+    // prevent duplicates
+    for (const e of currentEdges()){
+      if (e.from !== from || e.to !== to) continue;
+      if (fromPort || toPort){
+        e.fromPort = fromPort || e.fromPort;
+        e.toPort = toPort || e.toPort;
+        normalizeEdge(e);
+        redrawEdges();
+        saveState();
+      }
+      return e.id;
+    }
+    const id = uid('e');
+    const edge = { id, from, to, fromPort, toPort, flowId: state.currentFlowId };
+    normalizeEdge(edge);
+    state.edges.set(id, edge);
+    select('edge', id);
+    redrawEdges();
+    saveState();
+    return id;
+  }
+
+  function deleteSelected(){
+    const {kind,id} = state.selected;
+    if (!kind || !id) return;
+
+    if (kind === 'node'){
+      const ids = state.selectedNodeIds.size ? [...state.selectedNodeIds] : [id];
+      ids.forEach(nodeId => {
+        const node = state.nodes.get(nodeId);
+        if (node?.subflowId) deleteFlows(descendantFlowIds(node.subflowId));
+        state.nodes.delete(nodeId);
+        const el = viewport.querySelector(`.node[data-id="${nodeId}"]`);
+        if (el) el.remove();
+      });
+      for (const [eid,e] of [...state.edges.entries()]){
+        if (edgeFlowId(e) !== state.currentFlowId) continue;
+        if (ids.includes(e.from) || ids.includes(e.to)) state.edges.delete(eid);
+      }
+      redrawEdges();
+      clearSelection();
+      showToast('已刪除節點（含相關連線）');
+    } else if (kind === 'edge'){
+      state.edges.delete(id);
+      redrawEdges();
+      clearSelection();
+      showToast('已刪除連線');
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // Viewport pan & zoom
+  // ─────────────────────────────────────────────────────────────
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape'){
+      state.pendingPort = null;
+      state.connectFrom = null;
+      state.draftEdge = null;
+      hideMoveHint();
+      redrawEdges();
+      clearSelection();
+      closeHelpPanel();
+      setProjectMenu(false);
+      setAccountMenu(false);
+      drawer.classList.remove('open');
+    }
+    if (e.key === 'Delete' || e.key === 'Backspace'){
+      // avoid deleting while editing text
+      const ae = document.activeElement;
+      if (ae && ae.getAttribute && ae.getAttribute('contenteditable') === 'true') return;
+      deleteSelected();
+      saveState();
+    }
+  });
+
+  // Pan with Space + drag
+  stage.addEventListener('mousedown', (e) => {
+    if (e.button !== 0) return;
+    closeHelpPanel();
+    setProjectMenu(false);
+    if (state.hoverEdge){
+      selectEdgeForEdit(state.hoverEdge, e);
+      return;
+    }
+    if (isEdgeUiTarget(e.target)) return;
+
+    if (e.code === 'Space' || (e.buttons===1 && window.__spaceDown)){
+      state.panning = { startX: e.clientX, startY: e.clientY, ox: state.view.x, oy: state.view.y };
+      e.preventDefault();
+      return;
+    }
+
+    if (e.target === stage || e.target.classList.contains('grid')){
+      state.pendingPort = null;
+      state.draftEdge = null;
+      state.marquee = {
+        startClient: { x: e.clientX, y: e.clientY },
+        currentClient: { x: e.clientX, y: e.clientY },
+        startWorld: toWorld(e.clientX, e.clientY),
+        currentWorld: toWorld(e.clientX, e.clientY),
+        baseIds: (e.shiftKey || e.ctrlKey || e.metaKey) ? [...state.selectedNodeIds] : [],
+        moved: false
+      };
+      if (!e.shiftKey && !e.ctrlKey && !e.metaKey) clearSelection();
+      updateMarqueeBox();
+      e.preventDefault();
+    }
+  });
+
+  window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space') window.__spaceDown = true;
+  });
+  window.addEventListener('keyup', (e) => {
+    if (e.code === 'Space') window.__spaceDown = false;
+  });
+  window.addEventListener('resize', scheduleToolbarLayout);
+  window.addEventListener('resize', syncProjectToolWidth);
+
+  window.addEventListener('pointerup', (e) => {
+    if (state.connectorDrag){
+      if (state.connectorDrag.endpoint){
+        finishEndpointReconnect(e);
+      }
+      state.connectorDrag = null;
+      stage.classList.remove('reconnecting');
+      saveState();
+    }
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    // connector elbow editing
+    if (updateConnectorDrag(e)){
+      return;
+    }
+
+    // node dragging
+    if (state.drag){
+      const dx = (e.clientX - state.drag.startX) / state.view.scale;
+      const dy = (e.clientY - state.drag.startY) / state.view.scale;
+      updateMoveHint(e.clientX, e.clientY, Math.abs(e.clientX - state.drag.startX) > 3 || Math.abs(e.clientY - state.drag.startY) > 3);
+      state.drag.origins.forEach(origin => {
+        const n = state.nodes.get(origin.id);
+        if (!n) return;
+        n.x = origin.x + dx;
+        n.y = origin.y + dy;
+        refreshNodePosition(n.id);
+      });
+      state.drag.edgeOrigins.forEach(origin => {
+        const edge = state.edges.get(origin.id);
+        if (!edge) return;
+        edge.elbow = { x: origin.x + dx, y: origin.y + dy };
+      });
+      redrawEdges();
+      return;
+    }
+
+    // marquee selecting
+    if (state.marquee){
+      state.marquee.currentClient = { x: e.clientX, y: e.clientY };
+      state.marquee.currentWorld = toWorld(e.clientX, e.clientY);
+      const moveX = Math.abs(e.clientX - state.marquee.startClient.x);
+      const moveY = Math.abs(e.clientY - state.marquee.startClient.y);
+      state.marquee.moved = state.marquee.moved || moveX > 3 || moveY > 3;
+      updateMarqueeBox();
+      updateMarqueeSelection();
+      return;
+    }
+
+    // node resizing
+    if (state.resize){
+      const n = state.nodes.get(state.resize.id);
+      if (!n) return;
+      const dx = (e.clientX - state.resize.startX) / state.view.scale;
+      const dy = (e.clientY - state.resize.startY) / state.view.scale;
+      n.w = Math.max(180, state.resize.startW + dx);
+      n.h = Math.max(60, measureNodeContentHeight(n.id, n.w), state.resize.startH + dy);
+      refreshNodePosition(n.id);
+      redrawEdges();
+      return;
+    }
+
+    // connecting preview
+    if (state.draftEdge && state.draftEdge.mode === 'shift-drag'){
+      const w = toWorld(e.clientX, e.clientY);
+      state.draftEdge.x2 = w.x;
+      state.draftEdge.y2 = w.y;
+      redrawEdges();
+      return;
+    }
+
+    // panning
+    if (state.panning){
+      const dx = e.clientX - state.panning.startX;
+      const dy = e.clientY - state.panning.startY;
+      state.view.x = state.panning.ox + dx;
+      state.view.y = state.panning.oy + dy;
+      setViewportTransform();
+      return;
+    }
+  });
+
+  window.addEventListener('mouseup', (e) => {
+    // finish node drag/resize
+    const changedLayout = Boolean(state.drag || state.resize);
+    const wasMovingNodes = Boolean(state.drag);
+    if (state.drag) state.drag = null;
+    if (state.resize) state.resize = null;
+    if (changedLayout) saveState();
+    if (wasMovingNodes) hideMoveHint();
+
+    const finishedMarquee = stopMarquee();
+    if (finishedMarquee){
+      window.__skipNextStageClick = true;
+      setTimeout(() => { window.__skipNextStageClick = false; }, 0);
+    }
+
+    // finish connect
+    if (state.draftEdge){
+      // If mouseup on another node, connect
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      const nodeEl = el ? el.closest && el.closest('.node') : null;
+      if (nodeEl){
+        const toId = nodeEl.dataset.id;
+        const fromId = state.draftEdge.from;
+        if (fromId && toId && fromId !== toId){
+          addEdge(fromId, toId);
+          showToast('已建立連線（Shift 拖曳）');
+        }
+      }
+      state.draftEdge = null;
+      state.connectFrom = null;
+      redrawEdges();
+    }
+
+    // finish panning
+    if (state.panning) state.panning = null;
+  });
+
+  // Zoom with Ctrl + wheel
+  stage.addEventListener('wheel', (e) => {
+    if (!e.ctrlKey) return; // keep normal scroll disabled anyway (stage is overflow hidden)
+    e.preventDefault();
+
+    const old = state.view.scale;
+    const dir = e.deltaY > 0 ? -1 : 1;
+    const next = Math.min(1.8, Math.max(0.55, old + dir * 0.08));
+
+    // zoom around cursor
+    const before = toWorld(e.clientX, e.clientY);
+    state.view.scale = next;
+    const after  = toWorld(e.clientX, e.clientY);
+
+    state.view.x += (after.x - before.x) * next;
+    state.view.y += (after.y - before.y) * next;
+
+    setViewportTransform();
+  }, { passive:false });
+
+  // click empty space to cancel draft edge (if any)
+  stage.addEventListener('click', (e) => {
+    closeHelpPanel();
+    if (window.__skipNextStageClick){
+      window.__skipNextStageClick = false;
+      return;
+    }
+    if (isEdgeUiTarget(e.target)) return;
+
+    if (e.target === stage || e.target.classList.contains('grid')){
+      state.pendingPort = null;
+      state.draftEdge = null;
+      redrawEdges();
+      if (!e.shiftKey && !e.ctrlKey && !e.metaKey) clearSelection();
+    }
+  });
+
+  // ─────────────────────────────────────────────────────────────
+  // IO import / export
+  // ─────────────────────────────────────────────────────────────
+  function exportJSON(){
+    const payload = {
+      user: currentUser.id || DEFAULT_USER.id,
+      project: currentProject.id || 'flowchart',
+      projectName: currentProject.name || currentProject.id || 'flowchart',
+      version: 2,
+      currentFlowId: state.currentFlowId,
+      view: state.view,
+      flows: [...state.flows.values()],
+      nodes: [...state.nodes.values()],
+      edges: [...state.edges.values()],
+    };
+    return JSON.stringify(payload, null, 2);
+  }
+
+  function escapeMermaidText(value){
+    return String(value || '')
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\r?\n/g, '<br/>');
+  }
+
+  function mermaidNodeId(id){
+    return 'n_' + String(id || '').replace(/[^a-zA-Z0-9_]/g, '_');
+  }
+
+  function exportMermaid(){
+    const lines = ['flowchart TD'];
+    const classLines = [];
+    const classDefs = new Map([
+      ['CORE', 'fill:#fff8dc,stroke:#ead68f,color:#8a6510'],
+      ['DOM', 'fill:#eef6ff,stroke:#b9d7f8,color:#1759b7'],
+      ['API', 'fill:#f2fbf6,stroke:#a9dcc2,color:#27885c'],
+      ['RISK', 'fill:#fff7f7,stroke:#efb5b5,color:#bf4a4a']
+    ]);
+
+    currentNodes().forEach(node => {
+      const id = mermaidNodeId(node.id);
+      const tags = (node.tags || []).join(', ');
+      const tagLine = tags ? `<small>${escapeMermaidText(tags)}</small><br/>` : '';
+      const body = node.body ? `<br/>${escapeMermaidText(node.body)}` : '';
+      lines.push(`  ${id}["<b>${escapeMermaidText(node.title || 'Untitled')}</b><br/>${tagLine}${body}"]`);
+
+      const primaryTag = (node.tags || []).find(tag => classDefs.has(String(tag).toUpperCase()));
+      if (primaryTag) classLines.push(`  class ${id} ${String(primaryTag).toUpperCase()}`);
+    });
+
+    currentEdges().forEach(edge => {
+      const from = state.nodes.has(edge.from) ? mermaidNodeId(edge.from) : null;
+      const to = state.nodes.has(edge.to) ? mermaidNodeId(edge.to) : null;
+      if (from && to) lines.push(`  ${from} --> ${to}`);
+    });
+
+    if (classLines.length){
+      lines.push('');
+      classDefs.forEach((style, name) => lines.push(`  classDef ${name} ${style}`));
+      lines.push(...classLines);
+    }
+    return lines.join('\n');
+  }
+
+  function clearAll(){
+    state.flows.clear();
+    state.flows.set('main', { id: 'main', name: '主流程', parentFlowId: null, ownerNodeId: null });
+    state.currentFlowId = 'main';
+    state.nodes.clear();
+    state.edges.clear();
+    viewport.innerHTML = '';
+    svg.querySelectorAll('path.edge').forEach(p => p.remove());
+    svg.querySelectorAll('path.edge-hit, .edge-grip, .edge-end-grip, .edge-edit-guide, .edge-edit-halo').forEach(p => p.remove());
+    clearSelection();
+    redrawEdges();
+  }
+
+  function dedupeEdges(){
+    const seen = new Map();
+    for (const [edgeId, edge] of [...state.edges.entries()]){
+      const key = `${edgeFlowId(edge)}:${edge.from}->${edge.to}`;
+      const existingId = seen.get(key);
+      if (!existingId){
+        seen.set(key, edgeId);
+        continue;
+      }
+      const existing = state.edges.get(existingId);
+      if (existing && (!existing.fromPort || !existing.toPort) && (edge.fromPort || edge.toPort)){
+        existing.fromPort = edge.fromPort || existing.fromPort;
+        existing.toPort = edge.toPort || existing.toPort;
+        existing.elbow = edge.elbow || existing.elbow;
+      }
+      state.edges.delete(edgeId);
+    }
+  }
+
+  function importJSON(text, options = {}){
+    let obj;
+    try{
+      obj = JSON.parse(text);
+    }catch{
+      showToast('JSON 解析失敗');
+      return;
+    }
+    clearAll();
+    state.flows.clear();
+    const importedFlows = Array.isArray(obj.flows) && obj.flows.length
+      ? obj.flows
+      : [{ id: 'main', name: '主流程', parentFlowId: null, ownerNodeId: null }];
+    importedFlows.forEach(flow => {
+      if (!flow || !flow.id) return;
+      state.flows.set(flow.id, {
+        id: flow.id,
+        name: flow.name || flow.id,
+        parentFlowId: flow.parentFlowId || null,
+        ownerNodeId: flow.ownerNodeId || null
+      });
+    });
+    rootFlow();
+    state.currentFlowId = state.flows.has(obj.currentFlowId) ? obj.currentFlowId : 'main';
+    if (obj.view){
+      state.view = { ...state.view, ...obj.view };
+      setViewportTransform();
+    }
+    (obj.nodes || []).forEach(n => {
+      n.flowId = n.flowId || 'main';
+      state.nodes.set(n.id, n);
+    });
+    (obj.edges || []).forEach(e => {
+      e.flowId = e.flowId || 'main';
+      state.edges.set(e.id, e);
+    });
+    dedupeEdges();
+    normalizeAllEdges();
+    renderCurrentFlow();
+    if (!options.skipSave) saveState();
+    if (!options.quiet) showToast('已匯入並重建流程圖');
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // Lanes (optional)
+  // ─────────────────────────────────────────────────────────────
+  let lanesShown = false;
+  function showLanes(){
+    if (lanesShown) return;
+    lanesShown = true;
+
+    const labels = [
+      { title: 'User Input',  x: 16,  text: '滑鼠 / 鍵盤 / 輸入 / 刪除 / 雙擊' },
+      { title: 'DOM Layer',   x: 272, text: 'dayCols / block / ghost / 事件監聽' },
+      { title: 'State Layer', x: 528, text: 'allSchedules（前端單一真相）' },
+      { title: 'API Layer',   x: 784, text: 'GET /week  ·  POST /day · POST /week' },
+    ];
+
+    labels.forEach((l) => {
+      const box = document.createElement('div');
+      box.className = 'lane';
+      box.style.left = l.x + 'px';
+      box.innerHTML = `
+        <h3>${l.title}</h3>
+        <p>${l.text}</p>
+        <div class="hint">提示：<kbd>Shift</kbd> 拖線、<kbd>Delete</kbd> 刪除</div>
+      `;
+      lanesWrap.appendChild(box);
+    });
+    showToast('已加上四層標籤區');
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // Buttons
+  // ─────────────────────────────────────────────────────────────
+  function buildImportPrompt(){
+    const feature = promptFeatureInput.value.trim() || '請依目前需求判斷主要功能';
+    return `請分析目前專案中「${feature}」相關的程式碼，逐個整理主要函數與其呼叫關係，輸出可直接匯入 flowchart 專案的 JSON。
+
+重要規則：
+1. 只輸出純 JSON，不要 Markdown，不要說明文字。
+2. JSON 必須包含 project、projectName、version、currentFlowId、view、flows、nodes、edges。
+3. version 固定為 2。
+4. currentFlowId 固定為 "main"。
+5. view 使用 { "x": 0, "y": 0, "scale": 1 }。
+6. flows 至少要有 { "id": "main", "name": "主流程", "parentFlowId": null, "ownerNodeId": null }。
+
+分析內容規則：
+1. 只分析「${feature}」相關流程，不要展開無關功能。
+2. 逐個說明各函數作用。
+3. 如果函數內呼叫其他自定義函數，也要拆成子流程。
+4. 子函數最多拆解到第 3 層。
+5. 超過第 3 層的呼叫不要再建立子流程，可在 body 簡短概括。
+6. 每個 body 最多 30 個中文字。
+7. title 使用函數名稱，例如 "handleSubmit()"。
+8. body 用繁體中文描述函數作用。
+9. 不要放程式碼片段，只描述用途。
+10. 優先分析專案自定義函數，不要展開標準函式庫、框架內建 API、DOM API、console、JSON、fetch 等。
+
+節點格式：
+每個 node 必須符合：
+{
+  "id": "唯一英文ID",
+  "flowId": "所屬流程ID",
+  "x": 數字,
+  "y": 數字,
+  "w": 260,
+  "h": 100,
+  "tags": ["CORE"],
+  "title": "函數名稱()",
+  "body": "30字內中文說明"
+}
+
+如果某函數有子函數，該 node 加上：
+"subflowId": "flow_該節點ID"
+
+並在 flows 新增：
+{
+  "id": "flow_該節點ID",
+  "name": "函數名稱 子流程",
+  "parentFlowId": "父流程ID",
+  "ownerNodeId": "該節點ID"
+}
+
+連線格式：
+每個 edge 必須符合：
+{
+  "id": "唯一英文ID",
+  "flowId": "所屬流程ID",
+  "from": "來源node id",
+  "to": "目標node id"
+}
+
+版面配置規則：
+1. 同一 flow 內節點由上到下排列。
+2. x 可固定 80，y 從 100 開始，每個節點間隔 150。
+3. 若同一層函數很多，可分欄排列，第二欄 x=420，第三欄 x=760。
+4. edge 只連接同一 flowId 內的節點。
+5. 呼叫順序明確時，用 edge 串起來。
+6. 呼叫順序不明確時，只建立節點，不要亂連線。
+
+tags 規則：
+1. 核心邏輯用 ["CORE"]。
+2. 前端 DOM、UI、事件處理用 ["DOM"]。
+3. API、路由、HTTP、資料交換用 ["API"]。
+4. 錯誤處理、風險、驗證、安全相關用 ["RISK"]。
+5. 不確定時用 ["CORE"]。
+
+id 命名規則：
+1. 只能用英文字母、數字、底線。
+2. 不要使用中文。
+3. 若同名函數出現在不同層，後面加上層級或父函數，例如 parseData_in_handleSubmit。
+4. edge id 可用 e_001、e_002 依序命名。
+
+輸出 JSON 範例結構：
+{
+  "project": "function-flow",
+  "projectName": "Function Flow",
+  "version": 2,
+  "currentFlowId": "main",
+  "view": {
+    "x": 0,
+    "y": 0,
+    "scale": 1
+  },
+  "flows": [
+    {
+      "id": "main",
+      "name": "主流程",
+      "parentFlowId": null,
+      "ownerNodeId": null
+    }
+  ],
+  "nodes": [],
+  "edges": []
+}
+
+請現在開始分析並產生完整 JSON。`;
+  }
+
+  function updatePromptOutput(){
+    promptOutput.value = buildImportPrompt();
+  }
+
+  btnAdd.addEventListener('click', () => {
+    const id = addNode({ x: 120, y: 120, title: 'New Box', body: '寫下重點（可直接編輯）', tags: [] });
+    showToast('已新增文字框');
+    // focus title
+    const el = viewport.querySelector(`.node[data-id="${id}"] .title`);
+    if (el) el.focus();
+  });
+
+  btnAddLane.addEventListener('click', () => showLanes());
+
+  btnDelete.addEventListener('click', () => {
+    deleteSelected();
+    saveState();
+  });
+
+  btnIO.addEventListener('click', () => {
+    drawer.classList.toggle('open');
+    if (drawer.classList.contains('open')){
+      promptDrawer.classList.remove('open');
+      ioArea.value = exportJSON();
+      ioArea.focus();
+      ioArea.select();
+    }
+  });
+  btnPromptGuide.addEventListener('click', () => {
+    promptDrawer.classList.toggle('open');
+    if (promptDrawer.classList.contains('open')){
+      drawer.classList.remove('open');
+      updatePromptOutput();
+      promptFeatureInput.focus();
+    }
+  });
+  btnHelpToggle.addEventListener('click', () => {
+    setHelpPanel(!toolbar.classList.contains('open'));
+  });
+  btnFlowBack.addEventListener('click', () => {
+    const flow = currentFlow();
+    if (flow.parentFlowId) setCurrentFlow(flow.parentFlowId);
+  });
+  projectTrigger.addEventListener('click', (event) => {
+    event.stopPropagation();
+    closeHelpPanel();
+    setProjectMenu(!projectTool.classList.contains('open'));
+  });
+  accountTrigger.addEventListener('click', (event) => {
+    event.stopPropagation();
+    closeHelpPanel();
+    setAccountMenu(!accountTool.classList.contains('open'));
+  });
+  accountSearch.addEventListener('input', renderUserList);
+  accountCreateName.addEventListener('input', () => {
+    accountCreateName.value = accountCreateName.value.replace(/[^1-9]/g, '').slice(0, 8);
+  });
+  btnCreateUser.addEventListener('click', createUser);
+  accountCreateName.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') createUser();
+  });
+  accountTool.addEventListener('click', event => event.stopPropagation());
+  projectSearch.addEventListener('input', renderProjectList);
+  btnCreateProject.addEventListener('click', createProject);
+  projectCreateName.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') createProject();
+  });
+  projectTool.addEventListener('click', event => event.stopPropagation());
+  document.addEventListener('click', () => {
+    setProjectMenu(false);
+    setAccountMenu(false);
+  });
+  btnClose.addEventListener('click', () => drawer.classList.remove('open'));
+  btnPromptClose.addEventListener('click', () => promptDrawer.classList.remove('open'));
+  btnPromptRefresh.addEventListener('click', () => {
+    updatePromptOutput();
+    promptOutput.focus();
+    promptOutput.select();
+  });
+  promptFeatureInput.addEventListener('input', updatePromptOutput);
+
+  btnPromptCopy.addEventListener('click', async () => {
+    updatePromptOutput();
+    try{
+      await navigator.clipboard.writeText(promptOutput.value);
+      showToast('題詞已複製到剪貼簿');
+    }catch{
+      promptOutput.focus();
+      promptOutput.select();
+      showToast('複製失敗，已選取題詞');
+    }
+  });
+
+  btnCopy.addEventListener('click', async () => {
+    try{
+      await navigator.clipboard.writeText(ioArea.value);
+      showToast('已複製到剪貼簿');
+    }catch{
+      showToast('複製失敗（可能是瀏覽器權限）');
+    }
+  });
+
+  btnSaveFile.addEventListener('click', async () => {
+    const ok = await saveProjectFile(exportJSON());
+    if (ok) await refreshProjects();
+    showToast(ok ? `Saved ${currentProject.id}.json / ${currentProject.id}.mmd` : 'Server unavailable; JSON kept in browser');
+  });
+
+  btnMermaid.addEventListener('click', () => {
+    ioArea.value = exportMermaid();
+    ioArea.focus();
+    ioArea.select();
+    showToast('Mermaid exported');
+  });
+
+  btnApply.addEventListener('click', () => importJSON(ioArea.value));
+
+  // ─────────────────────────────────────────────────────────────
+  // Seed: create a diagram similar to your "資料流 × DOM × API"
+  // ─────────────────────────────────────────────────────────────
+  function seed(){
+    // nodes
+    const nInput = addNode({
+      x: 60, y: 120, w: 280, h: 92,
+      tags: ['CORE'],
+      title: 'User Input Layer',
+      body: '滑鼠/鍵盤/雙擊/輸入/刪除\n（事件觸發點）'
+    });
+    const nDOM = addNode({
+      x: 420, y: 120, w: 300, h: 105,
+      tags: ['DOM'],
+      title: 'DOM Layer',
+      body: 'dayCols / block / ghost\nrenderWeekFromMap → renderDayFromData'
+    });
+    const nState = addNode({
+      x: 820, y: 120, w: 320, h: 105,
+      tags: ['CORE'],
+      title: 'State/Data Layer',
+      body: 'allSchedules（前端單一真相）\n{ yyyy-mm-dd: [items...] }'
+    });
+    const nAPI = addNode({
+      x: 1220, y: 120, w: 280, h: 105,
+      tags: ['API'],
+      title: 'API Layer',
+      body: 'GET /week?from&to\nPOST /day  /week'
+    });
+
+    const nRead = addNode({
+      x: 820, y: 320, w: 420, h: 118,
+      tags: ['CORE'],
+      title: '[READ FLOW]',
+      body: 'loadWeek → merge allSchedules\n→ renderWeekFromMap → renderDayFromData'
+    });
+
+    const nWrite = addNode({
+      x: 420, y: 510, w: 520, h: 132,
+      tags: ['RISK'],
+      title: '[WRITE FLOW]',
+      body: 'create/drag/resize/edit/delete\n→ serialize payload → persistDay\n→ 後端存檔 → 回來重 render'
+    });
+
+    const nInteract = addNode({
+      x: 60, y: 520, w: 320, h: 120,
+      tags: ['CORE'],
+      title: 'setupInteract(block)',
+      body: 'interact.js\n拖曳 / 縮放 / 跨日\n（能力注入，不是狀態）'
+    });
+
+    // edges
+    addEdge(nInput, nDOM, makePort('right', 46), makePort('left', 52));
+    addEdge(nDOM, nState, makePort('right', 52), makePort('left', 52));
+    addEdge(nState, nAPI, makePort('right', 52), makePort('left', 52));
+    addEdge(nAPI, nRead, makePort('bottom', 140), makePort('right', 58));
+    addEdge(nRead, nDOM, makePort('left', 58), makePort('bottom', 150));
+    addEdge(nInput, nInteract, makePort('bottom', 140), makePort('top', 140));
+    addEdge(nInteract, nWrite, makePort('right', 60), makePort('left', 66));
+    addEdge(nWrite, nAPI, makePort('right', 260), makePort('bottom', 140));
+
+    // position view
+    state.view = { x: 0, y: 0, scale: 0.8 };
+    setViewportTransform();
+    showToast('已載入範例流程圖（可直接修改/新增/連線）');
+  }
+
+  // init
+  loadLocalUsers();
+  saveLocalUsers();
+  updateAccountLabel();
+  renderUserList();
+  await loadProjects();
+  syncProjectToolWidth();
+  const savedState = await loadSavedState(currentProject.id);
+  if (savedState){
+    importJSON(savedState, { skipSave: true });
+  } else {
+    seed();
+  }
+  normalizeAllEdges();
+  setViewportTransform();
+  updateFlowNav();
+  isBooting = false;
+  scheduleToolbarLayout();
+  saveState();
+
+})();
+</script>
+</body>
+</html>
