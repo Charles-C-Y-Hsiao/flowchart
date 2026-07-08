@@ -3,7 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <!-- Font Awesome  -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
+  <!-- flaticon  -->
+  <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/3.0.0/uicons-thin-rounded/css/uicons-thin-rounded.css">
+  <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/3.0.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
   <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/3.0.0/uicons-regular-chubby/css/uicons-regular-chubby.css">
+  <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/3.0.0/uicons-thin-chubby/css/uicons-thin-chubby.css">
+
+
   <title>資料流 × DOM × API — Flow Editor</title>
   <style>
     :root{
@@ -28,7 +36,7 @@
     header{
       display:flex; align-items:center; justify-content:space-between; gap:18px;
       width:100%; max-width:100vw; min-width:0;
-      padding:14px 20px; background: var(--panel);
+      padding: 14px 20px 8px; background: var(--panel);
       border-bottom:1px solid var(--line);
       position: sticky; top:0; z-index:10;
       overflow:visible;
@@ -210,6 +218,15 @@
       box-shadow:0 0 0 2px rgba(47,126,230,.14);
       background:#ffffff;
     }
+    .project-create-hint{
+      grid-column:1 / -1;
+      min-height:16px;
+      color:var(--muted);
+      font-size:11px;
+      line-height:1.35;
+    }
+    .project-create-hint.ok{ color:var(--ok); }
+    .project-create-hint.error{ color:var(--danger); }
     .project-create-button{
       padding:8px 10px;
     }
@@ -234,6 +251,42 @@
     }
     .toolbar-actions{ flex-wrap:nowrap; }
     .toolbar-hints{ flex-wrap:nowrap; }
+    .toolbar-view{
+      flex-wrap:nowrap;
+      justify-content:flex-end;
+    }
+    .segmented{
+      display:inline-flex;
+      align-items:center;
+      gap:2px;
+      padding:2px;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:#f7f9fc;
+      flex:0 0 auto;
+    }
+    .segmented button,
+    .view-setting-button{
+      height:30px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:0 9px;
+      border-color:transparent;
+      background:transparent;
+      line-height:1;
+    }
+    .segmented button.active,
+    .view-setting-button.active{
+      border-color:#9fc5f4;
+      background:#ffffff;
+      color:var(--accent-deep);
+      box-shadow:0 1px 3px rgba(23,32,51,.08);
+    }
+    .view-setting-button{
+      border-color:var(--line);
+      background:#ffffff;
+    }
     .toolbar-more{
       position:absolute;
       right:0;
@@ -279,6 +332,23 @@
       flex:0 0 auto;
       transition: transform .06s ease, background .12s ease, border-color .12s ease;
     }
+    .toolbar-actions button{
+      height:30px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      line-height:1;
+    }
+    .toolbar-actions .action-settings-toggle.active{
+      border-color:#9fc5f4;
+      background:#eef6ff;
+      color:var(--accent-deep);
+      box-shadow:0 0 0 2px rgba(47,126,230,.1);
+    }
+    #btnDelete[hidden],
+    .toolbar-view .view-setting-button[hidden]{
+      display:none;
+    }
     button:hover{ background: #f4f9ff; border-color: #9fc5f4; color: var(--accent-deep); }
     button:active{ transform: translateY(1px); }
     button.primary{ background: #f4f9ff; border-color: #9fc5f4; color: var(--accent-deep); }
@@ -286,8 +356,8 @@
     button.ok{ background: #f2fbf6; border-color: #a9dcc2; color: var(--ok); }
     button.help-toggle{ min-width:84px; }
     button.icon-button{
-      width:42px;
-      height:42px;
+      width:36px;
+      height:30px;
       display:inline-flex;
       align-items:center;
       justify-content:center;
@@ -434,6 +504,7 @@
     /* 節點 */
     .node{
       position:absolute;
+      z-index:2;
       pointer-events:auto;
       width: 260px;
       min-height: 72px;
@@ -454,7 +525,7 @@
       outline-color: rgba(47,126,230,.8);
       box-shadow: 0 12px 26px rgba(47,126,230,.18), var(--shadow);
     }
-    .stage.moving .node.selected .node-move-handle{ cursor:grabbing; }
+    .stage.moving .node.selected .node-move-handle{ cursor:move; }
     .selection-marquee{
       position:absolute;
       border:1px solid rgba(47,126,230,.82);
@@ -465,10 +536,160 @@
       display:none;
       z-index:6;
     }
+    .selection-tools{
+      position:absolute;
+      z-index:9;
+      display:none;
+      align-items:center;
+      gap:4px;
+      padding:4px;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:rgba(255,255,255,.96);
+      box-shadow:0 10px 24px rgba(23,32,51,.14);
+      backdrop-filter:blur(10px);
+      pointer-events:auto;
+    }
+    .selection-tools.show{ display:flex; }
+    .selection-tools .same-shape-tool{ display:none; }
+    .selection-tools.same-shape .same-shape-tool{ display:inline-flex; }
+    .selection-tool-button{
+      width:30px;
+      height:30px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:0;
+      border-color:transparent;
+      background:transparent;
+      color:var(--muted);
+    }
+    .selection-tool-button:hover,
+    .selection-tool-button:focus{
+      border-color:#9fc5f4;
+      background:#f4f9ff;
+      color:var(--accent-deep);
+      outline:none;
+    }
+    .align-icon{
+      position:relative;
+      width:18px;
+      height:18px;
+      display:block;
+    }
+    .align-icon::before,
+    .align-icon::after{
+      content:"";
+      position:absolute;
+      box-sizing:border-box;
+      border-color:currentColor;
+    }
+    .icon-center-x::before{
+      left:8px;
+      top:1px;
+      width:2px;
+      height:16px;
+      background:currentColor;
+      opacity:.65;
+    }
+    .icon-center-x::after{
+      left:3px;
+      top:3px;
+      width:12px;
+      height:12px;
+      border-top:2px solid currentColor;
+      border-bottom:2px solid currentColor;
+    }
+    .icon-center-y::before{
+      left:1px;
+      top:8px;
+      width:16px;
+      height:2px;
+      background:currentColor;
+      opacity:.65;
+    }
+    .icon-center-y::after{
+      left:3px;
+      top:3px;
+      width:12px;
+      height:12px;
+      border-left:2px solid currentColor;
+      border-right:2px solid currentColor;
+    }
+    .icon-distribute-x::before{
+      left:1px;
+      top:2px;
+      width:16px;
+      height:14px;
+      border-left:2px solid currentColor;
+      border-right:2px solid currentColor;
+    }
+    .icon-distribute-x::after{
+      left:5px;
+      top:4px;
+      width:2px;
+      height:10px;
+      background:currentColor;
+      box-shadow:6px 0 0 currentColor;
+    }
+    .icon-distribute-y::before{
+      left:2px;
+      top:1px;
+      width:14px;
+      height:16px;
+      border-top:2px solid currentColor;
+      border-bottom:2px solid currentColor;
+    }
+    .icon-distribute-y::after{
+      left:4px;
+      top:5px;
+      width:10px;
+      height:2px;
+      background:currentColor;
+      box-shadow:0 6px 0 currentColor;
+    }
+    .icon-normalize-size::before{
+      left:2px;
+      top:3px;
+      width:14px;
+      height:12px;
+      border-top:2px solid currentColor;
+      border-bottom:2px solid currentColor;
+      opacity:.72;
+    }
+    .icon-normalize-size::after{
+      left:4px;
+      top:7px;
+      width:10px;
+      height:4px;
+      border-left:2px solid currentColor;
+      border-right:2px solid currentColor;
+      background:linear-gradient(currentColor,currentColor) center / 10px 2px no-repeat;
+    }
     .node .tagrow{
       display:flex; gap:4px 6px; flex-wrap:wrap; margin-bottom:5px; align-items:center;
       padding-right:32px;
       min-height:20px;
+    }
+    .node-control-stack{
+      position:absolute;
+      left:calc(100% + 8px);
+      top:10px;
+      z-index:8;
+      display:none;
+      flex-direction:column;
+      align-items:flex-start;
+      gap:5px;
+      padding:5px;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:rgba(255,255,255,.96);
+      box-shadow:0 10px 24px rgba(23,32,51,.12);
+      backdrop-filter:blur(10px);
+    }
+    .node.controls-open .node-control-stack,
+    .node.selected .node-control-stack{
+      display:flex;
     }
     .node.move-ready{
       border-color:#9fc5f4;
@@ -498,24 +719,90 @@
     .tag.dom{ color:#1759b7; border-color: #b9d7f8; background: #eef6ff; }
     .tag.api{ color:#27885c; border-color: #a9dcc2; background: #f2fbf6; }
     .tag.risk{ color:#bf4a4a; border-color: #efb5b5; background: #fff7f7; }
+    .tag-picker{
+      position:relative;
+      display:inline-flex;
+    }
     .tag-select{
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
       border:1px solid var(--line);
       border-radius:999px;
-      background:#ffffff;
+      background:#f7f9fc;
       color:var(--muted);
       font-size:11px;
-      height:20px;
-      padding:0 6px;
+      line-height:1.15;
+      height:auto;
+      padding:2px 7px;
       cursor:pointer;
       outline:none;
-      display:none;
+      white-space:nowrap;
     }
-    .node.controls-open .tag-select,
-    .node.selected .tag-select{ display:inline-block; }
+    .tag-select:hover{
+      border-color:#c9d8eb;
+      background-color:#ffffff;
+      color:var(--accent-deep);
+    }
     .tag-select:focus{
       border-color:var(--accent);
       box-shadow:0 0 0 2px rgba(47,126,230,.14);
     }
+    .tag-select-caret{
+      width:6px;
+      height:6px;
+      border-right:1.5px solid currentColor;
+      border-bottom:1.5px solid currentColor;
+      transform:rotate(45deg) translateY(-1px);
+      opacity:.76;
+    }
+    .tag-menu{
+      position:absolute;
+      left:0;
+      top:calc(100% + 6px);
+      z-index:30;
+      display:none;
+      min-width:132px;
+      padding:6px;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:rgba(255,255,255,.98);
+      box-shadow:0 10px 24px rgba(23,32,51,.12);
+      backdrop-filter:blur(10px);
+    }
+    .tag-picker.open .tag-menu{ display:grid; gap:4px; }
+    .tag-menu-option{
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      padding:6px 8px;
+      border:1px solid transparent;
+      border-radius:var(--radius);
+      background:transparent;
+      color:var(--text);
+      text-align:left;
+      font-size:12px;
+    }
+    .tag-menu-option:hover,
+    .tag-menu-option:focus{
+      background:#f4f9ff;
+      border-color:#c9d8eb;
+      color:var(--accent-deep);
+      outline:none;
+    }
+    .tag-menu-swatch{
+      width:8px;
+      height:8px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#f7f9fc;
+    }
+    .tag-menu-option.core .tag-menu-swatch{ border-color:#ead68f; background:#fff8dc; }
+    .tag-menu-option.dom .tag-menu-swatch{ border-color:#b9d7f8; background:#eef6ff; }
+    .tag-menu-option.api .tag-menu-swatch{ border-color:#a9dcc2; background:#f2fbf6; }
+    .tag-menu-option.risk .tag-menu-swatch{ border-color:#efb5b5; background:#fff7f7; }
 
     .node .title{
       font-weight: 700;
@@ -530,6 +817,218 @@
       line-height: 1.28;
       white-space: pre-wrap;
     }
+    .node.knowledge-node .body.clamped{
+      display:-webkit-box;
+      -webkit-box-orient:vertical;
+      -webkit-line-clamp:var(--body-lines, 2);
+      overflow:hidden;
+    }
+    .node.flowchart-node{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:22px 32px;
+    }
+    .node.flowchart-node .body{
+      display:none;
+    }
+    .node.flowchart-node .tagrow{
+      position:absolute;
+      top:10px;
+      left:12px;
+      right:44px;
+      display:none;
+      margin:0;
+      z-index:4;
+    }
+    .node.flowchart-node.selected .tagrow,
+    .node.flowchart-node.controls-open .tagrow{
+      display:none;
+    }
+    .node.flowchart-node .tag-edit{
+      display:none;
+    }
+    .node.flowchart-node .shape-picker{
+      display:inline-flex;
+    }
+    .node.flowchart-node .node-move-handle,
+    .node.flowchart-node .node-control-stack,
+    .node.flowchart-node .resize,
+    .node.flowchart-node .resize-y{
+      display:none;
+    }
+    .node.flowchart-node .title{
+      width:100%;
+      margin:0;
+      font-size:var(--flow-title-size, 20px);
+      font-weight:800;
+      line-height:1.22;
+    }
+    .node.shape-diamond,
+    .node.shape-parallelogram{
+      background:transparent;
+      border-color:transparent;
+      box-shadow:none;
+    }
+    .node.shape-diamond::before,
+    .node.shape-parallelogram::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:-1;
+      pointer-events:none;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.92);
+      box-shadow:var(--shadow);
+    }
+    .node.shape-diamond.selected,
+    .node.shape-parallelogram.selected{
+      outline:none;
+      background:transparent;
+      box-shadow:none;
+    }
+    .node.shape-diamond.selected::before,
+    .node.shape-parallelogram.selected::before{
+      border-color:rgba(47,126,230,.8);
+      background:rgba(47,126,230,.18);
+      box-shadow:0 0 0 2px rgba(47,126,230,.72), 0 12px 26px rgba(47,126,230,.18), var(--shadow);
+    }
+    .node.shape-diamond.selected .title,
+    .node.shape-diamond.selected .body{
+      color:var(--text);
+    }
+    .node.shape-rounded{ border-radius:22px; }
+    .node.shape-diamond{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      border-radius:0;
+      padding:18px 24px;
+    }
+    .node.shape-diamond::before{
+      clip-path:polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+      border-radius:var(--radius);
+    }
+    .node.shape-diamond .title,
+    .node.shape-diamond .body{
+      max-width:82%;
+      margin-left:auto;
+      margin-right:auto;
+      text-align:center;
+    }
+    .node.shape-diamond .title{
+      width:82%;
+      margin-top:0;
+      margin-bottom:0;
+      align-self:center;
+    }
+    .node.shape-diamond .body{
+      position:absolute;
+      left:50%;
+      top:calc(50% + 14px);
+      width:82%;
+      transform:translateX(-50%);
+      margin:0;
+    }
+    .node.shape-diamond .tagrow{
+      position:absolute;
+      top:10px;
+      left:12px;
+      right:44px;
+      z-index:4;
+      margin:0;
+    }
+    .node.shape-diamond .tag-edit,
+    .node.shape-diamond .tag-picker,
+    .node.shape-diamond .node-subflow{
+      display:none;
+    }
+    .node.shape-diamond .shape-picker{
+      display:inline-flex;
+    }
+    .node.shape-parallelogram{
+      border-radius:var(--radius);
+    }
+    .node.shape-parallelogram::before{
+      transform:skewX(-12deg);
+      border-radius:var(--radius);
+    }
+    .node.shape-circle{
+      border-radius:999px;
+    }
+    .shape-picker{
+      position:relative;
+      display:inline-flex;
+    }
+    .shape-trigger{
+      height:auto;
+      padding:2px 7px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:#f7f9fc;
+      color:var(--muted);
+      font-size:11px;
+      line-height:1.15;
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+    }
+    .shape-trigger:hover,
+    .shape-trigger:focus{
+      border-color:#c9d8eb;
+      background:#ffffff;
+      color:var(--accent-deep);
+      outline:none;
+    }
+    .shape-menu{
+      position:absolute;
+      left:0;
+      top:calc(100% + 6px);
+      z-index:30;
+      display:none;
+      grid-template-columns:1fr;
+      gap:4px;
+      min-width:128px;
+      padding:6px;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:rgba(255,255,255,.98);
+      box-shadow:0 10px 24px rgba(23,32,51,.12);
+    }
+    .shape-picker.open .shape-menu{ display:grid; }
+    .shape-option{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      width:100%;
+      padding:6px 8px;
+      border:1px solid transparent;
+      border-radius:var(--radius);
+      background:transparent;
+      color:var(--text);
+      font-size:12px;
+      text-align:left;
+    }
+    .shape-option:hover,
+    .shape-option:focus{
+      background:#f4f9ff;
+      border-color:#c9d8eb;
+      color:var(--accent-deep);
+      outline:none;
+    }
+    .shape-icon{
+      width:16px;
+      height:16px;
+      flex:0 0 auto;
+      border:1.5px solid currentColor;
+      background:rgba(47,126,230,.04);
+    }
+    .shape-icon.rounded{ border-radius:6px; }
+    .shape-icon.diamond{ transform:rotate(45deg) scale(.82); }
+    .shape-icon.parallelogram{ transform:skewX(-16deg); }
+    .shape-icon.circle{ border-radius:999px; }
     /* 可編輯 */
     .node [contenteditable="true"]{
       user-select:text;
@@ -550,6 +1049,35 @@
       opacity:.75;
     }
     .node.selected .resize{ border-color: var(--accent); }
+    .resize-y{
+      position:absolute;
+      left:50%;
+      bottom:7px;
+      width:30px;
+      height:10px;
+      transform:translateX(-50%);
+      border-bottom:2px solid rgba(105,117,138,.45);
+      border-radius:999px;
+      cursor:ns-resize;
+      opacity:.72;
+    }
+    .resize-y::before{
+      content:"";
+      position:absolute;
+      left:50%;
+      bottom:-4px;
+      width:6px;
+      height:6px;
+      transform:translateX(-50%);
+      border-radius:999px;
+      background:rgba(105,117,138,.45);
+    }
+    .node.selected .resize-y{
+      border-color:var(--accent);
+    }
+    .node.selected .resize-y::before{
+      background:var(--accent);
+    }
 
     .connector-point{
       position:absolute;
@@ -604,6 +1132,46 @@
     .lane p{ margin:0; color: var(--muted); font-size: 11px; line-height:1.4; }
     .lane .hint{ margin-top:8px; font-size:11px; color: var(--muted); }
     .lane .hint kbd{ font-size:10px; }
+    .node-group{
+      position:absolute;
+      z-index:1;
+      pointer-events:auto;
+      border:1.5px dashed rgba(47,126,230,.48);
+      border-radius:var(--radius);
+      background:rgba(47,126,230,.05);
+      box-shadow:0 10px 24px rgba(47,126,230,.08);
+      cursor:grab;
+      user-select:none;
+    }
+    .node-group.selected{
+      border-style:solid;
+      border-color:var(--accent);
+      background:rgba(47,126,230,.08);
+    }
+    .node-group-label{
+      position:absolute;
+      left:10px;
+      top:-14px;
+      max-width:calc(100% - 20px);
+      padding:2px 8px;
+      border:1px solid #c9d8eb;
+      border-radius:999px;
+      background:rgba(255,255,255,.96);
+      color:var(--accent-deep);
+      font-size:11px;
+      font-weight:700;
+      line-height:1.2;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      cursor:text;
+      outline:none;
+    }
+    .node-group-label:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 2px rgba(47,126,230,.14);
+      background:#ffffff;
+    }
 
     .flow-nav{
       position:absolute;
@@ -643,15 +1211,16 @@
       right:10px;
       top:10px;
       z-index:5;
-      width:24px;
-      height:22px;
-      display:grid;
-      place-items:center;
+      width:19px;
+      height:19px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
       padding:0;
       border-color:#c9d8eb;
       background:#f8fbff;
       color:var(--accent-deep);
-      cursor:grab;
+      cursor:move;
     }
     .node-move-handle:hover,
     .node-move-handle:focus{
@@ -660,17 +1229,109 @@
       box-shadow:0 0 0 2px rgba(47,126,230,.14);
     }
     .node-move-handle:active{
-      cursor:grabbing;
+      cursor:move;
     }
-    .node-move-icon{
-      width:13px;
-      height:13px;
+    .node-ctrl-toggle-zone{
+      position:absolute;
+      right:9px;
+      top:34px;
+      bottom:30px;
+      z-index:5;
+      width:22px;
+      min-height:18px;
+      display:none;
+      padding:0;
+      border:1px dashed rgba(47,126,230,.34);
+      border-radius:6px;
+      background:rgba(47,126,230,.08);
+      cursor:pointer;
+    }
+    .node.selected .node-ctrl-toggle-zone{
       display:block;
-      background-image:radial-gradient(currentColor 1.4px, transparent 1.5px);
-      background-size:6px 6px;
-      background-position:0 0;
-      opacity:.92;
     }
+    .node-ctrl-toggle-zone:hover,
+    .node-ctrl-toggle-zone:focus{
+      border-color:#9fc5f4;
+      background:rgba(47,126,230,.15);
+      box-shadow:0 0 0 2px rgba(47,126,230,.1);
+      outline:none;
+    }
+    .node.flowchart-node .node-ctrl-toggle-zone{
+      display:none;
+    }
+    .node.flowchart-node.selected .node-ctrl-toggle-zone{
+      right:8px;
+      top:8px;
+      bottom:8px;
+      width:24px;
+      height:auto;
+      min-height:18px;
+      display:block;
+      padding:0;
+      border-style:dashed;
+      transform:none;
+    }
+    .node.flowchart-node.shape-diamond.selected .node-ctrl-toggle-zone{
+      right:12%;
+      top:25%;
+      bottom:25%;
+    }
+    /* .node-move-icon{
+      width:15px;
+      height:15px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      opacity:.92;
+    } */
+    .node-move-icon .fi{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      /* width: 24px;
+      height: 24px; */
+
+      font-size:11px;
+      line-height:1;
+    }
+    .node-move-icon .fi::before {
+      display: block;
+      line-height: 1;
+    }
+    /* .node-move-icon .fi-rr-arrows{
+      position:relative;
+      width:15px;
+      height:15px;
+      font-size:0;
+      line-height:1;
+    } */
+    /* .node-move-icon .fi-rr-arrows::before,
+    .node-move-icon .fi-rr-arrows::after{
+      content:"";
+      position:absolute;
+      box-sizing:border-box;
+      color:currentColor;
+    } */
+    /* .node-move-icon .fi-rr-arrows::before{
+      left:2px;
+      top:5px;
+      width:11px;
+      height:8px;
+      border:1.5px solid currentColor;
+      border-top-width:1.4px;
+      border-radius:2px;
+    } */
+    /* .node-move-icon .fi-rr-arrows::after{
+      left:3px;
+      top:2px;
+      width:9px;
+      height:7px;
+      border-top:1.5px solid currentColor;
+      border-left:1.5px solid currentColor;
+      transform:skewY(-18deg);
+      border-radius:1px 0 0 0;
+    } */
     .node-subflow{
       margin-left:0;
       padding:2px 7px;
@@ -680,10 +1341,6 @@
       color:var(--accent-deep);
       font-size:11px;
       line-height:1.2;
-      display:none;
-    }
-    .node.controls-open .node-subflow,
-    .node.selected .node-subflow{
       display:inline-flex;
       width:max-content;
     }
@@ -694,13 +1351,19 @@
       border-color:#a9dcc2;
       color:var(--ok);
     }
+    .node.shape-diamond .node-subflow,
+    .node.shape-diamond .node-subflow.has-subflow,
+    .node.shape-diamond.selected .node-subflow,
+    .node.shape-diamond.controls-open .node-subflow{
+      display:none;
+    }
 
     /* 右側匯入匯出面板 */
     .drawer{
       position:absolute;
       top: 70px;
       right: 16px;
-      width: 360px;
+      width: 520px;
       max-width: calc(100% - 32px);
       background: rgba(255,255,255,.94);
       border:1px solid var(--line);
@@ -712,13 +1375,42 @@
       backdrop-filter: blur(10px);
     }
     .drawer.open{ display:block; }
-    .drawer .row{ display:flex; justify-content:space-between; align-items:center; gap:8px; }
-    .drawer .row .muted{ color:var(--muted); font-size:12px; }
+    .drawer .row{
+      display:grid;
+      grid-template-columns:minmax(0, 1fr);
+      gap:8px;
+      align-items:start;
+    }
+    .drawer .row .muted{
+      min-width:0;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.35;
+      white-space:normal;
+      overflow-wrap:anywhere;
+    }
+    .drawer-actions{
+      display:flex;
+      flex-wrap:nowrap;
+      gap:8px;
+      min-width:0;
+      max-width:100%;
+      overflow:hidden;
+    }
+    .drawer-actions button{
+      flex:0 1 auto;
+      min-width:0;
+      max-width:100%;
+      padding:8px 9px;
+    }
     .prompt-drawer{
       width:640px;
+      height:calc(100% - 96px);
       max-height:calc(100% - 96px);
-      overflow:auto;
+      overflow:hidden;
+      grid-template-rows:auto auto minmax(0, 1fr) auto;
     }
+    .prompt-drawer.open{ display:grid; }
     .prompt-drawer .prompt-header{
       display:flex;
       align-items:flex-start;
@@ -742,20 +1434,26 @@
       gap:6px;
       margin-top:12px;
     }
+    .prompt-output-field{
+      min-height:0;
+      grid-template-rows:auto minmax(0, 1fr);
+    }
     .prompt-field label{
       color:var(--muted);
       font-size:12px;
     }
     .prompt-input{
-      min-height:92px;
+      min-height:61px;
       margin-top:0;
       font-family:inherit;
       font-size:13px;
       line-height:1.5;
     }
     .prompt-output{
-      min-height:280px;
+      height:100%;
+      min-height:0;
       margin-top:0;
+      resize:none;
     }
     .prompt-actions{
       display:flex;
@@ -882,8 +1580,9 @@
           <input class="project-search" id="accountSearch" type="search" placeholder="搜尋使用者" autocomplete="off" />
           <div class="project-list" id="accountList" role="listbox" aria-label="Flow users"></div>
           <div class="project-create">
-            <input class="project-create-input" id="accountCreateName" type="text" placeholder="新增使用者 ID" inputmode="numeric" pattern="[1-9]{8}" maxlength="8" autocomplete="off" />
+            <input class="project-create-input" id="accountCreateName" type="text" placeholder="新增使用者 ID" inputmode="numeric" pattern="[0-9]{8}" maxlength="8" autocomplete="off" />
             <button class="project-create-button primary" id="btnCreateUser" type="button">新增</button>
+            <div class="project-create-hint" id="accountCreateHint" aria-live="polite"></div>
           </div>
         </div>
       </div>
@@ -904,26 +1603,39 @@
     <div class="toolbar" id="toolbar">
       <div class="toolbar-row toolbar-actions">
         <button class="primary" id="btnAdd" data-overflow-row="actions" data-overflow-priority="1">＋ 新增文字框</button>
-        <button id="btnAddLane" data-overflow-row="actions" data-overflow-priority="4">＋ 加上四層標籤區</button>
-        <button class="danger" id="btnDelete" data-overflow-row="actions" data-overflow-priority="2">刪除選取</button>
+        <button id="btnAddLane" data-overflow-row="actions" data-overflow-priority="4">＋ 建立群組</button>
+        <button class="icon-button action-settings-toggle" id="btnActionSettings" type="button" title="顯示進階操作" aria-label="顯示進階操作" aria-controls="btnDelete btnBodyLines btnFlowTitleSize" aria-expanded="false" data-overflow-row="actions" data-overflow-priority="2" style="font-size: 18px;">
+          <i class="fi fi-rc-settings-sliders" aria-hidden="true"></i>
+        </button>
+        <button class="danger" id="btnDelete" hidden data-overflow-row="actions" data-overflow-priority="2.5">刪除選取</button>
         <button class="ok" id="btnIO" data-overflow-row="actions" data-overflow-priority="3">匯入 / 匯出</button>
         <button class="icon-button" id="btnPromptGuide" type="button" title="產生抽取題詞" aria-label="產生抽取題詞" data-overflow-row="actions" data-overflow-priority="3.5">
           <i class="fi fi-rc-book-user" aria-hidden="true"></i>
         </button>
       </div>
-      <div class="toolbar-row toolbar-hints">
-        <span class="pill" data-overflow-row="hints" data-overflow-priority="1">連線：按住 <kbd>Shift</kbd> 從框拖到另一框</span>
-        <span class="pill" data-overflow-row="hints" data-overflow-priority="2">框選：空白處拖曳，可一次移動多個框</span>
-        <span class="pill" data-overflow-row="hints" data-overflow-priority="3">多選：按住 <kbd>Ctrl</kbd> 點選多個框</span>
+      <div class="toolbar-row toolbar-view">
+        <div class="segmented" role="group" aria-label="顯示模式">
+          <button id="btnModeKnowledge" type="button" class="active">知識</button>
+          <button id="btnModeFlowchart" type="button">流程圖</button>
+        </div>
+        <button id="btnBodyLines" class="view-setting-button" type="button" hidden>內容 1 行</button>
+        <button id="btnFlowTitleSize" class="view-setting-button" type="button" hidden>標題 20px</button>
         <button class="help-toggle" id="btnHelpToggle" aria-expanded="false">更多說明</button>
       </div>
       <div class="toolbar-more" id="toolbarMore" aria-label="更多操作說明">
         <div class="toolbar-more-section" id="toolbarOverflow"></div>
         <div class="toolbar-more-section">
+          <span class="pill">移動節點：拖曳節點右上方的移動控制區</span>
+          <span class="pill">連線：按住 <kbd>Shift</kbd> 從一個節點拖到另一個節點</span>
+          <span class="pill">框選：在工作區空白處拖曳，可一次選取多個節點</span>
+          <span class="pill">多選：按住 <kbd>Ctrl</kbd> 點擊節點以增加或取消選取</span>
+          <span class="pill">取消選取：按住 <kbd>Ctrl</kbd> 點擊節點內的淡藍提示區</span>
+          <span class="pill">群組：選取多個節點後，點擊「建立群組」</span>
           <span class="pill">平移：按住 <kbd>Space</kbd> 拖曳工作區</span>
           <span class="pill">縮放：<kbd>Ctrl</kbd> + 滾輪</span>
-          <span class="pill">編輯：Double click 文字後輸入</span>
-          <span class="pill">大小：拖曳框右下角調整尺寸</span>
+          <span class="pill">編輯文字：雙擊標題或內容後輸入</span>
+          <span class="pill">調整尺寸：知識模式下拖曳右下角或下緣控制區</span>
+          <span class="pill">編輯連線：點擊連線後拖曳起點、終點或折點</span>
           <span class="pill">刪除：選取後按 <kbd>Delete</kbd></span>
         </div>
       </div>
@@ -936,9 +1648,6 @@
       <button class="flow-back" id="btnFlowBack" type="button">上層</button>
       <div class="flow-nav-path" id="flowBreadcrumb"></div>
     </div>
-
-    <!-- 可選：層級提示欄（按「加上四層標籤區」才顯示） -->
-    <div id="lanes"></div>
 
     <!-- SVG 線層 -->
     <svg id="edges">
@@ -955,12 +1664,29 @@
     <!-- viewport：所有 nodes 會在這裡（可縮放/平移） -->
     <div class="viewport" id="viewport"></div>
     <div class="selection-marquee" id="selectionMarquee"></div>
+    <div class="selection-tools" id="selectionTools" aria-label="排列工具">
+      <button id="btnAlignCenterX" class="selection-tool-button" type="button" title="水平置中" aria-label="水平置中">
+        <span class="align-icon icon-center-x" aria-hidden="true"></span>
+      </button>
+      <button id="btnAlignCenterY" class="selection-tool-button" type="button" title="垂直置中" aria-label="垂直置中">
+        <span class="align-icon icon-center-y" aria-hidden="true"></span>
+      </button>
+      <button id="btnDistributeX" class="selection-tool-button" type="button" title="水平均分" aria-label="水平均分">
+        <span class="align-icon icon-distribute-x" aria-hidden="true"></span>
+      </button>
+      <button id="btnDistributeY" class="selection-tool-button" type="button" title="垂直均分" aria-label="垂直均分">
+        <span class="align-icon icon-distribute-y" aria-hidden="true"></span>
+      </button>
+      <button id="btnNormalizeSize" class="selection-tool-button same-shape-tool" type="button" title="Normalize size" aria-label="Normalize size">
+        <span class="align-icon icon-normalize-size" aria-hidden="true"></span>
+      </button>
+    </div>
 
     <!-- Import/Export Drawer -->
     <div class="drawer" id="drawer">
       <div class="row">
         <div class="muted">JSON（含節點與連線）</div>
-        <div style="display:flex; gap:8px;">
+        <div class="drawer-actions">
           <button id="btnSaveFile" class="ok">Save JSON</button>
           <button id="btnMermaid">Mermaid</button>
           <button id="btnCopy">複製</button>
@@ -975,17 +1701,17 @@
     <div class="drawer prompt-drawer" id="promptDrawer">
       <div class="prompt-header">
         <div>
-          <h2>抽取功能題詞</h2>
-          <div class="prompt-subtitle">輸入要抽出的功能，產生可交給其他 Codex 專案的 JSON 匯入題詞。</div>
+          <h2>抽取功能提示詞</h2>
+          <div class="prompt-subtitle">輸入想要抽取的功能，系統會產生提示詞，供其他 Codex 專案分析程式碼並輸出可匯入的 JSON。</div>
         </div>
         <button id="btnPromptClose" type="button">Close</button>
       </div>
       <div class="prompt-field">
         <label for="promptFeatureInput">要抽出的功能</label>
-        <textarea class="prompt-input" id="promptFeatureInput" spellcheck="false" placeholder="例如：登入流程、付款模組、GPT Extract、排程拖曳功能"></textarea>
+        <textarea class="prompt-input" id="promptFeatureInput" spellcheck="false" placeholder="例如：登入流程、儲存功能、上傳功能、排程拖曳功能"></textarea>
       </div>
-      <div class="prompt-field">
-        <label for="promptOutput">完整題詞</label>
+      <div class="prompt-field prompt-output-field">
+        <label for="promptOutput">完整提示詞</label>
         <textarea class="prompt-output" id="promptOutput" spellcheck="false" readonly></textarea>
       </div>
       <div class="prompt-actions">
@@ -1015,14 +1741,13 @@
   const stage = document.getElementById('stage');
   const viewport = document.getElementById('viewport');
   const svg = document.getElementById('edges');
-  const lanesWrap = document.getElementById('lanes');
   const selectionMarquee = document.getElementById('selectionMarquee');
+  const selectionTools = document.getElementById('selectionTools');
   const flowNav = document.getElementById('flowNav');
   const btnFlowBack = document.getElementById('btnFlowBack');
   const flowBreadcrumb = document.getElementById('flowBreadcrumb');
   const toolbar = document.getElementById('toolbar');
   const toolbarActions = toolbar.querySelector('.toolbar-actions');
-  const toolbarHints = toolbar.querySelector('.toolbar-hints');
   const toolbarOverflow = document.getElementById('toolbarOverflow');
   const accountTool = document.getElementById('accountTool');
   const accountTrigger = document.getElementById('accountTrigger');
@@ -1030,6 +1755,7 @@
   const accountSearch = document.getElementById('accountSearch');
   const accountList = document.getElementById('accountList');
   const accountCreateName = document.getElementById('accountCreateName');
+  const accountCreateHint = document.getElementById('accountCreateHint');
   const btnCreateUser = document.getElementById('btnCreateUser');
   const projectTool = document.getElementById('projectTool');
   const projectTitle = document.querySelector('header .title h1');
@@ -1042,9 +1768,19 @@
 
   const btnAdd = document.getElementById('btnAdd');
   const btnAddLane = document.getElementById('btnAddLane');
+  const btnActionSettings = document.getElementById('btnActionSettings');
   const btnDelete = document.getElementById('btnDelete');
   const btnIO = document.getElementById('btnIO');
   const btnPromptGuide = document.getElementById('btnPromptGuide');
+  const btnModeKnowledge = document.getElementById('btnModeKnowledge');
+  const btnModeFlowchart = document.getElementById('btnModeFlowchart');
+  const btnBodyLines = document.getElementById('btnBodyLines');
+  const btnFlowTitleSize = document.getElementById('btnFlowTitleSize');
+  const btnAlignCenterX = document.getElementById('btnAlignCenterX');
+  const btnAlignCenterY = document.getElementById('btnAlignCenterY');
+  const btnDistributeX = document.getElementById('btnDistributeX');
+  const btnDistributeY = document.getElementById('btnDistributeY');
+  const btnNormalizeSize = document.getElementById('btnNormalizeSize');
   const btnHelpToggle = document.getElementById('btnHelpToggle');
 
   const drawer = document.getElementById('drawer');
@@ -1076,6 +1812,20 @@
   const CURRENT_USER_KEY = 'flow-editor-current-user';
   const USER_LIST_KEY = 'flow-editor-users';
   const API_BASE = '';
+  const DEFAULT_DISPLAY = {
+    viewMode: 'knowledge',
+    knowledgeBodyLines: 1,
+    flowchartTitleSize: 20
+  };
+  const BODY_LINE_OPTIONS = [1, 2, 3, 0];
+  const FLOW_TITLE_SIZE_OPTIONS = [16, 18, 20, 24];
+  const SHAPES = [
+    { id: 'rect', label: '矩形', mermaid: value => `[${value}]` },
+    { id: 'rounded', label: '圓角', mermaid: value => `(${value})` },
+    { id: 'diamond', label: '判斷', mermaid: value => `{${value}}` },
+    { id: 'parallelogram', label: '輸入/輸出', mermaid: value => `[/${value}/]` },
+    { id: 'circle', label: '連接點', mermaid: value => `((${value}))` }
+  ];
   const DEFAULT_USER = { id: '000666888', name: '000666888' };
   const DEFAULT_PROJECT = { id: 'flowchart', name: 'flowchart' };
   let currentUser = { ...DEFAULT_USER };
@@ -1086,8 +1836,7 @@
   let saveTimer = null;
   let toolbarLayoutTimer = null;
   const toolbarRows = {
-    actions: toolbarActions,
-    hints: toolbarHints
+    actions: toolbarActions
   };
   const toolbarOverflowItems = [...toolbar.querySelectorAll('[data-overflow-row]')].map((el, index) => ({
     el,
@@ -1104,6 +1853,7 @@
     currentFlowId: 'main',
     nodes: new Map(),   // id -> {id,x,y,w,h,tags,title,body}
     edges: new Map(),   // id -> {id,from,to}
+    groups: new Map(),  // id -> {id,flowId,label,nodeIds}
     selected: { kind: null, id: null }, // {kind:'node'|'edge', id}
     selectedNodeIds: new Set(),
     hoverEdge: null,
@@ -1112,9 +1862,11 @@
     connectFrom: null, // nodeId when Shift drag starts
     drag: null, // {ids, origins, edgeOrigins, startX, startY}
     marquee: null, // {startClient, currentClient, startWorld, currentWorld, baseIds, moved}
+    groupDrag: null, // {id, origins, edgeOrigins, startX, startY}
     connectorDrag: null, // {id, axis} or {id, endpoint:'from'|'to'}
     resize: null, // {id, startW, startH, startX, startY}
     view: { x: 0, y: 0, scale: 1 }, // viewport transform
+    display: { ...DEFAULT_DISPLAY },
     panning: null // {startX,startY, ox, oy}
   };
 
@@ -1128,6 +1880,120 @@
     toast.classList.add('show');
     clearTimeout(showToast._t);
     showToast._t = setTimeout(() => toast.classList.remove('show'), 1400);
+  }
+
+  function normalizeDisplaySettings(display = {}){
+    const viewMode = display.viewMode === 'flowchart' ? 'flowchart' : 'knowledge';
+    const knowledgeBodyLines = BODY_LINE_OPTIONS.includes(Number(display.knowledgeBodyLines))
+      ? Number(display.knowledgeBodyLines)
+      : DEFAULT_DISPLAY.knowledgeBodyLines;
+    const flowchartTitleSize = FLOW_TITLE_SIZE_OPTIONS.includes(Number(display.flowchartTitleSize))
+      ? Number(display.flowchartTitleSize)
+      : DEFAULT_DISPLAY.flowchartTitleSize;
+    return { viewMode, knowledgeBodyLines, flowchartTitleSize };
+  }
+
+  function bodyLineLabel(value){
+    return value === 0 ? '內容 全部' : `內容 ${value} 行`;
+  }
+
+  function updateDisplayControls(){
+    btnModeKnowledge.classList.toggle('active', state.display.viewMode === 'knowledge');
+    btnModeFlowchart.classList.toggle('active', state.display.viewMode === 'flowchart');
+    btnBodyLines.textContent = bodyLineLabel(state.display.knowledgeBodyLines);
+    btnBodyLines.classList.toggle('active', state.display.viewMode === 'knowledge');
+    btnFlowTitleSize.textContent = `標題 ${state.display.flowchartTitleSize}px`;
+    btnFlowTitleSize.classList.toggle('active', state.display.viewMode === 'flowchart');
+  }
+
+  function applyNodeDisplay(el){
+    if (!el) return;
+    const node = state.nodes.get(el.dataset.id);
+    const isFlowchart = state.display.viewMode === 'flowchart';
+    el.classList.toggle('knowledge-node', !isFlowchart);
+    el.classList.toggle('flowchart-node', isFlowchart);
+    applyNodeShape(el, node?.shape);
+    el.style.setProperty('--body-lines', state.display.knowledgeBodyLines || 2);
+    el.style.setProperty('--flow-title-size', `${state.display.flowchartTitleSize}px`);
+    const body = el.querySelector('.body');
+    if (body) body.classList.toggle('clamped', !isFlowchart && state.display.knowledgeBodyLines !== 0);
+  }
+
+  function applyDisplaySettings({ save = false } = {}){
+    state.display = normalizeDisplaySettings(state.display);
+    stage.classList.toggle('mode-flowchart', state.display.viewMode === 'flowchart');
+    stage.classList.toggle('mode-knowledge', state.display.viewMode !== 'flowchart');
+    viewport.querySelectorAll('.node').forEach(applyNodeDisplay);
+    currentNodes().forEach(node => refreshNodePosition(node.id));
+    updateDisplayControls();
+    if (save) saveState();
+  }
+
+  function setViewMode(viewMode){
+    state.display.viewMode = viewMode === 'flowchart' ? 'flowchart' : 'knowledge';
+    applyDisplaySettings({ save: true });
+    redrawEdges();
+  }
+
+  function updateAlignToolState(){
+    const enabled = state.selectedNodeIds.size >= 2;
+    [btnAlignCenterX, btnAlignCenterY, btnDistributeX, btnDistributeY, btnNormalizeSize].forEach(button => {
+      if (button) button.disabled = !enabled;
+    });
+    if (!enabled){
+      selectionTools.classList.remove('show');
+      selectionTools.classList.remove('same-shape');
+      return;
+    }
+
+    const nodes = selectedNodes();
+    if (nodes.length < 2){
+      selectionTools.classList.remove('show');
+      selectionTools.classList.remove('same-shape');
+      return;
+    }
+    const shapeSet = new Set(nodes.map(node => normalizeShape(node.shape)));
+    const sameShape = shapeSet.size === 1;
+    selectionTools.classList.toggle('same-shape', sameShape);
+    if (btnNormalizeSize) btnNormalizeSize.disabled = !sameShape;
+
+    const bounds = {
+      left: Math.min(...nodes.map(node => node.x)),
+      top: Math.min(...nodes.map(node => node.y)),
+      right: Math.max(...nodes.map(node => node.x + node.w)),
+      bottom: Math.max(...nodes.map(node => node.y + node.h))
+    };
+    const scale = state.view.scale;
+    const screenBounds = {
+      left: bounds.left * scale + state.view.x,
+      top: bounds.top * scale + state.view.y,
+      right: bounds.right * scale + state.view.x,
+      bottom: bounds.bottom * scale + state.view.y
+    };
+
+    selectionTools.classList.add('show');
+    const toolRect = selectionTools.getBoundingClientRect();
+    let left = (screenBounds.left + screenBounds.right) / 2 - toolRect.width / 2;
+    let top = screenBounds.top - toolRect.height - 10;
+    if (top < 8) top = screenBounds.bottom + 10;
+    left = Math.min(Math.max(8, left), Math.max(8, stage.clientWidth - toolRect.width - 8));
+    top = Math.min(Math.max(8, top), Math.max(8, stage.clientHeight - toolRect.height - 8));
+    selectionTools.style.left = `${left}px`;
+    selectionTools.style.top = `${top}px`;
+  }
+
+  function normalizeShape(shape){
+    return SHAPES.some(item => item.id === shape) ? shape : 'rect';
+  }
+
+  function shapeLabel(shape){
+    return SHAPES.find(item => item.id === normalizeShape(shape))?.label || '矩形';
+  }
+
+  function applyNodeShape(el, shape){
+    if (!el) return;
+    SHAPES.forEach(item => el.classList.remove(`shape-${item.id}`));
+    el.classList.add(`shape-${normalizeShape(shape)}`);
   }
 
   function confirmUserCreation(userId){
@@ -1207,6 +2073,34 @@
   function normalizeUser(value){
     const id = userSlug(typeof value === 'string' ? value : value?.id || value?.name);
     return { id, name: typeof value === 'object' && value?.name ? String(value.name) : id };
+  }
+
+  function validateNewUserId(value){
+    const userId = String(value || '').trim();
+    if (!userId){
+      return { ok: false, userId, message: '請輸入 8 碼使用者 ID（可使用 0-9）', state: '' };
+    }
+    if (!/^[0-9]+$/.test(userId)){
+      return { ok: false, userId, message: '只能輸入數字 0-9', state: 'error' };
+    }
+    if (userId.length < 8){
+      return { ok: false, userId, message: `還需要 ${8 - userId.length} 碼`, state: '' };
+    }
+    if (userId.length > 8){
+      return { ok: false, userId, message: '最多只能 8 碼', state: 'error' };
+    }
+    return { ok: true, userId, message: '格式正確，按新增後會再確認', state: 'ok' };
+  }
+
+  function updateAccountCreateHint(){
+    const result = validateNewUserId(accountCreateName.value);
+    if (accountCreateHint){
+      accountCreateHint.textContent = result.message;
+      accountCreateHint.classList.toggle('ok', result.state === 'ok');
+      accountCreateHint.classList.toggle('error', result.state === 'error');
+    }
+    btnCreateUser.disabled = !result.ok;
+    return result;
   }
 
   function loadLocalUsers(){
@@ -1311,12 +2205,33 @@
     return edge.flowId || 'main';
   }
 
+  function groupFlowId(group){
+    return group.flowId || 'main';
+  }
+
   function currentNodes(){
     return [...state.nodes.values()].filter(node => nodeFlowId(node) === state.currentFlowId);
   }
 
   function currentEdges(){
     return [...state.edges.values()].filter(edge => edgeFlowId(edge) === state.currentFlowId);
+  }
+
+  function currentGroups(){
+    return [...state.groups.values()].filter(group => groupFlowId(group) === state.currentFlowId);
+  }
+
+  function groupBounds(group){
+    const nodes = (group.nodeIds || [])
+      .map(id => state.nodes.get(id))
+      .filter(node => node && nodeFlowId(node) === state.currentFlowId);
+    if (!nodes.length) return null;
+    const pad = 14;
+    const left = Math.min(...nodes.map(node => node.x)) - pad;
+    const top = Math.min(...nodes.map(node => node.y)) - pad;
+    const right = Math.max(...nodes.map(node => node.x + node.w)) + pad;
+    const bottom = Math.max(...nodes.map(node => node.y + node.h)) + pad;
+    return { left, top, width: right - left, height: bottom - top };
   }
 
   function flowPath(flowId = state.currentFlowId){
@@ -1354,9 +2269,15 @@
     svg.querySelectorAll('path.edge, path.edge-hit, .edge-grip, .edge-end-grip, .edge-edit-guide, .edge-edit-halo').forEach(el => el.remove());
   }
 
+  function renderGroups(){
+    viewport.querySelectorAll('.node-group').forEach(el => el.remove());
+    currentGroups().forEach(group => renderGroup(group));
+  }
+
   function renderCurrentFlow(){
     clearRenderedFlow();
     clearSelection();
+    renderGroups();
     currentNodes().forEach(node => renderNode(node));
     normalizeAllEdges();
     redrawEdges();
@@ -1408,6 +2329,9 @@
     }
     for (const [edgeId, edge] of [...state.edges.entries()]){
       if (flowIds.has(edgeFlowId(edge))) state.edges.delete(edgeId);
+    }
+    for (const [groupId, group] of [...state.groups.entries()]){
+      if (flowIds.has(groupFlowId(group))) state.groups.delete(groupId);
     }
   }
 
@@ -1595,16 +2519,12 @@
   }
 
   async function createUser(){
-    const userId = accountCreateName.value.trim();
-    if (!userId){
+    const validation = updateAccountCreateHint();
+    const userId = validation.userId;
+    if (!validation.ok){
       accountCreateName.focus();
-      showToast('請輸入 8 碼使用者 ID');
-      return;
-    }
-    if (!/^[1-9]{8}$/.test(userId)){
-      accountCreateName.focus();
-      accountCreateName.select();
-      showToast('使用者 ID 限 1-9 數字，共 8 碼');
+      if (userId) accountCreateName.select();
+      showToast('使用者 ID 需為 0-9 數字，共 8 碼');
       return;
     }
 
@@ -1619,22 +2539,19 @@
       users.push(next);
     }
     accountCreateName.value = '';
+    updateAccountCreateHint();
     renderUserList();
     await selectUser(next.id);
   }
 
   function restoreToolbarItems(){
-    ['actions', 'hints'].forEach(rowName => {
+    Object.keys(toolbarRows).forEach(rowName => {
       toolbarOverflowItems
         .filter(item => item.row === rowName)
         .sort((a, b) => a.index - b.index)
         .forEach(item => {
           item.el.classList.remove('overflow-item');
-          if (rowName === 'hints') {
-            toolbarRows[rowName].insertBefore(item.el, btnHelpToggle);
-          } else {
-            toolbarRows[rowName].appendChild(item.el);
-          }
+          toolbarRows[rowName].appendChild(item.el);
         });
     });
     toolbarOverflowItems.forEach(item => item.el.classList.remove('overflow-item'));
@@ -1669,7 +2586,6 @@
     restoreToolbarItems();
     const overflowed = [];
     fitToolbarRow('actions', overflowed);
-    fitToolbarRow('hints', overflowed);
     overflowed.sort((a, b) => a.index - b.index).forEach(item => toolbarOverflow.appendChild(item.el));
     btnHelpToggle.classList.toggle('primary', overflowed.length > 0);
   }
@@ -1728,6 +2644,7 @@
     svg.style.transformOrigin = '0 0';
     svg.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
     redrawEdges();
+    updateAlignToolState();
   }
 
   function toWorld(clientX, clientY){
@@ -1742,7 +2659,41 @@
     return { x: n.x + n.w/2, y: n.y + n.h/2 };
   }
 
+  function cardinalConnectorPoints(n){
+    return [
+      { side: 'top', offset: Math.round(n.w / 2), index: 0, x: n.w / 2, y: 0 },
+      { side: 'right', offset: Math.round(n.h / 2), index: 0, x: n.w, y: n.h / 2 },
+      { side: 'bottom', offset: Math.round(n.w / 2), index: 0, x: n.w / 2, y: n.h },
+      { side: 'left', offset: Math.round(n.h / 2), index: 0, x: 0, y: n.h / 2 },
+    ];
+  }
+
+  function connectorPointForSide(side, offset, index = 0, n){
+    const point = { side, offset: Math.round(offset), index };
+    if (side === 'top') Object.assign(point, { x: offset, y: 0 });
+    if (side === 'right') Object.assign(point, { x: n.w, y: offset });
+    if (side === 'bottom') Object.assign(point, { x: offset, y: n.h });
+    if (side === 'left') Object.assign(point, { x: 0, y: offset });
+    return point;
+  }
+
+  function sideConnectorPoints(n, side, length, spacing){
+    const middle = length / 2;
+    const halfCount = Math.max(0, Math.round(middle / spacing) - 1);
+    const firstHalf = Array.from({ length: halfCount }, (_, index) => ((index + 1) * middle) / (halfCount + 1));
+    const secondHalf = firstHalf.map(offset => length - offset).reverse();
+    return [
+      connectorPointForSide(side, middle, 0, n),
+      ...firstHalf.map((offset, index) => connectorPointForSide(side, offset, index + 1, n)),
+      ...secondHalf.map((offset, index) => connectorPointForSide(side, offset, index + 1 + firstHalf.length, n))
+    ];
+  }
+
   function getConnectorPoints(n){
+    if (state.display.viewMode === 'flowchart' || normalizeShape(n?.shape) === 'diamond'){
+      return cardinalConnectorPoints(n);
+    }
+
     const spacing = CONNECTOR_POINT_SPACING;
     const sides = [
       { side: 'top', length: n.w },
@@ -1750,26 +2701,11 @@
       { side: 'bottom', length: n.w },
       { side: 'left', length: n.h },
     ];
-    const points = [];
-
-    sides.forEach(({ side, length }) => {
-      const offsets = [];
-      for (let offset = spacing; offset < length; offset += spacing){
-        offsets.push(offset);
-      }
-      if (!offsets.length) offsets.push(length / 2);
-
-      offsets.forEach((offset, index) => {
-        const point = { side, offset: Math.round(offset), index };
-        if (side === 'top') Object.assign(point, { x: offset, y: 0 });
-        if (side === 'right') Object.assign(point, { x: n.w, y: offset });
-        if (side === 'bottom') Object.assign(point, { x: offset, y: n.h });
-        if (side === 'left') Object.assign(point, { x: 0, y: offset });
-        points.push(point);
-      });
-    });
-
-    return points;
+    const centerPoints = cardinalConnectorPoints(n);
+    const extraPoints = sides
+      .flatMap(({ side, length }) => sideConnectorPoints(n, side, length, spacing).slice(1))
+      .filter(point => !centerPoints.some(center => center.side === point.side && center.offset === point.offset));
+    return [...centerPoints, ...extraPoints];
   }
 
   function getPortPosition(n, port, fallbackSide){
@@ -1814,6 +2750,16 @@
   }
 
   function nearestPortForPoint(node, point){
+    if (state.display.viewMode === 'flowchart' || normalizeShape(node?.shape) === 'diamond'){
+      const candidates = cardinalConnectorPoints(node).map(port => ({
+        side: port.side,
+        offset: port.offset,
+        x: node.x + port.x,
+        y: node.y + port.y
+      })).sort((a, b) => Math.hypot(point.x - a.x, point.y - a.y) - Math.hypot(point.x - b.x, point.y - b.y));
+      return makePort(candidates[0].side, candidates[0].offset);
+    }
+
     const distances = [
       { side: 'top', distance: Math.abs(point.y - node.y), offset: point.x - node.x, max: node.w },
       { side: 'right', distance: Math.abs(point.x - (node.x + node.w)), offset: point.y - node.y, max: node.h },
@@ -1823,6 +2769,18 @@
     const nearest = distances[0];
     const offset = Math.round(Math.min(Math.max(nearest.offset, 0), nearest.max));
     return makePort(nearest.side, offset);
+  }
+
+  function diamondAwarePort(node, fallbackPort, targetPoint){
+    return state.display.viewMode === 'flowchart' || normalizeShape(node?.shape) === 'diamond'
+      ? nearestPortForPoint(node, targetPoint)
+      : fallbackPort;
+  }
+
+  function normalizePortForNode(node, port, fallbackSide){
+    if (state.display.viewMode !== 'flowchart' && normalizeShape(node?.shape) !== 'diamond') return port;
+    const current = getPortPosition(node, port, fallbackSide);
+    return nearestPortForPoint(node, current);
   }
 
   function reconnectTargetFromEvent(ev){
@@ -1850,18 +2808,39 @@
   function defaultEdgePorts(from, to){
     const fromCenter = nodeCenter(from);
     const toCenter = nodeCenter(to);
-    const dx = toCenter.x - fromCenter.x;
-    const dy = toCenter.y - fromCenter.y;
+    const directionalPorts = [
+      Math.abs(toCenter.x - fromCenter.x) >= Math.abs(toCenter.y - fromCenter.y)
+        ? [
+          toCenter.x >= fromCenter.x ? makePort('right', Math.round(from.h / 2)) : makePort('left', Math.round(from.h / 2)),
+          toCenter.x >= fromCenter.x ? makePort('left', Math.round(to.h / 2)) : makePort('right', Math.round(to.h / 2))
+        ]
+        : [
+          toCenter.y >= fromCenter.y ? makePort('bottom', Math.round(from.w / 2)) : makePort('top', Math.round(from.w / 2)),
+          toCenter.y >= fromCenter.y ? makePort('top', Math.round(to.w / 2)) : makePort('bottom', Math.round(to.w / 2))
+        ]
+    ];
+    const candidates = [
+      ...directionalPorts.map(([fromPort, toPort]) => ({
+        fromPort: diamondAwarePort(from, fromPort, toCenter),
+        toPort: diamondAwarePort(to, toPort, fromCenter)
+      })),
+      ...getConnectorPoints(from).flatMap(fromPoint => getConnectorPoints(to).map(toPoint => ({
+        fromPort: makePort(fromPoint.side, fromPoint.offset),
+        toPort: makePort(toPoint.side, toPoint.offset)
+      })))
+    ];
+    let best = null;
+    candidates.forEach(candidate => {
+      const route = routeMetrics(from, to, candidate.fromPort, candidate.toPort);
+      const ranked = { ...candidate, ...route };
+      if (!best || ranked.score < best.score) best = ranked;
+    });
 
-    if (Math.abs(dx) >= Math.abs(dy)){
-      return dx >= 0
-        ? { fromPort: makePort('right', Math.round(from.h / 2)), toPort: makePort('left', Math.round(to.h / 2)) }
-        : { fromPort: makePort('left', Math.round(from.h / 2)), toPort: makePort('right', Math.round(to.h / 2)) };
-    }
-
-    return dy >= 0
-      ? { fromPort: makePort('bottom', Math.round(from.w / 2)), toPort: makePort('top', Math.round(to.w / 2)) }
-      : { fromPort: makePort('top', Math.round(from.w / 2)), toPort: makePort('bottom', Math.round(to.w / 2)) };
+    return best || {
+      fromPort: makePort('right', Math.round(from.h / 2)),
+      toPort: makePort('left', Math.round(to.h / 2)),
+      elbow: null
+    };
   }
 
   function setActiveConnectorPoint(){
@@ -1878,6 +2857,7 @@
     const n = state.nodes.get(id);
     const el = viewport.querySelector(`.node[data-id="${id}"]`);
     if (!n || !el) return false;
+    if (normalizeShape(n.shape) === 'diamond') return false;
 
     const measuredHeight = Math.ceil(el.getBoundingClientRect().height / state.view.scale);
     if (measuredHeight > n.h){
@@ -1901,6 +2881,10 @@
     return height;
   }
 
+  function minNodeHeight(n){
+    return normalizeShape(n?.shape) === 'diamond' ? 100 : 86;
+  }
+
   function updateSelectionUI(){
     viewport.querySelectorAll('.node').forEach(el => {
       const selected = state.selectedNodeIds.has(el.dataset.id);
@@ -1912,6 +2896,10 @@
       el.classList.toggle('selected', selected);
       el.setAttribute('marker-end', selected ? 'url(#arrowHeadSelected)' : 'url(#arrowHead)');
     });
+    viewport.querySelectorAll('.node-group').forEach(el => {
+      el.classList.toggle('selected', state.selected.kind === 'group' && state.selected.id === el.dataset.id);
+    });
+    updateAlignToolState();
     setActiveConnectorPoint();
   }
 
@@ -1930,6 +2918,14 @@
     state.selectedNodeIds = new Set(ids);
     state.selected = { kind: 'node', id };
     updateSelectionUI();
+  }
+
+  function toggleNodeSelection(id){
+    if (!state.nodes.has(id)) return;
+    const ids = new Set(state.selectedNodeIds);
+    if (ids.has(id)) ids.delete(id);
+    else ids.add(id);
+    selectNodes([...ids]);
   }
 
   function select(kind, id){
@@ -1994,6 +2990,101 @@
     return moved;
   }
 
+  function selectedNodes(){
+    return [...state.selectedNodeIds]
+      .map(id => state.nodes.get(id))
+      .filter(node => node && nodeFlowId(node) === state.currentFlowId);
+  }
+
+  function rerouteEdgesForNodes(nodes){
+    const ids = new Set(nodes.map(node => node.id));
+    currentEdges().forEach(edge => {
+      if (!ids.has(edge.from) && !ids.has(edge.to)) return;
+      edge.fromPort = null;
+      edge.toPort = null;
+      edge.elbow = null;
+      edge.manualElbow = false;
+      normalizeEdge(edge);
+    });
+  }
+
+  function finishNodeArrangement(nodes){
+    nodes.forEach(node => refreshNodePosition(node.id));
+    rerouteEdgesForNodes(nodes);
+    refreshGroups();
+    redrawEdges();
+    updateSelectionUI();
+    saveState();
+  }
+
+  function arrangeSelectedNodes(mode){
+    const nodes = selectedNodes();
+    if (nodes.length < 2){
+      showToast('請先框選至少兩個元素');
+      return;
+    }
+
+    if (mode === 'center-x'){
+      const centerX = nodes.reduce((sum, node) => sum + node.x + node.w / 2, 0) / nodes.length;
+      nodes.forEach(node => { node.x = centerX - node.w / 2; });
+      finishNodeArrangement(nodes);
+      return;
+    }
+
+    if (mode === 'center-y'){
+      const centerY = nodes.reduce((sum, node) => sum + node.y + node.h / 2, 0) / nodes.length;
+      nodes.forEach(node => { node.y = centerY - node.h / 2; });
+      finishNodeArrangement(nodes);
+      return;
+    }
+
+    if (mode === 'distribute-x'){
+      const sorted = [...nodes].sort((a, b) => a.x - b.x);
+      const left = sorted[0].x;
+      const right = Math.max(...sorted.map(node => node.x + node.w));
+      const totalWidth = sorted.reduce((sum, node) => sum + node.w, 0);
+      const gap = sorted.length > 1 ? (right - left - totalWidth) / (sorted.length - 1) : 0;
+      let cursor = left;
+      sorted.forEach(node => {
+        node.x = cursor;
+        cursor += node.w + gap;
+      });
+      finishNodeArrangement(nodes);
+      return;
+    }
+
+    if (mode === 'distribute-y'){
+      const sorted = [...nodes].sort((a, b) => a.y - b.y);
+      const top = sorted[0].y;
+      const bottom = Math.max(...sorted.map(node => node.y + node.h));
+      const totalHeight = sorted.reduce((sum, node) => sum + node.h, 0);
+      const gap = sorted.length > 1 ? (bottom - top - totalHeight) / (sorted.length - 1) : 0;
+      let cursor = top;
+      sorted.forEach(node => {
+        node.y = cursor;
+        cursor += node.h + gap;
+      });
+      finishNodeArrangement(nodes);
+    }
+  }
+
+  function normalizeSelectedNodeSizes(){
+    const nodes = selectedNodes();
+    if (nodes.length < 2) return;
+    const shapeSet = new Set(nodes.map(node => normalizeShape(node.shape)));
+    if (shapeSet.size !== 1){
+      showToast('Only same-shape selections can be normalized');
+      updateAlignToolState();
+      return;
+    }
+    const maxWidth = Math.max(...nodes.map(node => node.w));
+    nodes.forEach(node => {
+      node.w = maxWidth;
+      node.h = minNodeHeight(node);
+    });
+    finishNodeArrangement(nodes);
+  }
+
   function shortenPoint(point, toward, radius){
     const dx = toward.x - point.x;
     const dy = toward.y - point.y;
@@ -2012,6 +3103,159 @@
       const prev = points[index - 1];
       return Math.abs(point.x - prev.x) > threshold || Math.abs(point.y - prev.y) > threshold;
     });
+  }
+
+  function countConnectorBends(points){
+    let bends = 0;
+    for (let i = 1; i < points.length - 1; i++){
+      const prev = points[i - 1];
+      const point = points[i];
+      const next = points[i + 1];
+      const beforeHorizontal = Math.abs(prev.y - point.y) <= 0.1;
+      const afterHorizontal = Math.abs(point.y - next.y) <= 0.1;
+      if (beforeHorizontal !== afterHorizontal) bends++;
+    }
+    return bends;
+  }
+
+  function connectorLength(points){
+    return points.reduce((sum, point, index) => {
+      if (index === 0) return 0;
+      const prev = points[index - 1];
+      return sum + Math.abs(point.x - prev.x) + Math.abs(point.y - prev.y);
+    }, 0);
+  }
+
+  function segmentOverlapLength(minA, maxA, minB, maxB){
+    return Math.max(0, Math.min(maxA, maxB) - Math.max(minA, minB));
+  }
+
+  function segmentIntersectsBounds(a, b, bounds){
+    const minX = Math.min(a.x, b.x);
+    const maxX = Math.max(a.x, b.x);
+    const minY = Math.min(a.y, b.y);
+    const maxY = Math.max(a.y, b.y);
+    if (Math.abs(a.x - b.x) <= 0.1){
+      if (a.x <= bounds.left || a.x >= bounds.right) return 0;
+      return segmentOverlapLength(minY, maxY, bounds.top, bounds.bottom);
+    }
+    if (Math.abs(a.y - b.y) <= 0.1){
+      if (a.y <= bounds.top || a.y >= bounds.bottom) return 0;
+      return segmentOverlapLength(minX, maxX, bounds.left, bounds.right);
+    }
+    return 0;
+  }
+
+  function routeObstacles(from, to, pad = 4){
+    return currentNodes()
+      .filter(node => node.id !== from.id && node.id !== to.id)
+      .map(node => ({
+        id: node.id,
+        left: node.x - pad,
+        top: node.y - pad,
+        right: node.x + node.w + pad,
+        bottom: node.y + node.h + pad
+      }));
+  }
+
+  function routeCollisionPenalty(points, obstacles){
+    if (!obstacles || !obstacles.length) return 0;
+    let penalty = 0;
+    for (let i = 1; i < points.length; i++){
+      const a = points[i - 1];
+      const b = points[i];
+      obstacles.forEach(bounds => {
+        const overlap = segmentIntersectsBounds(a, b, bounds);
+        if (overlap > 0) penalty += 20000 + overlap * 30;
+      });
+    }
+    return penalty;
+  }
+
+  function endpointRoutePenalty(points, from, to){
+    const endpointBounds = [from, to].map(node => ({
+      left: node.x - 2,
+      top: node.y - 2,
+      right: node.x + node.w + 2,
+      bottom: node.y + node.h + 2
+    }));
+    let penalty = 0;
+    for (let i = 2; i < points.length - 1; i++){
+      const a = points[i - 1];
+      const b = points[i];
+      endpointBounds.forEach(bounds => {
+        const overlap = segmentIntersectsBounds(a, b, bounds);
+        if (overlap > 0) penalty += 25000 + overlap * 35;
+      });
+    }
+    return penalty;
+  }
+
+  function exitsForRoute(start, end, fromDirection, toDirection){
+    return {
+      startExit: {
+        x: start.x + fromDirection.x * CONNECTOR_CLEARANCE,
+        y: start.y + fromDirection.y * CONNECTOR_CLEARANCE
+      },
+      endExit: {
+        x: end.x + toDirection.x * CONNECTOR_CLEARANCE,
+        y: end.y + toDirection.y * CONNECTOR_CLEARANCE
+      }
+    };
+  }
+
+  function orthogonalRoutePoints(start, end, fromDirection, toDirection, elbow){
+    const { startExit, endExit } = exitsForRoute(start, end, fromDirection, toDirection);
+    const verticalFirst = elbow
+      ? Math.abs(elbow.x - startExit.x) <= 0.1
+      : false;
+    const resolvedElbow = elbow || bestConnectorElbow(startExit, endExit);
+    const points = verticalFirst
+      ? [
+        start,
+        startExit,
+        { x: startExit.x, y: resolvedElbow.y },
+        { x: endExit.x, y: resolvedElbow.y },
+        endExit,
+        end
+      ]
+      : [
+        start,
+        startExit,
+        { x: resolvedElbow.x, y: startExit.y },
+        { x: resolvedElbow.x, y: endExit.y },
+        endExit,
+        end
+      ];
+    return compactConnectorPoints(points);
+  }
+
+  function scoreRoutePoints(points, obstacles = [], endpoints = null){
+    const bends = countConnectorBends(points);
+    const length = connectorLength(points);
+    const collision = routeCollisionPenalty(points, obstacles) +
+      (endpoints ? endpointRoutePenalty(points, endpoints.from, endpoints.to) : 0);
+    return {
+      bends,
+      length,
+      collision,
+      score: length + bends * 80 + collision
+    };
+  }
+
+  function portFacingPenalty(from, to, fromDirection, toDirection){
+    const fromCenter = nodeCenter(from);
+    const toCenter = nodeCenter(to);
+    const dx = toCenter.x - fromCenter.x;
+    const dy = toCenter.y - fromCenter.y;
+    const distance = Math.max(1, Math.hypot(dx, dy));
+    const vx = dx / distance;
+    const vy = dy / distance;
+    const fromFacing = fromDirection.x * vx + fromDirection.y * vy;
+    const toFacing = toDirection.x * -vx + toDirection.y * -vy;
+    const fromPenalty = Math.max(0, 0.55 - fromFacing) * 260;
+    const toPenalty = Math.max(0, 0.55 - toFacing) * 260;
+    return fromPenalty + toPenalty;
   }
 
   function roundedOrthogonalPath(points, radius){
@@ -2034,11 +3278,82 @@
     return d;
   }
 
-  function defaultConnectorElbow(startExit, endExit){
-    return {
+  function bestConnectorElbow(startExit, endExit){
+    const candidates = [
+      { x: endExit.x, y: startExit.y },
+      { x: startExit.x, y: endExit.y },
+      {
+        x: (startExit.x + endExit.x) / 2,
+        y: startExit.y
+      },
+      {
+        x: startExit.x,
+        y: (startExit.y + endExit.y) / 2
+      }
+    ];
+    let best = null;
+    candidates.forEach(elbow => {
+      const points = compactConnectorPoints([
+        startExit,
+        Math.abs(elbow.x - startExit.x) <= 0.1
+          ? { x: startExit.x, y: elbow.y }
+          : { x: elbow.x, y: startExit.y },
+        Math.abs(elbow.x - startExit.x) <= 0.1
+          ? { x: endExit.x, y: elbow.y }
+          : { x: elbow.x, y: endExit.y },
+        endExit
+      ]);
+      const metrics = scoreRoutePoints(points);
+      if (!best || metrics.score < best.score) best = { ...elbow, ...metrics };
+    });
+    return best || {
       x: (startExit.x + endExit.x) / 2,
       y: (startExit.y + endExit.y) / 2
     };
+  }
+
+  function defaultConnectorElbow(startExit, endExit){
+    return bestConnectorElbow(startExit, endExit);
+  }
+
+  function routeMetrics(from, to, fromPort, toPort){
+    const start = getPortPosition(from, fromPort, 'right');
+    const end = getPortPosition(to, toPort, 'left');
+    const fromDirection = getPortDirection(fromPort, 'right');
+    const toDirection = getPortDirection(toPort, 'left');
+    const { startExit, endExit } = exitsForRoute(start, end, fromDirection, toDirection);
+    const obstacles = routeObstacles(from, to);
+    const facingPenalty = portFacingPenalty(from, to, fromDirection, toDirection);
+    const detourPad = CONNECTOR_CLEARANCE + 10;
+    const detourElbows = obstacles.flatMap(bounds => ([
+      { x: bounds.left - detourPad, y: startExit.y },
+      { x: bounds.right + detourPad, y: startExit.y },
+      { x: startExit.x, y: bounds.top - detourPad },
+      { x: startExit.x, y: bounds.bottom + detourPad }
+    ]));
+    const elbows = [
+      { x: endExit.x, y: startExit.y },
+      { x: startExit.x, y: endExit.y },
+      {
+        x: (startExit.x + endExit.x) / 2,
+        y: startExit.y
+      },
+      {
+        x: startExit.x,
+        y: (startExit.y + endExit.y) / 2
+      },
+      ...detourElbows
+    ];
+    let best = null;
+    elbows.forEach(elbow => {
+      let safeElbow = clampElbowOutsideNode(elbow, from, fromPort);
+      safeElbow = clampElbowOutsideNode(safeElbow, to, toPort);
+      const points = orthogonalRoutePoints(start, end, fromDirection, toDirection, safeElbow);
+      const metrics = scoreRoutePoints(points, obstacles, { from, to });
+      const ranked = { elbow: safeElbow, ...metrics, score: metrics.score + facingPenalty };
+      if (!best || ranked.score < best.score) best = ranked;
+    });
+    return best || { elbow: defaultConnectorElbow(startExit, endExit), score: Infinity, length: Infinity, bends: Infinity };
   }
 
   function clampElbowOutsideNode(elbow, node, port, pad = CONNECTOR_CLEARANCE){
@@ -2069,25 +3384,7 @@
 
   // Rounded orthogonal connector, matching the progress_v2 marker link style.
   function edgePath(start, end, fromDirection, toDirection, elbow){
-    const startExit = {
-      x: start.x + fromDirection.x * CONNECTOR_CLEARANCE,
-      y: start.y + fromDirection.y * CONNECTOR_CLEARANCE
-    };
-    const endExit = {
-      x: end.x + toDirection.x * CONNECTOR_CLEARANCE,
-      y: end.y + toDirection.y * CONNECTOR_CLEARANCE
-    };
-    const resolvedElbow = elbow || defaultConnectorElbow(startExit, endExit);
-
-    return roundedOrthogonalPath(compactConnectorPoints([
-      start,
-      startExit,
-      { x: resolvedElbow.x, y: startExit.y },
-      { x: resolvedElbow.x, y: resolvedElbow.y },
-      { x: endExit.x, y: resolvedElbow.y },
-      endExit,
-      end
-    ]), 8);
+    return roundedOrthogonalPath(orthogonalRoutePoints(start, end, fromDirection, toDirection, elbow), 8);
   }
 
   function edgeRoutePoints(from, to, e = {}){
@@ -2095,14 +3392,7 @@
     const end = getPortPosition(to, e.toPort, 'left');
     const fromDirection = getPortDirection(e.fromPort, 'right');
     const toDirection = getPortDirection(e.toPort, 'left');
-    const startExit = {
-      x: start.x + fromDirection.x * CONNECTOR_CLEARANCE,
-      y: start.y + fromDirection.y * CONNECTOR_CLEARANCE
-    };
-    const endExit = {
-      x: end.x + toDirection.x * CONNECTOR_CLEARANCE,
-      y: end.y + toDirection.y * CONNECTOR_CLEARANCE
-    };
+    const { startExit, endExit } = exitsForRoute(start, end, fromDirection, toDirection);
     return {
       start,
       end,
@@ -2121,10 +3411,14 @@
       const defaults = defaultEdgePorts(from, to);
       edge.fromPort = edge.fromPort || defaults.fromPort;
       edge.toPort = edge.toPort || defaults.toPort;
+      edge.elbow = edge.elbow || defaults.elbow;
+      edge.manualElbow = false;
     }
+    edge.fromPort = normalizePortForNode(from, edge.fromPort, 'right');
+    edge.toPort = normalizePortForNode(to, edge.toPort, 'left');
 
-    if (!edge.elbow){
-      const route = edgeRoutePoints(from, to, edge);
+    if (!edge.elbow || !edge.manualElbow){
+      const route = routeMetrics(from, to, edge.fromPort, edge.toPort);
       edge.elbow = route.elbow;
     }
     repairEdgeElbow(edge, from, to);
@@ -2184,6 +3478,7 @@
     }
 
     edge.elbow = null;
+    edge.manualElbow = false;
     normalizeEdge(edge);
     select('edge', edge.id);
     redrawEdges();
@@ -2214,6 +3509,7 @@
     const route = edgeRoutePoints(from, to, edge);
     const w = toWorld(ev.clientX, ev.clientY);
     edge.elbow = { ...route.elbow };
+    edge.manualElbow = true;
     if (state.connectorDrag.axis === 'x') edge.elbow.x = w.x;
     if (state.connectorDrag.axis === 'y') edge.elbow.y = w.y;
     redrawEdges();
@@ -2460,32 +3756,239 @@
         tagEl.blur();
       }
     });
-    tagrow.insertBefore(tagEl, tagrow.querySelector('.tag-select'));
+    tagrow.appendChild(tagEl);
     return tagEl;
   }
 
-  function renderTagEditor(tagrow, n){
+  function closeTagPickers(except = null){
+    viewport.querySelectorAll('.tag-picker.open').forEach(picker => {
+      if (picker !== except) picker.classList.remove('open');
+    });
+  }
+
+  function closeShapePickers(except = null){
+    viewport.querySelectorAll('.shape-picker.open').forEach(picker => {
+      if (picker !== except) picker.classList.remove('open');
+    });
+  }
+
+  function renderShapePicker(container, n){
+    const picker = document.createElement('span');
+    picker.className = 'shape-picker';
+    picker.addEventListener('mousedown', ev => ev.stopPropagation());
+    picker.addEventListener('click', ev => ev.stopPropagation());
+
+    const trigger = document.createElement('button');
+    trigger.type = 'button';
+    trigger.className = 'shape-trigger';
+    trigger.title = 'Change flowchart shape';
+    trigger.innerHTML = '<span class="shape-icon"></span><span class="shape-label"></span>';
+    trigger.querySelector('.shape-icon').classList.add(normalizeShape(n.shape));
+    trigger.querySelector('.shape-label').textContent = shapeLabel(n.shape);
+    trigger.addEventListener('click', () => {
+      const open = picker.classList.contains('open');
+      closeTagPickers();
+      closeShapePickers(picker);
+      picker.classList.toggle('open', !open);
+    });
+
+    const menu = document.createElement('div');
+    menu.className = 'shape-menu';
+    menu.setAttribute('role', 'menu');
+    SHAPES.forEach(shape => {
+      const option = document.createElement('button');
+      option.type = 'button';
+      option.className = 'shape-option';
+      option.setAttribute('role', 'menuitem');
+      option.innerHTML = `<span class="shape-icon ${shape.id}" aria-hidden="true"></span><span></span>`;
+      option.querySelector('span:last-child').textContent = shape.label;
+      option.addEventListener('click', () => {
+        const node = state.nodes.get(n.id);
+        if (!node) return;
+        node.shape = shape.id;
+        const nodeEl = viewport.querySelector(`.node[data-id="${n.id}"]`);
+        applyNodeDisplay(nodeEl);
+        trigger.querySelector('.shape-icon').className = `shape-icon ${shape.id}`;
+        trigger.querySelector('.shape-label').textContent = shape.label;
+        picker.classList.remove('open');
+        refreshNodePosition(n.id);
+        refreshGroups();
+        redrawEdges();
+        saveState();
+      });
+      menu.appendChild(option);
+    });
+
+    picker.addEventListener('keydown', ev => {
+      if (ev.key === 'Escape'){
+        picker.classList.remove('open');
+        trigger.focus();
+      }
+    });
+    picker.appendChild(trigger);
+    picker.appendChild(menu);
+    container.appendChild(picker);
+  }
+
+  function addTagFromPicker(nodeId, tagrow, value){
+    const tag = value === '__custom' ? 'TAG' : value;
+    const exists = (state.nodes.get(nodeId)?.tags || []).some(item => item.toLowerCase() === tag.toLowerCase());
+    let tagEl = [...tagrow.querySelectorAll('.tag-edit')].find(item => item.textContent.trim().toLowerCase() === tag.toLowerCase());
+    if (!exists && !tagEl) tagEl = createTagPill(nodeId, tag, tagrow);
+    syncTagsFromRow(nodeId, tagrow, true);
+    if (value === '__custom' || tag === 'TAG') focusTag(tagEl);
+  }
+
+  function renderTagEditor(tagrow, n, controls){
     tagrow.addEventListener('mousedown', ev => ev.stopPropagation());
     (n.tags || []).forEach(tag => createTagPill(n.id, tag, tagrow));
 
-    const select = document.createElement('select');
-    select.className = 'tag-select';
-    select.title = 'Add tag';
-    select.innerHTML = '<option value="">+ tag</option>' +
-      TAG_PRESETS.map(tag => `<option value="${tag}">${tag}</option>`).join('') +
-      '<option value="__custom">Custom...</option>';
-    select.addEventListener('mousedown', ev => ev.stopPropagation());
-    select.addEventListener('change', () => {
-      if (!select.value) return;
-      const tag = select.value === '__custom' ? 'TAG' : select.value;
-      const exists = (state.nodes.get(n.id)?.tags || []).some(item => item.toLowerCase() === tag.toLowerCase());
-      let tagEl = [...tagrow.querySelectorAll('.tag-edit')].find(item => item.textContent.trim().toLowerCase() === tag.toLowerCase());
-      if (!exists && !tagEl) tagEl = createTagPill(n.id, tag, tagrow);
-      syncTagsFromRow(n.id, tagrow, true);
-      select.value = '';
-      if (select.value === '__custom' || tag === 'TAG') focusTag(tagEl);
+    const picker = document.createElement('span');
+    picker.className = 'tag-picker';
+    picker.addEventListener('mousedown', ev => ev.stopPropagation());
+    picker.addEventListener('click', ev => ev.stopPropagation());
+
+    const trigger = document.createElement('button');
+    trigger.type = 'button';
+    trigger.className = 'tag-select';
+    trigger.title = 'Add tag';
+    trigger.innerHTML = '<span>+ tag</span><span class="tag-select-caret" aria-hidden="true"></span>';
+    trigger.addEventListener('click', () => {
+      const open = picker.classList.contains('open');
+      closeTagPickers(picker);
+      picker.classList.toggle('open', !open);
     });
-    tagrow.appendChild(select);
+
+    const menu = document.createElement('div');
+    menu.className = 'tag-menu';
+    menu.setAttribute('role', 'menu');
+    [...TAG_PRESETS, '__custom'].forEach(value => {
+      const label = value === '__custom' ? 'Custom...' : value;
+      const option = document.createElement('button');
+      option.type = 'button';
+      option.className = 'tag-menu-option' + (value !== '__custom' ? ' ' + value.toLowerCase() : '');
+      option.setAttribute('role', 'menuitem');
+      option.innerHTML = '<span></span><span class="tag-menu-swatch" aria-hidden="true"></span>';
+      option.querySelector('span').textContent = label;
+      option.addEventListener('click', () => {
+        addTagFromPicker(n.id, tagrow, value);
+        picker.classList.remove('open');
+      });
+      menu.appendChild(option);
+    });
+
+    picker.addEventListener('keydown', ev => {
+      if (ev.key === 'Escape'){
+        picker.classList.remove('open');
+        trigger.focus();
+      }
+    });
+    picker.appendChild(trigger);
+    picker.appendChild(menu);
+    controls.appendChild(picker);
+  }
+
+  function renderGroup(group){
+    const bounds = groupBounds(group);
+    if (!bounds) return;
+    const el = document.createElement('div');
+    el.className = 'node-group';
+    el.dataset.id = group.id;
+    el.style.left = bounds.left + 'px';
+    el.style.top = bounds.top + 'px';
+    el.style.width = bounds.width + 'px';
+    el.style.height = bounds.height + 'px';
+
+    const label = document.createElement('div');
+    label.className = 'node-group-label';
+    label.contentEditable = 'true';
+    label.spellcheck = false;
+    label.textContent = group.label || 'Group';
+    label.addEventListener('mousedown', ev => ev.stopPropagation());
+    label.addEventListener('input', () => {
+      const item = state.groups.get(group.id);
+      if (item) item.label = label.textContent.trim() || 'Group';
+    });
+    label.addEventListener('blur', () => {
+      const item = state.groups.get(group.id);
+      if (item) item.label = label.textContent.trim() || 'Group';
+      saveState();
+    });
+    label.addEventListener('keydown', ev => {
+      if (ev.key === 'Enter'){
+        ev.preventDefault();
+        label.blur();
+      }
+    });
+
+    el.appendChild(label);
+    el.addEventListener('mousedown', ev => beginGroupDrag(group, ev));
+    viewport.appendChild(el);
+  }
+
+  function refreshGroups(){
+    renderGroups();
+    updateSelectionUI();
+  }
+
+  function groupEdgeOrigins(nodeIds){
+    const ids = new Set(nodeIds);
+    return currentEdges()
+      .filter(edge => ids.has(edge.from) || ids.has(edge.to))
+      .map(edge => {
+        const from = state.nodes.get(edge.from);
+        const to = state.nodes.get(edge.to);
+        if (from && to) normalizeEdge(edge);
+        return {
+          id: edge.id,
+          x: edge.elbow?.x ?? null,
+          y: edge.elbow?.y ?? null
+        };
+      });
+  }
+
+  function beginGroupDrag(group, ev){
+    if (ev.button !== 0) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    select('group', group.id);
+    const nodeIds = (group.nodeIds || []).filter(id => state.nodes.has(id));
+    state.groupDrag = {
+      id: group.id,
+      nodeIds,
+      origins: nodeIds.map(id => {
+        const node = state.nodes.get(id);
+        return { id, x: node.x, y: node.y };
+      }),
+      edgeOrigins: groupEdgeOrigins(nodeIds),
+      startX: ev.clientX,
+      startY: ev.clientY
+    };
+  }
+
+  async function createGroupFromSelection(){
+    const nodeIds = [...state.selectedNodeIds].filter(id => {
+      const node = state.nodes.get(id);
+      return node && nodeFlowId(node) === state.currentFlowId;
+    });
+    if (nodeIds.length < 2){
+      showToast('請先框選至少兩個文字框');
+      return;
+    }
+    const id = uid('g');
+    const group = {
+      id,
+      flowId: state.currentFlowId,
+      label: `Group ${currentGroups().length + 1}`,
+      nodeIds
+    };
+    state.groups.set(id, group);
+    renderGroup(group);
+    select('group', id);
+    saveState();
+    await saveProjectFile(exportJSON());
+    await refreshProjects();
+    showToast('已建立群組，可拖曳群組框移動');
   }
 
   function beginNodeDrag(n, ev){
@@ -2530,14 +4033,17 @@
 
     const tagrow = document.createElement('div');
     tagrow.className = 'tagrow';
-    renderTagEditor(tagrow, n);
+    const controls = document.createElement('div');
+    controls.className = 'node-control-stack';
+    renderShapePicker(controls, n);
+    renderTagEditor(tagrow, n, controls);
 
     const moveHandle = document.createElement('button');
     moveHandle.type = 'button';
     moveHandle.className = 'node-move-handle';
     moveHandle.title = 'Move node';
     moveHandle.setAttribute('aria-label', 'Move node');
-    moveHandle.innerHTML = '<span class="node-move-icon" aria-hidden="true"></span>';
+    moveHandle.innerHTML = '<span class="node-move-icon" aria-hidden="true"><i class="fi fi-rr-arrows"></i></span>';
     moveHandle.addEventListener('mouseenter', () => {
       el.classList.add('move-ready');
       setNodeControlsOpen(el, true);
@@ -2551,6 +4057,25 @@
       if (!state.selectedNodeIds.has(n.id)) setNodeControlsOpen(el, false);
     });
     moveHandle.addEventListener('mousedown', ev => beginNodeDrag(n, ev));
+
+    const ctrlToggleZone = document.createElement('button');
+    ctrlToggleZone.type = 'button';
+    ctrlToggleZone.className = 'node-ctrl-toggle-zone';
+    ctrlToggleZone.title = '按住 Ctrl 點擊可取消選取';
+    ctrlToggleZone.setAttribute('aria-label', '按住 Ctrl 點擊可取消選取');
+    ctrlToggleZone.addEventListener('mousedown', ev => {
+      ev.preventDefault();
+      ev.stopPropagation();
+    });
+    ctrlToggleZone.addEventListener('click', ev => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      if (ev.ctrlKey || ev.metaKey){
+        toggleNodeSelection(n.id);
+        return;
+      }
+      showToast('按住 Ctrl 點擊可取消選取');
+    });
 
     const subflowButton = document.createElement('button');
     subflowButton.type = 'button';
@@ -2566,7 +4091,7 @@
       saveState();
       setCurrentFlow(flowId);
     });
-    tagrow.appendChild(subflowButton);
+    controls.appendChild(subflowButton);
 
     const title = document.createElement('div');
     title.className = 'title';
@@ -2583,13 +4108,20 @@
     const resize = document.createElement('div');
     resize.className = 'resize';
     resize.title = 'Resize';
+    const resizeY = document.createElement('div');
+    resizeY.className = 'resize-y';
+    resizeY.title = 'Resize height';
 
     el.appendChild(tagrow);
     el.appendChild(moveHandle);
+    el.appendChild(ctrlToggleZone);
+    el.appendChild(controls);
     el.appendChild(title);
     el.appendChild(body);
     renderConnectorPoints(el, n);
     el.appendChild(resize);
+    el.appendChild(resizeY);
+    applyNodeDisplay(el);
 
     el.addEventListener('mouseenter', () => {
       el.classList.add('show-connectors');
@@ -2610,6 +4142,7 @@
       }
       if (syncNodeHeightFromDom(n.id)){
         refreshNodePosition(n.id);
+        refreshGroups();
         redrawEdges();
       }
       saveState();
@@ -2619,6 +4152,7 @@
       if (nn) nn.body = body.textContent;
       if (syncNodeHeightFromDom(n.id)){
         refreshNodePosition(n.id);
+        refreshGroups();
         redrawEdges();
       }
       saveState();
@@ -2630,6 +4164,18 @@
       select('node', n.id);
       state.resize = {
         id: n.id,
+        mode: 'both',
+        startW: n.w, startH: n.h,
+        startX: ev.clientX, startY: ev.clientY
+      };
+    });
+    resizeY.addEventListener('mousedown', (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      select('node', n.id);
+      state.resize = {
+        id: n.id,
+        mode: 'height',
         startW: n.w, startH: n.h,
         startX: ev.clientX, startY: ev.clientY
       };
@@ -2655,6 +4201,16 @@
         return;
       }
 
+      if (ev.ctrlKey || ev.metaKey){
+        ev.preventDefault();
+        toggleNodeSelection(n.id);
+        return;
+      }
+
+      if (!state.selectedNodeIds.has(n.id)){
+        select('node', n.id);
+      }
+
       return;
     });
 
@@ -2672,6 +4228,7 @@
     el.style.top  = n.y + 'px';
     el.style.width = n.w + 'px';
     el.style.minHeight = n.h + 'px';
+    el.style.height = n.h + 'px';
     el.querySelectorAll('.connector-point').forEach(point => point.remove());
     renderConnectorPoints(el, n);
     setActiveConnectorPoint();
@@ -2688,6 +4245,7 @@
       tags: partial.tags ?? [],
       title: partial.title ?? 'New Box',
       body: partial.body ?? 'Double click / edit me.',
+      shape: normalizeShape(partial.shape),
       flowId: partial.flowId || state.currentFlowId,
       subflowId: partial.subflowId || null
     };
@@ -2740,6 +4298,11 @@
         if (edgeFlowId(e) !== state.currentFlowId) continue;
         if (ids.includes(e.from) || ids.includes(e.to)) state.edges.delete(eid);
       }
+      state.groups.forEach(group => {
+        group.nodeIds = (group.nodeIds || []).filter(nodeId => !ids.includes(nodeId));
+        if (group.nodeIds.length < 2) state.groups.delete(group.id);
+      });
+      refreshGroups();
       redrawEdges();
       clearSelection();
       showToast('已刪除節點（含相關連線）');
@@ -2748,6 +4311,11 @@
       redrawEdges();
       clearSelection();
       showToast('已刪除連線');
+    } else if (kind === 'group'){
+      state.groups.delete(id);
+      refreshGroups();
+      clearSelection();
+      showToast('已刪除群組');
     }
   }
 
@@ -2760,6 +4328,7 @@
       state.connectFrom = null;
       state.draftEdge = null;
       hideMoveHint();
+      closeTagPickers();
       redrawEdges();
       clearSelection();
       closeHelpPanel();
@@ -2853,7 +4422,31 @@
         if (!edge) return;
         edge.elbow = { x: origin.x + dx, y: origin.y + dy };
       });
+      refreshGroups();
       redrawEdges();
+      updateAlignToolState();
+      return;
+    }
+
+    // group dragging
+    if (state.groupDrag){
+      const dx = (e.clientX - state.groupDrag.startX) / state.view.scale;
+      const dy = (e.clientY - state.groupDrag.startY) / state.view.scale;
+      state.groupDrag.origins.forEach(origin => {
+        const n = state.nodes.get(origin.id);
+        if (!n) return;
+        n.x = origin.x + dx;
+        n.y = origin.y + dy;
+        refreshNodePosition(n.id);
+      });
+      state.groupDrag.edgeOrigins.forEach(origin => {
+        const edge = state.edges.get(origin.id);
+        if (!edge || origin.x == null || origin.y == null) return;
+        edge.elbow = { x: origin.x + dx, y: origin.y + dy };
+      });
+      refreshGroups();
+      redrawEdges();
+      updateAlignToolState();
       return;
     }
 
@@ -2875,10 +4468,14 @@
       if (!n) return;
       const dx = (e.clientX - state.resize.startX) / state.view.scale;
       const dy = (e.clientY - state.resize.startY) / state.view.scale;
-      n.w = Math.max(180, state.resize.startW + dx);
-      n.h = Math.max(60, measureNodeContentHeight(n.id, n.w), state.resize.startH + dy);
+      if (state.resize.mode !== 'height'){
+        n.w = Math.max(180, state.resize.startW + dx);
+      }
+      n.h = Math.max(minNodeHeight(n), state.resize.startH + dy);
       refreshNodePosition(n.id);
+      refreshGroups();
       redrawEdges();
+      updateAlignToolState();
       return;
     }
 
@@ -2904,9 +4501,10 @@
 
   window.addEventListener('mouseup', (e) => {
     // finish node drag/resize
-    const changedLayout = Boolean(state.drag || state.resize);
+    const changedLayout = Boolean(state.drag || state.resize || state.groupDrag);
     const wasMovingNodes = Boolean(state.drag);
     if (state.drag) state.drag = null;
+    if (state.groupDrag) state.groupDrag = null;
     if (state.resize) state.resize = null;
     if (changedLayout) saveState();
     if (wasMovingNodes) hideMoveHint();
@@ -2987,7 +4585,9 @@
       version: 2,
       currentFlowId: state.currentFlowId,
       view: state.view,
+      display: state.display,
       flows: [...state.flows.values()],
+      groups: [...state.groups.values()],
       nodes: [...state.nodes.values()],
       edges: [...state.edges.values()],
     };
@@ -3007,6 +4607,21 @@
     return 'n_' + String(id || '').replace(/[^a-zA-Z0-9_]/g, '_');
   }
 
+  function mermaidNodeSyntax(id, shape, label){
+    switch (normalizeShape(shape)){
+      case 'rounded':
+        return `${id}("${label}")`;
+      case 'diamond':
+        return `${id}{"${label}"}`;
+      case 'parallelogram':
+        return `${id}[/"${label}"/]`;
+      case 'circle':
+        return `${id}(("${label}"))`;
+      default:
+        return `${id}["${label}"]`;
+    }
+  }
+
   function exportMermaid(){
     const lines = ['flowchart TD'];
     const classLines = [];
@@ -3022,7 +4637,8 @@
       const tags = (node.tags || []).join(', ');
       const tagLine = tags ? `<small>${escapeMermaidText(tags)}</small><br/>` : '';
       const body = node.body ? `<br/>${escapeMermaidText(node.body)}` : '';
-      lines.push(`  ${id}["<b>${escapeMermaidText(node.title || 'Untitled')}</b><br/>${tagLine}${body}"]`);
+      const label = `<b>${escapeMermaidText(node.title || 'Untitled')}</b><br/>${tagLine}${body}`;
+      lines.push(`  ${mermaidNodeSyntax(id, node.shape, label)}`);
 
       const primaryTag = (node.tags || []).find(tag => classDefs.has(String(tag).toUpperCase()));
       if (primaryTag) classLines.push(`  class ${id} ${String(primaryTag).toUpperCase()}`);
@@ -3048,6 +4664,8 @@
     state.currentFlowId = 'main';
     state.nodes.clear();
     state.edges.clear();
+    state.groups.clear();
+    state.display = { ...DEFAULT_DISPLAY };
     viewport.innerHTML = '';
     svg.querySelectorAll('path.edge').forEach(p => p.remove());
     svg.querySelectorAll('path.edge-hit, .edge-grip, .edge-end-grip, .edge-edit-guide, .edge-edit-halo').forEach(p => p.remove());
@@ -3102,48 +4720,35 @@
       state.view = { ...state.view, ...obj.view };
       setViewportTransform();
     }
+    state.display = normalizeDisplaySettings(obj.display || {
+      viewMode: obj.viewMode,
+      knowledgeBodyLines: obj.knowledgeBodyLines,
+      flowchartTitleSize: obj.flowchartTitleSize
+    });
     (obj.nodes || []).forEach(n => {
       n.flowId = n.flowId || 'main';
+      n.shape = normalizeShape(n.shape);
       state.nodes.set(n.id, n);
     });
     (obj.edges || []).forEach(e => {
       e.flowId = e.flowId || 'main';
       state.edges.set(e.id, e);
     });
+    (obj.groups || []).forEach(group => {
+      if (!group || !group.id) return;
+      state.groups.set(group.id, {
+        id: group.id,
+        flowId: group.flowId || 'main',
+        label: group.label || 'Group',
+        nodeIds: Array.isArray(group.nodeIds) ? group.nodeIds : []
+      });
+    });
     dedupeEdges();
     normalizeAllEdges();
     renderCurrentFlow();
+    applyDisplaySettings();
     if (!options.skipSave) saveState();
     if (!options.quiet) showToast('已匯入並重建流程圖');
-  }
-
-  // ─────────────────────────────────────────────────────────────
-  // Lanes (optional)
-  // ─────────────────────────────────────────────────────────────
-  let lanesShown = false;
-  function showLanes(){
-    if (lanesShown) return;
-    lanesShown = true;
-
-    const labels = [
-      { title: 'User Input',  x: 16,  text: '滑鼠 / 鍵盤 / 輸入 / 刪除 / 雙擊' },
-      { title: 'DOM Layer',   x: 272, text: 'dayCols / block / ghost / 事件監聽' },
-      { title: 'State Layer', x: 528, text: 'allSchedules（前端單一真相）' },
-      { title: 'API Layer',   x: 784, text: 'GET /week  ·  POST /day · POST /week' },
-    ];
-
-    labels.forEach((l) => {
-      const box = document.createElement('div');
-      box.className = 'lane';
-      box.style.left = l.x + 'px';
-      box.innerHTML = `
-        <h3>${l.title}</h3>
-        <p>${l.text}</p>
-        <div class="hint">提示：<kbd>Shift</kbd> 拖線、<kbd>Delete</kbd> 刪除</div>
-      `;
-      lanesWrap.appendChild(box);
-    });
-    showToast('已加上四層標籤區');
   }
 
   // ─────────────────────────────────────────────────────────────
@@ -3155,16 +4760,18 @@
 
 重要規則：
 1. 只輸出純 JSON，不要 Markdown，不要說明文字。
-2. JSON 必須包含 project、projectName、version、currentFlowId、view、flows、nodes、edges。
+2. JSON 必須包含 user、project、projectName、version、currentFlowId、view、display、flows、groups、nodes、edges。
 3. version 固定為 2。
 4. currentFlowId 固定為 "main"。
 5. view 使用 { "x": 0, "y": 0, "scale": 1 }。
-6. flows 至少要有 { "id": "main", "name": "主流程", "parentFlowId": null, "ownerNodeId": null }。
+6. display 使用 { "viewMode": "knowledge", "knowledgeBodyLines": 1, "flowchartTitleSize": 20 }。
+7. flows 至少要有 { "id": "main", "name": "主流程", "parentFlowId": null, "ownerNodeId": null }。
+8. 沒有群組時 groups 必須是空陣列 []。
 
 分析內容規則：
 1. 只分析「${feature}」相關流程，不要展開無關功能。
-2. 逐個說明各函數作用。
-3. 如果函數內呼叫其他自定義函數，也要拆成子流程。
+2. 每個主要函數建立一個節點，body 說明該函數作用。
+3. 如果函數內包含一組需要另外展開的自定義函數，建立 subflow。
 4. 子函數最多拆解到第 3 層。
 5. 超過第 3 層的呼叫不要再建立子流程，可在 body 簡短概括。
 6. 每個 body 最多 30 個中文字。
@@ -3180,17 +4787,25 @@
   "flowId": "所屬流程ID",
   "x": 數字,
   "y": 數字,
-  "w": 260,
+  "w": 280,
   "h": 100,
   "tags": ["CORE"],
   "title": "函數名稱()",
-  "body": "30字內中文說明"
+  "body": "30字內繁體中文說明",
+  "shape": "rect",
+  "subflowId": null
 }
 
-如果某函數有子函數，該 node 加上：
-"subflowId": "flow_該節點ID"
+shape 可使用：
+- "rect"：一般步驟
+- "rounded"：開始或結束
+- "diamond"：條件判斷，最小高度 100
+- "parallelogram"：輸入或輸出
+- "circle"：流程連接點
 
-並在 flows 新增：
+知識抽取預設使用 "rect"；只有語意明確時才使用其他形狀。
+
+如果某節點需要展開子流程，將 subflowId 改為 "flow_該節點ID"，並在 flows 新增：
 {
   "id": "flow_該節點ID",
   "name": "函數名稱 子流程",
@@ -3207,9 +4822,21 @@
   "to": "目標node id"
 }
 
+不要輸出 fromPort、toPort、elbow 或 manualElbow；匯入後由 Flow Editor 依節點位置自動選擇連接點與最短、最少轉折且避開節點的路徑。
+同一個 flowId、from、to 組合不可重複。
+
+群組格式：
+只有確實需要將同一職責的多個節點視為一組時才建立 group：
+{
+  "id": "唯一英文群組ID",
+  "flowId": "所屬流程ID",
+  "label": "群組名稱",
+  "nodeIds": ["節點ID"]
+}
+
 版面配置規則：
 1. 同一 flow 內節點由上到下排列。
-2. x 可固定 80，y 從 100 開始，每個節點間隔 150。
+2. x 可固定 80，y 從 100 開始，每個節點至少間隔 150。
 3. 若同一層函數很多，可分欄排列，第二欄 x=420，第三欄 x=760。
 4. edge 只連接同一 flowId 內的節點。
 5. 呼叫順序明確時，用 edge 串起來。
@@ -3230,6 +4857,7 @@ id 命名規則：
 
 輸出 JSON 範例結構：
 {
+  "user": "00000000",
   "project": "function-flow",
   "projectName": "Function Flow",
   "version": 2,
@@ -3239,6 +4867,11 @@ id 命名規則：
     "y": 0,
     "scale": 1
   },
+  "display": {
+    "viewMode": "knowledge",
+    "knowledgeBodyLines": 1,
+    "flowchartTitleSize": 20
+  },
   "flows": [
     {
       "id": "main",
@@ -3247,6 +4880,7 @@ id 命名規則：
       "ownerNodeId": null
     }
   ],
+  "groups": [],
   "nodes": [],
   "edges": []
 }
@@ -3266,7 +4900,18 @@ id 命名規則：
     if (el) el.focus();
   });
 
-  btnAddLane.addEventListener('click', () => showLanes());
+  btnAddLane.addEventListener('click', createGroupFromSelection);
+  btnActionSettings.addEventListener('click', () => {
+    const showAdvancedActions = btnDelete.hidden;
+    [btnDelete, btnBodyLines, btnFlowTitleSize].forEach(button => {
+      button.hidden = !showAdvancedActions;
+    });
+    btnActionSettings.classList.toggle('active', showAdvancedActions);
+    btnActionSettings.setAttribute('aria-expanded', String(showAdvancedActions));
+    btnActionSettings.title = showAdvancedActions ? '隱藏進階操作' : '顯示進階操作';
+    btnActionSettings.setAttribute('aria-label', btnActionSettings.title);
+    scheduleToolbarLayout();
+  });
 
   btnDelete.addEventListener('click', () => {
     deleteSelected();
@@ -3290,6 +4935,37 @@ id 命名規則：
       promptFeatureInput.focus();
     }
   });
+  btnModeKnowledge.addEventListener('click', () => setViewMode('knowledge'));
+  btnModeFlowchart.addEventListener('click', () => setViewMode('flowchart'));
+  btnBodyLines.addEventListener('click', () => {
+    const index = BODY_LINE_OPTIONS.indexOf(state.display.knowledgeBodyLines);
+    state.display.knowledgeBodyLines = BODY_LINE_OPTIONS[(index + 1) % BODY_LINE_OPTIONS.length];
+    if (state.display.viewMode !== 'knowledge') state.display.viewMode = 'knowledge';
+    applyDisplaySettings({ save: true });
+    currentNodes().forEach(node => {
+      if (syncNodeHeightFromDom(node.id)) refreshNodePosition(node.id);
+    });
+    refreshGroups();
+    redrawEdges();
+  });
+  btnFlowTitleSize.addEventListener('click', () => {
+    const index = FLOW_TITLE_SIZE_OPTIONS.indexOf(state.display.flowchartTitleSize);
+    state.display.flowchartTitleSize = FLOW_TITLE_SIZE_OPTIONS[(index + 1) % FLOW_TITLE_SIZE_OPTIONS.length];
+    if (state.display.viewMode !== 'flowchart') state.display.viewMode = 'flowchart';
+    applyDisplaySettings({ save: true });
+    currentNodes().forEach(node => {
+      if (syncNodeHeightFromDom(node.id)) refreshNodePosition(node.id);
+    });
+    refreshGroups();
+    redrawEdges();
+  });
+  btnAlignCenterX.addEventListener('click', () => arrangeSelectedNodes('center-x'));
+  btnAlignCenterY.addEventListener('click', () => arrangeSelectedNodes('center-y'));
+  btnDistributeX.addEventListener('click', () => arrangeSelectedNodes('distribute-x'));
+  btnDistributeY.addEventListener('click', () => arrangeSelectedNodes('distribute-y'));
+  btnNormalizeSize.addEventListener('click', normalizeSelectedNodeSizes);
+  selectionTools.addEventListener('mousedown', event => event.stopPropagation());
+  selectionTools.addEventListener('click', event => event.stopPropagation());
   btnHelpToggle.addEventListener('click', () => {
     setHelpPanel(!toolbar.classList.contains('open'));
   });
@@ -3309,7 +4985,8 @@ id 命名規則：
   });
   accountSearch.addEventListener('input', renderUserList);
   accountCreateName.addEventListener('input', () => {
-    accountCreateName.value = accountCreateName.value.replace(/[^1-9]/g, '').slice(0, 8);
+    accountCreateName.value = accountCreateName.value.replace(/[^0-9]/g, '').slice(0, 8);
+    updateAccountCreateHint();
   });
   btnCreateUser.addEventListener('click', createUser);
   accountCreateName.addEventListener('keydown', (event) => {
@@ -3323,6 +5000,8 @@ id 命名規則：
   });
   projectTool.addEventListener('click', event => event.stopPropagation());
   document.addEventListener('click', () => {
+    closeTagPickers();
+    closeShapePickers();
     setProjectMenu(false);
     setAccountMenu(false);
   });
@@ -3451,6 +5130,8 @@ id 命名規則：
   } else {
     seed();
   }
+  applyDisplaySettings();
+  updateAccountCreateHint();
   normalizeAllEdges();
   setViewportTransform();
   updateFlowNav();

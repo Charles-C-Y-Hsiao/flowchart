@@ -5,9 +5,14 @@
   "version": 2,
   "currentFlowId": "main",
   "view": {
-    "x": 125.11745733956812,
-    "y": 68.14793623570571,
-    "scale": 0.71
+    "x": 350.0999258972568,
+    "y": 174.28482271101336,
+    "scale": 0.8699999999999999
+  },
+  "display": {
+    "viewMode": "flowchart",
+    "knowledgeBodyLines": 1,
+    "flowchartTitleSize": 20
   },
   "flows": [
     {
@@ -17,171 +22,159 @@
       "ownerNodeId": null
     }
   ],
+  "groups": [],
   "nodes": [
     {
       "id": "nqp6dqkg",
-      "x": -169.8079385403329,
-      "y": 57.336747759283,
+      "x": -325.29574622126074,
+      "y": -25.813452772743915,
       "w": 280,
-      "h": 117,
-      "tags": [
-        "CORE"
-      ],
-      "title": "User Input Layer",
-      "body": "滑鼠/鍵盤/雙擊/輸入/刪除\n（事件觸發點）",
-      "flowId": "main"
+      "h": 100,
+      "tags": [],
+      "title": "User Input Layer 1232222222222222",
+      "body": "",
+      "flowId": "main",
+      "shape": "diamond"
     },
     {
       "id": "nbw37bv6",
-      "x": 171.7790835924639,
-      "y": 50.214011340771904,
-      "w": 300,
-      "h": 125,
+      "x": 5.964728242874983,
+      "y": 205.36966524887728,
+      "w": 320,
+      "h": 92,
       "tags": [
         "DOM"
       ],
       "title": "DOM Layer",
       "body": "dayCols / block / ghost\nrenderWeekFromMap → renderDayFromData",
-      "flowId": "main"
+      "flowId": "main",
+      "shape": "rect"
     },
     {
       "id": "nac3vzom",
-      "x": 514.060499359795,
-      "y": 62.301079202487685,
-      "w": 189.0909090909091,
-      "h": 110,
+      "x": 5.964728242874983,
+      "y": 14.008776286410452,
+      "w": 320,
+      "h": 89,
       "tags": [
         "CORE"
       ],
       "title": "State/Data Layer",
       "body": "allSchedules（前端單一真相）\n{ yyyy-mm-dd: [items...] }",
-      "flowId": "main"
+      "flowId": "main",
+      "shape": "rect"
     },
     {
       "id": "nyigec1g",
-      "x": 1169.0396927016648,
-      "y": 232.44558258642766,
-      "w": 280,
-      "h": 125,
+      "x": 444.1977115216554,
+      "y": 14.008776286410452,
+      "w": 320,
+      "h": 89,
       "tags": [
         "API"
       ],
       "title": "API Layer",
       "body": "GET /week?from&to\nPOST /day  /week",
-      "flowId": "main"
+      "flowId": "main",
+      "shape": "rect"
     },
     {
       "id": "nooxhqfw",
-      "x": 686.9398207426377,
-      "y": 221.76696542893728,
-      "w": 420,
-      "h": 132,
+      "x": 444.1977115216554,
+      "y": -122.08442574639751,
+      "w": 320,
+      "h": 88,
       "tags": [
         "CORE"
       ],
-      "title": "[READ                   ",
+      "title": "[READ]",
       "body": "loadWeek → merge allSchedules\n→ renderWeekFromMap → renderDayFromData",
-      "flowId": "main"
+      "flowId": "main",
+      "shape": "rect"
     },
     {
       "id": "nxllvjvj",
-      "x": 248.7019846350833,
-      "y": 383.22983354673494,
-      "w": 205.4545454545455,
-      "h": 137,
-      "tags": [
-        "RISK"
-      ],
+      "x": 8.26357881758763,
+      "y": -141.53141942005593,
+      "w": 320,
+      "h": 88,
+      "tags": [],
       "title": "[WRITE FLOW]",
       "body": "create/drag/resize/edit/delete\n→ serialize payload → persistDay\n→ 後端存檔 → 回來重 render",
-      "flowId": "main"
+      "flowId": "main",
+      "shape": "rect"
     },
     {
-      "id": "nfq4x2rd",
-      "x": -171.21638924455826,
-      "y": 305.2240717029449,
-      "w": 320,
-      "h": 135,
-      "tags": [
-        "CORE"
-      ],
-      "title": "setupInteract(block)",
-      "body": "interact.js\n拖曳 / 縮放 / 跨日\n（能力注入，不是狀態）",
-      "flowId": "main"
+      "id": "n3inuawi",
+      "x": 381.2654986304479,
+      "y": 166.99103713188222,
+      "w": 280,
+      "h": 100,
+      "tags": [],
+      "title": "New Box",
+      "body": "",
+      "shape": "diamond",
+      "flowId": "main",
+      "subflowId": null
     }
   ],
   "edges": [
     {
-      "id": "egz5vre9",
-      "from": "nqp6dqkg",
-      "to": "nbw37bv6",
-      "fromPort": {
-        "side": "right",
-        "offset": 46
-      },
-      "toPort": {
-        "side": "left",
-        "offset": 52
-      },
-      "elbow": {
-        "x": 141.0089628681178,
-        "y": 100.57606219344082
-      },
-      "flowId": "main"
-    },
-    {
-      "id": "e0e1efli",
-      "from": "nqp6dqkg",
-      "to": "nfq4x2rd",
-      "fromPort": {
-        "side": "bottom",
-        "offset": 140
-      },
-      "toPort": {
-        "side": "top",
-        "offset": 140
-      },
-      "elbow": {
-        "x": -29.53924294572367,
-        "y": 277.2240717029449
-      },
-      "flowId": "main"
-    },
-    {
-      "id": "evzs3ser",
-      "from": "nfq4x2rd",
-      "to": "nxllvjvj",
-      "fromPort": {
-        "side": "right",
-        "offset": 60
-      },
-      "toPort": {
-        "side": "left",
-        "offset": 66
-      },
-      "elbow": {
-        "x": 208.0259282970551,
-        "y": 423.23932303065874
-      },
-      "flowId": "main"
-    },
-    {
-      "id": "e68ejqqj",
+      "id": "e3tnxbsc",
       "from": "nbw37bv6",
       "to": "nac3vzom",
       "fromPort": {
+        "side": "top",
+        "offset": 160
+      },
+      "toPort": {
+        "side": "bottom",
+        "offset": 160
+      },
+      "flowId": "main",
+      "elbow": {
+        "x": 165.96472824287497,
+        "y": 177.36966524887728
+      },
+      "manualElbow": false
+    },
+    {
+      "id": "e7b39rz1",
+      "from": "nac3vzom",
+      "to": "nyigec1g",
+      "fromPort": {
         "side": "right",
-        "offset": 63
+        "offset": 45
       },
       "toPort": {
         "side": "left",
-        "offset": 56
+        "offset": 45
       },
+      "flowId": "main",
       "elbow": {
-        "x": 486.060499359795,
-        "y": 115.7575452716298
+        "x": 416.1977115216554,
+        "y": 59.00877628641045
       },
-      "flowId": "main"
+      "manualElbow": false
+    },
+    {
+      "id": "e7bfqtcp",
+      "from": "nooxhqfw",
+      "to": "nyigec1g",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 160
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 160
+      },
+      "flowId": "main",
+      "elbow": {
+        "x": 604.1977115216554,
+        "y": -13.991223713589548
+      },
+      "manualElbow": false
     }
   ]
 }

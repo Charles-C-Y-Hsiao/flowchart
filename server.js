@@ -159,7 +159,9 @@ async function saveFlowchart(body, project = DEFAULT_PROJECT, user = DEFAULT_USE
     version: data.version || 1,
     currentFlowId: data.currentFlowId || 'main',
     view: data.view || { x: 0, y: 0, scale: 1 },
+    display: data.display || undefined,
     flows: Array.isArray(data.flows) ? data.flows : undefined,
+    groups: Array.isArray(data.groups) ? data.groups : undefined,
     nodes: data.nodes,
     edges: data.edges
   };

@@ -1,0 +1,156 @@
+flowchart TD
+  n_btnIO_click["<b>btnIO.click()</b><br/><small>DOM</small><br/><br/>開啟匯入匯出面板"]
+  n_btnCopy_click["<b>btnCopy.click()</b><br/><small>DOM</small><br/><br/>複製面板文字"]
+  n_btnSaveFile_click["<b>btnSaveFile.click()</b><br/><small>DOM</small><br/><br/>儲存目前專案"]
+  n_btnMermaid_click["<b>btnMermaid.click()</b><br/><small>DOM</small><br/><br/>匯出 Mermaid"]
+  n_btnApply_click["<b>btnApply.click()</b><br/><small>DOM</small><br/><br/>套用匯入 JSON"]
+  n_loadSavedState["<b>loadSavedState()</b><br/><small>API</small><br/><br/>讀取專案存檔"]
+  n_exportJSON_in_btnIO["<b>exportJSON()</b><br/><small>CORE</small><br/><br/>產生專案 JSON"]
+  n_focusIoArea["<b>ioArea.focus()</b><br/><small>DOM</small><br/><br/>聚焦並選取內容"]
+  n_exportJSON["<b>exportJSON()</b><br/><small>CORE</small><br/><br/>組成輸出物件"]
+  n_collectFlows["<b>collectFlows()</b><br/><small>CORE</small><br/><br/>收集流程清單"]
+  n_collectNodes["<b>collectNodes()</b><br/><small>CORE</small><br/><br/>收集所有節點"]
+  n_collectEdges["<b>collectEdges()</b><br/><small>CORE</small><br/><br/>收集所有連線"]
+  n_stringifyExport["<b>JSON.stringify()</b><br/><small>CORE</small><br/><br/>轉成格式化文字"]
+  n_exportJSON_forSave["<b>exportJSON()</b><br/><small>CORE</small><br/><br/>取得目前 JSON"]
+  n_saveProjectFile["<b>saveProjectFile()</b><br/><small>API</small><br/><br/>送出專案存檔"]
+  n_refreshProjects["<b>refreshProjects()</b><br/><small>API</small><br/><br/>刷新專案清單"]
+  n_showSaveToast["<b>showToast()</b><br/><small>DOM</small><br/><br/>顯示儲存結果"]
+  n_encodeProjectParams["<b>encodeParams()</b><br/><small>CORE</small><br/><br/>編碼專案與使用者"]
+  n_postFlowchart["<b>POST /api/flowchart</b><br/><small>API</small><br/><br/>傳送 JSON 到後端"]
+  n_readRequestBody["<b>readRequestBody()</b><br/><small>API</small><br/><br/>讀取請求內容"]
+  n_saveFlowchart["<b>saveFlowchart()</b><br/><small>API</small><br/><br/>寫入 JSON 與 MMD"]
+  n_returnSaveResult["<b>send()</b><br/><small>API</small><br/><br/>回傳儲存結果"]
+  n_parseSaveBody["<b>JSON.parse()</b><br/><small>RISK</small><br/><br/>解析並驗證資料"]
+  n_projectPaths["<b>projectPaths()</b><br/><small>CORE</small><br/><br/>建立專案路徑"]
+  n_ensureUserDir["<b>ensureUserDir()</b><br/><small>CORE</small><br/><br/>確保使用者資料夾"]
+  n_toMermaid_server["<b>toMermaid()</b><br/><small>CORE</small><br/><br/>同步產生 Mermaid"]
+  n_writeFlowFiles["<b>writeFlowFiles()</b><br/><small>API</small><br/><br/>寫入專案檔案"]
+  n_toMermaid["<b>toMermaid()</b><br/><small>CORE</small><br/><br/>轉為 Mermaid 文本"]
+  n_mermaidNodeId_server["<b>mermaidNodeId()</b><br/><small>CORE</small><br/><br/>轉換節點識別"]
+  n_escapeMermaidText_server["<b>escapeMermaidText()</b><br/><small>RISK</small><br/><br/>跳脫 Mermaid 文字"]
+  n_renderMermaidEdges["<b>renderEdges()</b><br/><small>CORE</small><br/><br/>輸出 Mermaid 連線"]
+  n_importJSON["<b>importJSON()</b><br/><small>CORE</small><br/><br/>解析並套用 JSON"]
+  n_parseImportJSON["<b>JSON.parse()</b><br/><small>RISK</small><br/><br/>解析匯入文字"]
+  n_clearAll["<b>clearAll()</b><br/><small>CORE</small><br/><br/>清空現有圖表"]
+  n_rootFlow["<b>rootFlow()</b><br/><small>CORE</small><br/><br/>確保主流程存在"]
+  n_setViewportTransform_inImport["<b>setViewportTransform()</b><br/><small>DOM</small><br/><br/>套用視窗位置"]
+  n_dedupeEdges["<b>dedupeEdges()</b><br/><small>CORE</small><br/><br/>移除重複連線"]
+  n_normalizeAllEdges["<b>normalizeAllEdges()</b><br/><small>CORE</small><br/><br/>修正所有連線"]
+  n_renderCurrentFlow["<b>renderCurrentFlow()</b><br/><small>DOM</small><br/><br/>重畫目前流程"]
+  n_saveState_inImport["<b>saveState()</b><br/><small>CORE</small><br/><br/>匯入後自動保存"]
+  n_exportMermaid["<b>exportMermaid()</b><br/><small>CORE</small><br/><br/>產生 Mermaid"]
+  n_focusMermaidOutput["<b>ioArea.select()</b><br/><small>DOM</small><br/><br/>選取輸出文字"]
+  n_currentNodes["<b>currentNodes()</b><br/><small>CORE</small><br/><br/>取得目前節點"]
+  n_mermaidNodeId["<b>mermaidNodeId()</b><br/><small>CORE</small><br/><br/>生成 Mermaid ID"]
+  n_escapeMermaidText["<b>escapeMermaidText()</b><br/><small>RISK</small><br/><br/>跳脫節點文字"]
+  n_currentEdges["<b>currentEdges()</b><br/><small>CORE</small><br/><br/>取得目前連線"]
+  n_buildClassLines["<b>buildClassLines()</b><br/><small>CORE</small><br/><br/>加入節點樣式"]
+  n_encodeLoadParams["<b>encodeParams()</b><br/><small>CORE</small><br/><br/>編碼讀取參數"]
+  n_getFlowchart["<b>GET /api/flowchart</b><br/><small>API</small><br/><br/>向後端讀取 JSON"]
+  n_readFlowchart["<b>readFlowchart()</b><br/><small>API</small><br/><br/>讀取專案檔案"]
+  n_readLocalStorage["<b>readLocalStorage()</b><br/><small>CORE</small><br/><br/>後端失敗改讀暫存"]
+  n_projectPaths_read["<b>projectPaths()</b><br/><small>CORE</small><br/><br/>取得讀取路徑"]
+  n_readUserJson["<b>readUserJson()</b><br/><small>API</small><br/><br/>讀取使用者 JSON"]
+  n_readLegacyJson["<b>readLegacyJson()</b><br/><small>API</small><br/><br/>回退舊版檔案"]
+  n_btnIO_click --> n_btnCopy_click
+  n_btnCopy_click --> n_btnSaveFile_click
+  n_btnSaveFile_click --> n_btnMermaid_click
+  n_btnMermaid_click --> n_btnApply_click
+  n_btnApply_click --> n_loadSavedState
+  n_exportJSON_in_btnIO --> n_focusIoArea
+  n_exportJSON --> n_collectFlows
+  n_collectFlows --> n_collectNodes
+  n_collectNodes --> n_collectEdges
+  n_collectEdges --> n_stringifyExport
+  n_exportJSON_forSave --> n_saveProjectFile
+  n_saveProjectFile --> n_refreshProjects
+  n_refreshProjects --> n_showSaveToast
+  n_encodeProjectParams --> n_postFlowchart
+  n_postFlowchart --> n_readRequestBody
+  n_readRequestBody --> n_saveFlowchart
+  n_saveFlowchart --> n_returnSaveResult
+  n_parseSaveBody --> n_projectPaths
+  n_projectPaths --> n_ensureUserDir
+  n_ensureUserDir --> n_toMermaid_server
+  n_toMermaid_server --> n_writeFlowFiles
+  n_toMermaid --> n_mermaidNodeId_server
+  n_mermaidNodeId_server --> n_escapeMermaidText_server
+  n_escapeMermaidText_server --> n_renderMermaidEdges
+  n_importJSON --> n_importJSON
+  n_parseImportJSON --> n_clearAll
+  n_clearAll --> n_rootFlow
+  n_rootFlow --> n_setViewportTransform_inImport
+  n_setViewportTransform_inImport --> n_dedupeEdges
+  n_dedupeEdges --> n_normalizeAllEdges
+  n_normalizeAllEdges --> n_renderCurrentFlow
+  n_renderCurrentFlow --> n_saveState_inImport
+  n_exportMermaid --> n_focusMermaidOutput
+  n_currentNodes --> n_mermaidNodeId
+  n_mermaidNodeId --> n_escapeMermaidText
+  n_escapeMermaidText --> n_currentEdges
+  n_currentEdges --> n_buildClassLines
+  n_encodeLoadParams --> n_getFlowchart
+  n_getFlowchart --> n_readFlowchart
+  n_readFlowchart --> n_readLocalStorage
+  n_projectPaths_read --> n_readUserJson
+  n_readUserJson --> n_readLegacyJson
+
+  classDef CORE fill:#fff8dc,stroke:#ead68f,color:#8a6510
+  classDef DOM fill:#eef6ff,stroke:#b9d7f8,color:#1759b7
+  classDef API fill:#f2fbf6,stroke:#a9dcc2,color:#27885c
+  classDef RISK fill:#fff7f7,stroke:#efb5b5,color:#bf4a4a
+  class n_btnIO_click DOM
+  class n_btnCopy_click DOM
+  class n_btnSaveFile_click DOM
+  class n_btnMermaid_click DOM
+  class n_btnApply_click DOM
+  class n_loadSavedState API
+  class n_exportJSON_in_btnIO CORE
+  class n_focusIoArea DOM
+  class n_exportJSON CORE
+  class n_collectFlows CORE
+  class n_collectNodes CORE
+  class n_collectEdges CORE
+  class n_stringifyExport CORE
+  class n_exportJSON_forSave CORE
+  class n_saveProjectFile API
+  class n_refreshProjects API
+  class n_showSaveToast DOM
+  class n_encodeProjectParams CORE
+  class n_postFlowchart API
+  class n_readRequestBody API
+  class n_saveFlowchart API
+  class n_returnSaveResult API
+  class n_parseSaveBody RISK
+  class n_projectPaths CORE
+  class n_ensureUserDir CORE
+  class n_toMermaid_server CORE
+  class n_writeFlowFiles API
+  class n_toMermaid CORE
+  class n_mermaidNodeId_server CORE
+  class n_escapeMermaidText_server RISK
+  class n_renderMermaidEdges CORE
+  class n_importJSON CORE
+  class n_parseImportJSON RISK
+  class n_clearAll CORE
+  class n_rootFlow CORE
+  class n_setViewportTransform_inImport DOM
+  class n_dedupeEdges CORE
+  class n_normalizeAllEdges CORE
+  class n_renderCurrentFlow DOM
+  class n_saveState_inImport CORE
+  class n_exportMermaid CORE
+  class n_focusMermaidOutput DOM
+  class n_currentNodes CORE
+  class n_mermaidNodeId CORE
+  class n_escapeMermaidText RISK
+  class n_currentEdges CORE
+  class n_buildClassLines CORE
+  class n_encodeLoadParams CORE
+  class n_getFlowchart API
+  class n_readFlowchart API
+  class n_readLocalStorage CORE
+  class n_projectPaths_read CORE
+  class n_readUserJson API
+  class n_readLegacyJson API

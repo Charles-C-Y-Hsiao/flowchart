@@ -1,13 +1,18 @@
 {
   "project": "flowchart",
-  "user": "000666888",
+  "user": "00000001",
   "projectName": "flowchart",
   "version": 2,
   "currentFlowId": "main",
   "view": {
-    "x": 125.11745733956812,
-    "y": 68.14793623570571,
-    "scale": 0.71
+    "x": 219.82884651311807,
+    "y": 100.72470729524319,
+    "scale": 0.9499999999999998
+  },
+  "display": {
+    "viewMode": "flowchart",
+    "knowledgeBodyLines": 1,
+    "flowchartTitleSize": 20
   },
   "flows": [
     {
@@ -17,97 +22,105 @@
       "ownerNodeId": null
     }
   ],
+  "groups": [],
   "nodes": [
     {
       "id": "nqp6dqkg",
       "x": -169.8079385403329,
       "y": 57.336747759283,
-      "w": 280,
-      "h": 115,
+      "w": 248.16901408450704,
+      "h": 90,
       "tags": [
         "CORE"
       ],
       "title": "User Input Layer",
       "body": "滑鼠/鍵盤/雙擊/輸入/刪除\n（事件觸發點）",
-      "flowId": "main"
+      "flowId": "main",
+      "shape": "rect"
     },
     {
       "id": "nbw37bv6",
-      "x": 171.7790835924639,
-      "y": 50.214011340771904,
-      "w": 300,
-      "h": 125,
+      "x": 132.34246387415402,
+      "y": -55.41979147612952,
+      "w": 248.16901408450704,
+      "h": 96,
       "tags": [
         "DOM"
       ],
-      "title": "DOM Layer",
+      "title": "DOM Layer for show detail data and hin",
       "body": "dayCols / block / ghost\nrenderWeekFromMap → renderDayFromData",
-      "flowId": "main"
+      "flowId": "main",
+      "shape": "rect"
     },
     {
       "id": "nac3vzom",
-      "x": 647.8633162612035,
-      "y": -33.473568684836266,
-      "w": 189.0909090909091,
-      "h": 111,
+      "x": 405.60979513444295,
+      "y": -56.0087799524419,
+      "w": 248.16901408450704,
+      "h": 86,
       "tags": [
         "CORE"
       ],
       "title": "State/Data Layer",
       "body": "allSchedules（前端單一真相）\n{ yyyy-mm-dd: [items...] }",
-      "flowId": "main"
+      "flowId": "main",
+      "shape": "rect"
     },
     {
       "id": "nyigec1g",
-      "x": 1169.0396927016648,
-      "y": 232.44558258642766,
-      "w": 280,
-      "h": 125,
+      "x": 198.61715749039726,
+      "y": 97.23431498079387,
+      "w": 248.16901408450704,
+      "h": 91,
       "tags": [
         "API"
       ],
       "title": "API Layer",
       "body": "GET /week?from&to\nPOST /day  /week",
-      "flowId": "main"
+      "flowId": "main",
+      "shape": "rect"
     },
     {
       "id": "nooxhqfw",
-      "x": 686.9398207426377,
-      "y": 221.76696542893728,
-      "w": 420,
-      "h": 132,
+      "x": 489.75672215108847,
+      "y": 97.82330345710628,
+      "w": 248.16901408450704,
+      "h": 86,
       "tags": [
         "CORE"
       ],
-      "title": "[READ                   ",
-      "body": "loadWeek → merge allSchedules\n→ renderWeekFromMap → renderDayFromData",
-      "flowId": "main"
+      "title": "[Read]",
+      "body": "",
+      "flowId": "main",
+      "shape": "diamond"
     },
     {
       "id": "nxllvjvj",
-      "x": 705.0400128040974,
-      "y": 460.6946222791293,
-      "w": 205.4545454545455,
-      "h": 136,
+      "x": 164.19494238156216,
+      "y": 253.65236875800252,
+      "w": 248.16901408450704,
+      "h": 92,
       "tags": [
         "RISK"
       ],
       "title": "[WRITE FLOW]",
       "body": "create/drag/resize/edit/delete\n→ serialize payload → persistDay\n→ 後端存檔 → 回來重 render",
-      "flowId": "main"
+      "flowId": "main",
+      "shape": "rect"
     },
     {
       "id": "nfq4x2rd",
       "x": -171.21638924455826,
-      "y": 305.2240717029449,
-      "w": 320,
-      "h": 136,
+      "y": 200.99871959026885,
+      "w": 248.16901408450704,
+      "h": 86,
       "tags": [
         "CORE"
       ],
       "title": "setupInteract(block)",
       "body": "interact.js\n拖曳 / 縮放 / 跨日\n（能力注入，不是狀態）",
-      "flowId": "main"
+      "flowId": "main",
+      "shape": "rect"
     }
   ],
   "edges": [
@@ -117,17 +130,18 @@
       "to": "nbw37bv6",
       "fromPort": {
         "side": "right",
-        "offset": 46
+        "offset": 45
       },
       "toPort": {
         "side": "left",
-        "offset": 52
+        "offset": 48
       },
       "elbow": {
-        "x": 141.0089628681178,
-        "y": 100.57606219344082
+        "x": 104.34246387415402,
+        "y": 102.336747759283
       },
-      "flowId": "main"
+      "flowId": "main",
+      "manualElbow": false
     },
     {
       "id": "e0e1efli",
@@ -135,17 +149,18 @@
       "to": "nfq4x2rd",
       "fromPort": {
         "side": "bottom",
-        "offset": 140
+        "offset": 124
       },
       "toPort": {
         "side": "top",
-        "offset": 140
+        "offset": 124
       },
       "elbow": {
-        "x": -29.53924294572367,
-        "y": 277.2240717029449
+        "x": -47.21638924455826,
+        "y": 172.99871959026885
       },
-      "flowId": "main"
+      "flowId": "main",
+      "manualElbow": false
     },
     {
       "id": "evzs3ser",
@@ -153,35 +168,37 @@
       "to": "nxllvjvj",
       "fromPort": {
         "side": "right",
-        "offset": 60
+        "offset": 43
       },
       "toPort": {
         "side": "left",
-        "offset": 66
+        "offset": 46
       },
       "elbow": {
-        "x": 531.3290653008962,
-        "y": 423.23932303065874
+        "x": 136.19494238156216,
+        "y": 243.99871959026885
       },
-      "flowId": "main"
+      "flowId": "main",
+      "manualElbow": false
     },
     {
       "id": "e68ejqqj",
       "from": "nbw37bv6",
       "to": "nac3vzom",
       "fromPort": {
-        "side": "right",
-        "offset": 63
+        "side": "top",
+        "offset": 124
       },
       "toPort": {
-        "side": "left",
-        "offset": 55
+        "side": "top",
+        "offset": 124
       },
       "elbow": {
-        "x": 567.1360435339308,
-        "y": 102.82476678251327
+        "x": 256.342463874154,
+        "y": -84.0087799524419
       },
-      "flowId": "main"
+      "flowId": "main",
+      "manualElbow": false
     }
   ]
 }

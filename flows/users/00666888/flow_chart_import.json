@@ -1,0 +1,1349 @@
+{
+  "project": "flow_chart_import",
+  "user": "000666888",
+  "projectName": "flow_chart_import",
+  "version": 2,
+  "currentFlowId": "flow_btnSaveFile_click",
+  "view": {
+    "x": 191.95,
+    "y": 10.663634490966814,
+    "scale": 0.55
+  },
+  "display": {
+    "viewMode": "knowledge",
+    "knowledgeBodyLines": 1,
+    "flowchartTitleSize": 20
+  },
+  "flows": [
+    {
+      "id": "main",
+      "name": "主流程",
+      "parentFlowId": null,
+      "ownerNodeId": null
+    },
+    {
+      "id": "flow_btnIO_click",
+      "name": "btnIO.click 子流程",
+      "parentFlowId": "main",
+      "ownerNodeId": "btnIO_click"
+    },
+    {
+      "id": "flow_exportJSON",
+      "name": "exportJSON 子流程",
+      "parentFlowId": "flow_btnIO_click",
+      "ownerNodeId": "exportJSON"
+    },
+    {
+      "id": "flow_btnSaveFile_click",
+      "name": "btnSaveFile.click 子流程",
+      "parentFlowId": "main",
+      "ownerNodeId": "btnSaveFile_click"
+    },
+    {
+      "id": "flow_saveProjectFile",
+      "name": "saveProjectFile 子流程",
+      "parentFlowId": "flow_btnSaveFile_click",
+      "ownerNodeId": "saveProjectFile"
+    },
+    {
+      "id": "flow_saveFlowchart",
+      "name": "saveFlowchart 子流程",
+      "parentFlowId": "flow_saveProjectFile",
+      "ownerNodeId": "saveFlowchart"
+    },
+    {
+      "id": "flow_toMermaid",
+      "name": "toMermaid 子流程",
+      "parentFlowId": "flow_saveFlowchart",
+      "ownerNodeId": "toMermaid_server"
+    },
+    {
+      "id": "flow_btnApply_click",
+      "name": "btnApply.click 子流程",
+      "parentFlowId": "main",
+      "ownerNodeId": "btnApply_click"
+    },
+    {
+      "id": "flow_importJSON",
+      "name": "importJSON 子流程",
+      "parentFlowId": "flow_btnApply_click",
+      "ownerNodeId": "importJSON"
+    },
+    {
+      "id": "flow_btnMermaid_click",
+      "name": "btnMermaid.click 子流程",
+      "parentFlowId": "main",
+      "ownerNodeId": "btnMermaid_click"
+    },
+    {
+      "id": "flow_exportMermaid",
+      "name": "exportMermaid 子流程",
+      "parentFlowId": "flow_btnMermaid_click",
+      "ownerNodeId": "exportMermaid"
+    },
+    {
+      "id": "flow_loadSavedState",
+      "name": "loadSavedState 子流程",
+      "parentFlowId": "main",
+      "ownerNodeId": "loadSavedState"
+    },
+    {
+      "id": "flow_readFlowchart",
+      "name": "readFlowchart 子流程",
+      "parentFlowId": "flow_loadSavedState",
+      "ownerNodeId": "readFlowchart"
+    }
+  ],
+  "groups": [],
+  "nodes": [
+    {
+      "id": "btnIO_click",
+      "flowId": "main",
+      "subflowId": "flow_btnIO_click",
+      "x": 80,
+      "y": 100,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "DOM"
+      ],
+      "title": "btnIO.click()",
+      "body": "開啟匯入匯出面板",
+      "shape": "rect"
+    },
+    {
+      "id": "btnCopy_click",
+      "flowId": "main",
+      "x": 80,
+      "y": 250,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "DOM"
+      ],
+      "title": "btnCopy.click()",
+      "body": "複製面板文字",
+      "shape": "rect"
+    },
+    {
+      "id": "btnSaveFile_click",
+      "flowId": "main",
+      "subflowId": "flow_btnSaveFile_click",
+      "x": 80,
+      "y": 400,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "DOM"
+      ],
+      "title": "btnSaveFile.click()",
+      "body": "儲存目前專案",
+      "shape": "rect"
+    },
+    {
+      "id": "btnMermaid_click",
+      "flowId": "main",
+      "subflowId": "flow_btnMermaid_click",
+      "x": 80,
+      "y": 550,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "DOM"
+      ],
+      "title": "btnMermaid.click()",
+      "body": "匯出 Mermaid",
+      "shape": "rect"
+    },
+    {
+      "id": "btnApply_click",
+      "flowId": "main",
+      "subflowId": "flow_btnApply_click",
+      "x": 80,
+      "y": 700,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "DOM"
+      ],
+      "title": "btnApply.click()",
+      "body": "套用匯入 JSON",
+      "shape": "rect"
+    },
+    {
+      "id": "loadSavedState",
+      "flowId": "main",
+      "subflowId": "flow_loadSavedState",
+      "x": 80,
+      "y": 850,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "API"
+      ],
+      "title": "loadSavedState()",
+      "body": "讀取專案存檔",
+      "shape": "rect"
+    },
+    {
+      "id": "exportJSON_in_btnIO",
+      "flowId": "flow_btnIO_click",
+      "x": 80,
+      "y": 100,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "exportJSON()",
+      "body": "產生專案 JSON",
+      "shape": "rect"
+    },
+    {
+      "id": "focusIoArea",
+      "flowId": "flow_btnIO_click",
+      "x": 80,
+      "y": 250,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "DOM"
+      ],
+      "title": "ioArea.focus()",
+      "body": "聚焦並選取內容",
+      "shape": "rect"
+    },
+    {
+      "id": "exportJSON",
+      "flowId": "flow_exportJSON",
+      "x": 80,
+      "y": 100,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "exportJSON()",
+      "body": "組成輸出物件",
+      "shape": "rect"
+    },
+    {
+      "id": "collectFlows",
+      "flowId": "flow_exportJSON",
+      "x": 80,
+      "y": 250,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "collectFlows()",
+      "body": "收集流程清單",
+      "shape": "rect"
+    },
+    {
+      "id": "collectNodes",
+      "flowId": "flow_exportJSON",
+      "x": 80,
+      "y": 400,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "collectNodes()",
+      "body": "收集所有節點",
+      "shape": "rect"
+    },
+    {
+      "id": "collectEdges",
+      "flowId": "flow_exportJSON",
+      "x": 80,
+      "y": 550,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "collectEdges()",
+      "body": "收集所有連線",
+      "shape": "rect"
+    },
+    {
+      "id": "stringifyExport",
+      "flowId": "flow_exportJSON",
+      "x": 80,
+      "y": 700,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "JSON.stringify()",
+      "body": "轉成格式化文字",
+      "shape": "rect"
+    },
+    {
+      "id": "exportJSON_forSave",
+      "flowId": "flow_btnSaveFile_click",
+      "x": 80,
+      "y": 100,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "exportJSON()",
+      "body": "取得目前 JSON",
+      "shape": "rect"
+    },
+    {
+      "id": "saveProjectFile",
+      "flowId": "flow_btnSaveFile_click",
+      "subflowId": "flow_saveProjectFile",
+      "x": 80,
+      "y": 250,
+      "w": 260,
+      "h": 123,
+      "tags": [
+        "API"
+      ],
+      "title": "saveProjectFile()",
+      "body": "送出專案存檔",
+      "shape": "rect"
+    },
+    {
+      "id": "refreshProjects",
+      "flowId": "flow_btnSaveFile_click",
+      "x": 80,
+      "y": 400,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "API"
+      ],
+      "title": "refreshProjects()",
+      "body": "刷新專案清單",
+      "shape": "rect"
+    },
+    {
+      "id": "showSaveToast",
+      "flowId": "flow_btnSaveFile_click",
+      "x": 80,
+      "y": 550,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "DOM"
+      ],
+      "title": "showToast()",
+      "body": "顯示儲存結果",
+      "shape": "rect"
+    },
+    {
+      "id": "encodeProjectParams",
+      "flowId": "flow_saveProjectFile",
+      "x": 80,
+      "y": 100,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "encodeParams()",
+      "body": "編碼專案與使用者",
+      "shape": "rect"
+    },
+    {
+      "id": "postFlowchart",
+      "flowId": "flow_saveProjectFile",
+      "x": 80,
+      "y": 250,
+      "w": 260,
+      "h": 105,
+      "tags": [
+        "API"
+      ],
+      "title": "POST /api/flowchart",
+      "body": "傳送 JSON 到後端",
+      "shape": "rect"
+    },
+    {
+      "id": "readRequestBody",
+      "flowId": "flow_saveProjectFile",
+      "x": 80,
+      "y": 400,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "API"
+      ],
+      "title": "readRequestBody()",
+      "body": "讀取請求內容",
+      "shape": "rect"
+    },
+    {
+      "id": "saveFlowchart",
+      "flowId": "flow_saveProjectFile",
+      "subflowId": "flow_saveFlowchart",
+      "x": 80,
+      "y": 550,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "API"
+      ],
+      "title": "saveFlowchart()",
+      "body": "寫入 JSON 與 MMD",
+      "shape": "rect"
+    },
+    {
+      "id": "returnSaveResult",
+      "flowId": "flow_saveProjectFile",
+      "x": 80,
+      "y": 700,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "API"
+      ],
+      "title": "send()",
+      "body": "回傳儲存結果",
+      "shape": "rect"
+    },
+    {
+      "id": "parseSaveBody",
+      "flowId": "flow_saveFlowchart",
+      "x": 80,
+      "y": 100,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "RISK"
+      ],
+      "title": "JSON.parse()",
+      "body": "解析並驗證資料",
+      "shape": "rect"
+    },
+    {
+      "id": "projectPaths",
+      "flowId": "flow_saveFlowchart",
+      "x": 80,
+      "y": 250,
+      "w": 260,
+      "h": 104,
+      "tags": [
+        "CORE"
+      ],
+      "title": "projectPaths()",
+      "body": "建立專案路徑",
+      "shape": "rect"
+    },
+    {
+      "id": "ensureUserDir",
+      "flowId": "flow_saveFlowchart",
+      "x": 80,
+      "y": 400,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "ensureUserDir()",
+      "body": "確保使用者資料夾",
+      "shape": "rect"
+    },
+    {
+      "id": "toMermaid_server",
+      "flowId": "flow_saveFlowchart",
+      "subflowId": "flow_toMermaid",
+      "x": 80,
+      "y": 550,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "toMermaid()",
+      "body": "同步產生 Mermaid",
+      "shape": "rect"
+    },
+    {
+      "id": "writeFlowFiles",
+      "flowId": "flow_saveFlowchart",
+      "x": 80,
+      "y": 700,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "API"
+      ],
+      "title": "writeFlowFiles()",
+      "body": "寫入專案檔案",
+      "shape": "rect"
+    },
+    {
+      "id": "toMermaid",
+      "flowId": "flow_toMermaid",
+      "x": 80,
+      "y": 100,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "toMermaid()",
+      "body": "轉為 Mermaid 文本",
+      "shape": "rect"
+    },
+    {
+      "id": "mermaidNodeId_server",
+      "flowId": "flow_toMermaid",
+      "x": 80,
+      "y": 250,
+      "w": 260,
+      "h": 102,
+      "tags": [
+        "CORE"
+      ],
+      "title": "mermaidNodeId()",
+      "body": "轉換節點識別",
+      "shape": "rect"
+    },
+    {
+      "id": "escapeMermaidText_server",
+      "flowId": "flow_toMermaid",
+      "x": 80,
+      "y": 400,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "RISK"
+      ],
+      "title": "escapeMermaidText()",
+      "body": "跳脫 Mermaid 文字",
+      "shape": "rect"
+    },
+    {
+      "id": "renderMermaidEdges",
+      "flowId": "flow_toMermaid",
+      "x": 80,
+      "y": 550,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "renderEdges()",
+      "body": "輸出 Mermaid 連線",
+      "shape": "rect"
+    },
+    {
+      "id": "importJSON",
+      "flowId": "flow_btnApply_click",
+      "subflowId": "flow_importJSON",
+      "x": 80,
+      "y": 100,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "importJSON()",
+      "body": "解析並套用 JSON",
+      "shape": "rect"
+    },
+    {
+      "id": "parseImportJSON",
+      "flowId": "flow_importJSON",
+      "x": 80,
+      "y": 100,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "RISK"
+      ],
+      "title": "JSON.parse()",
+      "body": "解析匯入文字",
+      "shape": "rect"
+    },
+    {
+      "id": "clearAll",
+      "flowId": "flow_importJSON",
+      "x": 80,
+      "y": 250,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "clearAll()",
+      "body": "清空現有圖表",
+      "shape": "rect"
+    },
+    {
+      "id": "rootFlow",
+      "flowId": "flow_importJSON",
+      "x": 80,
+      "y": 400,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "rootFlow()",
+      "body": "確保主流程存在",
+      "shape": "rect"
+    },
+    {
+      "id": "setViewportTransform_inImport",
+      "flowId": "flow_importJSON",
+      "x": 80,
+      "y": 550,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "DOM"
+      ],
+      "title": "setViewportTransform()",
+      "body": "套用視窗位置",
+      "shape": "rect"
+    },
+    {
+      "id": "dedupeEdges",
+      "flowId": "flow_importJSON",
+      "x": 80,
+      "y": 700,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "dedupeEdges()",
+      "body": "移除重複連線",
+      "shape": "rect"
+    },
+    {
+      "id": "normalizeAllEdges",
+      "flowId": "flow_importJSON",
+      "x": 80,
+      "y": 850,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "normalizeAllEdges()",
+      "body": "修正所有連線",
+      "shape": "rect"
+    },
+    {
+      "id": "renderCurrentFlow",
+      "flowId": "flow_importJSON",
+      "x": 80,
+      "y": 1000,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "DOM"
+      ],
+      "title": "renderCurrentFlow()",
+      "body": "重畫目前流程",
+      "shape": "rect"
+    },
+    {
+      "id": "saveState_inImport",
+      "flowId": "flow_importJSON",
+      "x": 80,
+      "y": 1150,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "saveState()",
+      "body": "匯入後自動保存",
+      "shape": "rect"
+    },
+    {
+      "id": "exportMermaid",
+      "flowId": "flow_btnMermaid_click",
+      "subflowId": "flow_exportMermaid",
+      "x": 80,
+      "y": 100,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "exportMermaid()",
+      "body": "產生 Mermaid",
+      "shape": "rect"
+    },
+    {
+      "id": "focusMermaidOutput",
+      "flowId": "flow_btnMermaid_click",
+      "x": 80,
+      "y": 250,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "DOM"
+      ],
+      "title": "ioArea.select()",
+      "body": "選取輸出文字",
+      "shape": "rect"
+    },
+    {
+      "id": "currentNodes",
+      "flowId": "flow_exportMermaid",
+      "x": 80,
+      "y": 100,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "currentNodes()",
+      "body": "取得目前節點",
+      "shape": "rect"
+    },
+    {
+      "id": "mermaidNodeId",
+      "flowId": "flow_exportMermaid",
+      "x": 80,
+      "y": 250,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "mermaidNodeId()",
+      "body": "生成 Mermaid ID",
+      "shape": "rect"
+    },
+    {
+      "id": "escapeMermaidText",
+      "flowId": "flow_exportMermaid",
+      "x": 80,
+      "y": 400,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "RISK"
+      ],
+      "title": "escapeMermaidText()",
+      "body": "跳脫節點文字",
+      "shape": "rect"
+    },
+    {
+      "id": "currentEdges",
+      "flowId": "flow_exportMermaid",
+      "x": 80,
+      "y": 550,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "currentEdges()",
+      "body": "取得目前連線",
+      "shape": "rect"
+    },
+    {
+      "id": "buildClassLines",
+      "flowId": "flow_exportMermaid",
+      "x": 80,
+      "y": 700,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "buildClassLines()",
+      "body": "加入節點樣式",
+      "shape": "rect"
+    },
+    {
+      "id": "encodeLoadParams",
+      "flowId": "flow_loadSavedState",
+      "x": 80,
+      "y": 100,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "encodeParams()",
+      "body": "編碼讀取參數",
+      "shape": "rect"
+    },
+    {
+      "id": "getFlowchart",
+      "flowId": "flow_loadSavedState",
+      "x": 80,
+      "y": 250,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "API"
+      ],
+      "title": "GET /api/flowchart",
+      "body": "向後端讀取 JSON",
+      "shape": "rect"
+    },
+    {
+      "id": "readFlowchart",
+      "flowId": "flow_loadSavedState",
+      "subflowId": "flow_readFlowchart",
+      "x": 80,
+      "y": 400,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "API"
+      ],
+      "title": "readFlowchart()",
+      "body": "讀取專案檔案",
+      "shape": "rect"
+    },
+    {
+      "id": "readLocalStorage",
+      "flowId": "flow_loadSavedState",
+      "x": 80,
+      "y": 550,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "readLocalStorage()",
+      "body": "後端失敗改讀暫存",
+      "shape": "rect"
+    },
+    {
+      "id": "projectPaths_read",
+      "flowId": "flow_readFlowchart",
+      "x": 80,
+      "y": 100,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "CORE"
+      ],
+      "title": "projectPaths()",
+      "body": "取得讀取路徑",
+      "shape": "rect"
+    },
+    {
+      "id": "readUserJson",
+      "flowId": "flow_readFlowchart",
+      "x": 80,
+      "y": 250,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "API"
+      ],
+      "title": "readUserJson()",
+      "body": "讀取使用者 JSON",
+      "shape": "rect"
+    },
+    {
+      "id": "readLegacyJson",
+      "flowId": "flow_readFlowchart",
+      "x": 80,
+      "y": 400,
+      "w": 260,
+      "h": 100,
+      "tags": [
+        "API"
+      ],
+      "title": "readLegacyJson()",
+      "body": "回退舊版檔案",
+      "shape": "rect"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e_001",
+      "flowId": "main",
+      "from": "btnIO_click",
+      "to": "btnCopy_click",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 222
+      }
+    },
+    {
+      "id": "e_002",
+      "flowId": "main",
+      "from": "btnCopy_click",
+      "to": "btnSaveFile_click",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 372
+      }
+    },
+    {
+      "id": "e_003",
+      "flowId": "main",
+      "from": "btnSaveFile_click",
+      "to": "btnMermaid_click",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 522
+      }
+    },
+    {
+      "id": "e_004",
+      "flowId": "main",
+      "from": "btnMermaid_click",
+      "to": "btnApply_click",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 672
+      }
+    },
+    {
+      "id": "e_005",
+      "flowId": "main",
+      "from": "btnApply_click",
+      "to": "loadSavedState",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 822
+      }
+    },
+    {
+      "id": "e_006",
+      "flowId": "flow_btnIO_click",
+      "from": "exportJSON_in_btnIO",
+      "to": "focusIoArea"
+    },
+    {
+      "id": "e_007",
+      "flowId": "flow_exportJSON",
+      "from": "exportJSON",
+      "to": "collectFlows"
+    },
+    {
+      "id": "e_008",
+      "flowId": "flow_exportJSON",
+      "from": "collectFlows",
+      "to": "collectNodes"
+    },
+    {
+      "id": "e_009",
+      "flowId": "flow_exportJSON",
+      "from": "collectNodes",
+      "to": "collectEdges"
+    },
+    {
+      "id": "e_010",
+      "flowId": "flow_exportJSON",
+      "from": "collectEdges",
+      "to": "stringifyExport"
+    },
+    {
+      "id": "e_011",
+      "flowId": "flow_btnSaveFile_click",
+      "from": "exportJSON_forSave",
+      "to": "saveProjectFile",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 222
+      }
+    },
+    {
+      "id": "e_012",
+      "flowId": "flow_btnSaveFile_click",
+      "from": "saveProjectFile",
+      "to": "refreshProjects",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 372
+      }
+    },
+    {
+      "id": "e_013",
+      "flowId": "flow_btnSaveFile_click",
+      "from": "refreshProjects",
+      "to": "showSaveToast",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 522
+      }
+    },
+    {
+      "id": "e_014",
+      "flowId": "flow_saveProjectFile",
+      "from": "encodeProjectParams",
+      "to": "postFlowchart",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 222
+      }
+    },
+    {
+      "id": "e_015",
+      "flowId": "flow_saveProjectFile",
+      "from": "postFlowchart",
+      "to": "readRequestBody",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 372
+      }
+    },
+    {
+      "id": "e_016",
+      "flowId": "flow_saveProjectFile",
+      "from": "readRequestBody",
+      "to": "saveFlowchart",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 522
+      }
+    },
+    {
+      "id": "e_017",
+      "flowId": "flow_saveProjectFile",
+      "from": "saveFlowchart",
+      "to": "returnSaveResult",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 672
+      }
+    },
+    {
+      "id": "e_018",
+      "flowId": "flow_saveFlowchart",
+      "from": "parseSaveBody",
+      "to": "projectPaths",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 222
+      }
+    },
+    {
+      "id": "e_019",
+      "flowId": "flow_saveFlowchart",
+      "from": "projectPaths",
+      "to": "ensureUserDir",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 372
+      }
+    },
+    {
+      "id": "e_020",
+      "flowId": "flow_saveFlowchart",
+      "from": "ensureUserDir",
+      "to": "toMermaid_server",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 522
+      }
+    },
+    {
+      "id": "e_021",
+      "flowId": "flow_saveFlowchart",
+      "from": "toMermaid_server",
+      "to": "writeFlowFiles",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 672
+      }
+    },
+    {
+      "id": "e_022",
+      "flowId": "flow_toMermaid",
+      "from": "toMermaid",
+      "to": "mermaidNodeId_server",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 222
+      }
+    },
+    {
+      "id": "e_023",
+      "flowId": "flow_toMermaid",
+      "from": "mermaidNodeId_server",
+      "to": "escapeMermaidText_server",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 372
+      }
+    },
+    {
+      "id": "e_024",
+      "flowId": "flow_toMermaid",
+      "from": "escapeMermaidText_server",
+      "to": "renderMermaidEdges",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 130
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 130
+      },
+      "elbow": {
+        "x": 210,
+        "y": 522
+      }
+    },
+    {
+      "id": "e_025",
+      "flowId": "flow_btnApply_click",
+      "from": "importJSON",
+      "to": "importJSON"
+    },
+    {
+      "id": "e_026",
+      "flowId": "flow_importJSON",
+      "from": "parseImportJSON",
+      "to": "clearAll"
+    },
+    {
+      "id": "e_027",
+      "flowId": "flow_importJSON",
+      "from": "clearAll",
+      "to": "rootFlow"
+    },
+    {
+      "id": "e_028",
+      "flowId": "flow_importJSON",
+      "from": "rootFlow",
+      "to": "setViewportTransform_inImport"
+    },
+    {
+      "id": "e_029",
+      "flowId": "flow_importJSON",
+      "from": "setViewportTransform_inImport",
+      "to": "dedupeEdges"
+    },
+    {
+      "id": "e_030",
+      "flowId": "flow_importJSON",
+      "from": "dedupeEdges",
+      "to": "normalizeAllEdges"
+    },
+    {
+      "id": "e_031",
+      "flowId": "flow_importJSON",
+      "from": "normalizeAllEdges",
+      "to": "renderCurrentFlow"
+    },
+    {
+      "id": "e_032",
+      "flowId": "flow_importJSON",
+      "from": "renderCurrentFlow",
+      "to": "saveState_inImport"
+    },
+    {
+      "id": "e_033",
+      "flowId": "flow_btnMermaid_click",
+      "from": "exportMermaid",
+      "to": "focusMermaidOutput"
+    },
+    {
+      "id": "e_034",
+      "flowId": "flow_exportMermaid",
+      "from": "currentNodes",
+      "to": "mermaidNodeId"
+    },
+    {
+      "id": "e_035",
+      "flowId": "flow_exportMermaid",
+      "from": "mermaidNodeId",
+      "to": "escapeMermaidText"
+    },
+    {
+      "id": "e_036",
+      "flowId": "flow_exportMermaid",
+      "from": "escapeMermaidText",
+      "to": "currentEdges"
+    },
+    {
+      "id": "e_037",
+      "flowId": "flow_exportMermaid",
+      "from": "currentEdges",
+      "to": "buildClassLines"
+    },
+    {
+      "id": "e_038",
+      "flowId": "flow_loadSavedState",
+      "from": "encodeLoadParams",
+      "to": "getFlowchart"
+    },
+    {
+      "id": "e_039",
+      "flowId": "flow_loadSavedState",
+      "from": "getFlowchart",
+      "to": "readFlowchart"
+    },
+    {
+      "id": "e_040",
+      "flowId": "flow_loadSavedState",
+      "from": "readFlowchart",
+      "to": "readLocalStorage"
+    },
+    {
+      "id": "e_041",
+      "flowId": "flow_readFlowchart",
+      "from": "projectPaths_read",
+      "to": "readUserJson"
+    },
+    {
+      "id": "e_042",
+      "flowId": "flow_readFlowchart",
+      "from": "readUserJson",
+      "to": "readLegacyJson"
+    }
+  ]
+}
