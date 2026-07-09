@@ -1,0 +1,28 @@
+{
+  "project": "knowledge_forge_core",
+  "user": "000666888",
+  "projectName": "knowledge_forge_core",
+  "version": 2,
+  "currentFlowId": "main",
+  "view": {
+    "x": -33.69999999999999,
+    "y": 278.44342552594475,
+    "scale": 0.55
+  },
+  "display": {
+    "viewMode": "knowledge",
+    "knowledgeBodyLines": 1,
+    "flowchartTitleSize": 20
+  },
+  "flows": [
+    {
+      "id": "main",
+      "name": "主流程",
+      "parentFlowId": null,
+      "ownerNodeId": null
+    }
+  ],
+  "groups": [],
+  "nodes": [],
+  "edges": []
+}

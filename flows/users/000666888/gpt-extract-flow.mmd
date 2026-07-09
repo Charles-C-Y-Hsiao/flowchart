@@ -1,0 +1,104 @@
+flowchart TD
+  n_gptExtract["<b>GPT Extract</b><br/><small>CORE</small><br/><br/>User clicks GPT Extract"]
+  n_llmExtract["<b>llmExtract()</b><br/><small>DOM</small><br/><br/>Frontend executes GPT extraction"]
+  n_handleLlmExtract["<b>handleLlmExtract()</b><br/><small>API</small><br/><br/>Backend handles GPT extraction                                                                                                       "]
+  n_callOpenAIExtraction_main["<b>callOpenAIExtraction()</b><br/><small>API</small><br/><br/>Call OpenAI Responses API"]
+  n_buildRawMarkdown_main["<b>buildRawMarkdown()</b><br/><small>CORE</small><br/><br/>Build raw markdown result"]
+  n_estimateCost_main["<b>estimateCost()</b><br/><small>CORE</small><br/><br/>Estimate request cost"]
+  n_appendUsage_main["<b>appendUsage()</b><br/><small>CORE</small><br/><br/>Write usage JSONL"]
+  n_applyExtraction_main["<b>applyExtraction()</b><br/><small>DOM</small><br/><br/>Fill extracted fields"]
+  n_loadUsage_main["<b>loadUsage()</b><br/><small>DOM</small><br/><br/>Refresh usage panel"]
+  n_formPayload["<b>formPayload()</b><br/><small>DOM</small><br/><br/>Collect form and model data"]
+  n_apiPost["<b>api('/api/llm-extract')</b><br/><small>API</small><br/><br/>POST extraction request"]
+  n_applyExtraction["<b>applyExtraction()</b><br/><small>DOM</small><br/><br/>Fill GPT extraction fields"]
+  n_loadUsage["<b>loadUsage()</b><br/><small>DOM</small><br/><br/>Refresh usage panel"]
+  n_readRequestJson["<b>readRequestJson()</b><br/><small>API</small><br/><br/>Read frontend JSON"]
+  n_loadPricing["<b>loadPricing()</b><br/><small>CORE</small><br/><br/>Read model pricing config"]
+  n_callOpenAIExtraction["<b>callOpenAIExtraction()</b><br/><small>API</small><br/><br/>Call OpenAI API"]
+  n_buildRawMarkdown["<b>buildRawMarkdown()</b><br/><small>CORE</small><br/><br/>Generate raw markdown"]
+  n_estimateCost["<b>estimateCost()</b><br/><small>CORE</small><br/><br/>Estimate token cost"]
+  n_appendUsage["<b>appendUsage()</b><br/><small>CORE</small><br/><br/>Write usage JSONL"]
+  n_jsonResponse["<b>jsonResponse()</b><br/><small>API</small><br/><br/>Return extraction result"]
+  n_extractionPrompt["<b>extractionPrompt()</b><br/><small>CORE</small><br/><br/>Build knowledge extraction prompt"]
+  n_loadPricing_call["<b>loadPricing()</b><br/><small>CORE</small><br/><br/>Get default model"]
+  n_responsesApi["<b>fetch()</b><br/><small>API</small><br/><br/>Call Responses API"]
+  n_extractOutputText["<b>extractOutputText()</b><br/><small>CORE</small><br/><br/>Extract model text output"]
+  n_deriveTitle["<b>deriveTitle()</b><br/><small>CORE</small><br/><br/>Decide knowledge title"]
+  n_inferProblem["<b>inferProblem()</b><br/><small>CORE</small><br/><br/>Fill default problem"]
+  n_inferCause["<b>inferCause()</b><br/><small>CORE</small><br/><br/>Fill tentative cause"]
+  n_inferSolution["<b>inferSolution()</b><br/><small>CORE</small><br/><br/>Fill default solution"]
+  n_attachmentList["<b>attachmentList()</b><br/><small>CORE</small><br/><br/>Format attachments"]
+  n_indentBlock["<b>indentBlock()</b><br/><small>CORE</small><br/><br/>Indent raw data"]
+  n_modelPrice["<b>modelPrice()</b><br/><small>CORE</small><br/><br/>Lookup model unit price"]
+  n_normalizeUsage["<b>normalizeUsage()</b><br/><small>CORE</small><br/><br/>Normalize token fields"]
+  n_renderUsageCards["<b>renderUsageCards()</b><br/><small>DOM</small><br/><br/>Show today and monthly usage"]
+  n_renderUsageRows["<b>renderUsageRows()</b><br/><small>DOM</small><br/><br/>Show recent calls"]
+  n_renderByModel["<b>renderByModel()</b><br/><small>DOM</small><br/><br/>Group usage by model"]
+  n_gptExtract --> n_llmExtract
+  n_llmExtract --> n_handleLlmExtract
+  n_handleLlmExtract --> n_callOpenAIExtraction_main
+  n_callOpenAIExtraction_main --> n_buildRawMarkdown_main
+  n_buildRawMarkdown_main --> n_estimateCost_main
+  n_formPayload --> n_apiPost
+  n_apiPost --> n_applyExtraction
+  n_applyExtraction --> n_loadUsage
+  n_readRequestJson --> n_loadPricing
+  n_loadPricing --> n_callOpenAIExtraction
+  n_callOpenAIExtraction --> n_buildRawMarkdown
+  n_buildRawMarkdown --> n_estimateCost
+  n_estimateCost --> n_appendUsage
+  n_appendUsage --> n_jsonResponse
+  n_extractionPrompt --> n_loadPricing_call
+  n_loadPricing_call --> n_responsesApi
+  n_responsesApi --> n_extractOutputText
+  n_deriveTitle --> n_inferProblem
+  n_inferProblem --> n_inferCause
+  n_inferCause --> n_inferSolution
+  n_inferSolution --> n_attachmentList
+  n_attachmentList --> n_indentBlock
+  n_modelPrice --> n_normalizeUsage
+  n_renderUsageCards --> n_renderUsageRows
+  n_renderUsageRows --> n_renderByModel
+  n_appendUsage_main --> n_applyExtraction_main
+  n_applyExtraction_main --> n_loadUsage_main
+  n_estimateCost_main --> n_appendUsage_main
+
+  classDef CORE fill:#fff8dc,stroke:#ead68f,color:#8a6510
+  classDef DOM fill:#eef6ff,stroke:#b9d7f8,color:#1759b7
+  classDef API fill:#f2fbf6,stroke:#a9dcc2,color:#27885c
+  classDef RISK fill:#fff7f7,stroke:#efb5b5,color:#bf4a4a
+  class n_gptExtract CORE
+  class n_llmExtract DOM
+  class n_handleLlmExtract API
+  class n_callOpenAIExtraction_main API
+  class n_buildRawMarkdown_main CORE
+  class n_estimateCost_main CORE
+  class n_appendUsage_main CORE
+  class n_applyExtraction_main DOM
+  class n_loadUsage_main DOM
+  class n_formPayload DOM
+  class n_apiPost API
+  class n_applyExtraction DOM
+  class n_loadUsage DOM
+  class n_readRequestJson API
+  class n_loadPricing CORE
+  class n_callOpenAIExtraction API
+  class n_buildRawMarkdown CORE
+  class n_estimateCost CORE
+  class n_appendUsage CORE
+  class n_jsonResponse API
+  class n_extractionPrompt CORE
+  class n_loadPricing_call CORE
+  class n_responsesApi API
+  class n_extractOutputText CORE
+  class n_deriveTitle CORE
+  class n_inferProblem CORE
+  class n_inferCause CORE
+  class n_inferSolution CORE
+  class n_attachmentList CORE
+  class n_indentBlock CORE
+  class n_modelPrice CORE
+  class n_normalizeUsage CORE
+  class n_renderUsageCards DOM
+  class n_renderUsageRows DOM
+  class n_renderByModel DOM

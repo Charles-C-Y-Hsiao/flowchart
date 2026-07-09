@@ -1,0 +1,24 @@
+flowchart TD
+  n_nqp6dqkg["<b>User Input Layer</b><br/><small>CORE</small><br/><br/>滑鼠/鍵盤/雙擊/輸入/刪除<br/>（事件觸發點）"]
+  n_nbw37bv6["<b>DOM Layer</b><br/><small>DOM</small><br/><br/>dayCols / block / ghost<br/>renderWeekFromMap → renderDayFromData"]
+  n_nac3vzom["<b>State/Data Layer</b><br/><small>CORE</small><br/><br/>allSchedules（前端單一真相）<br/>{ yyyy-mm-dd: [items...] }"]
+  n_nyigec1g["<b>API Layer</b><br/><small>API</small><br/><br/>GET /week?from&amp;to<br/>POST /day  /week"]
+  n_nooxhqfw["<b>[READ                   </b><br/><small>CORE</small><br/><br/>loadWeek → merge allSchedules<br/>→ renderWeekFromMap → renderDayFromData"]
+  n_nxllvjvj["<b>[WRITE FLOW]</b><br/><small>RISK</small><br/><br/>create/drag/resize/edit/delete<br/>→ serialize payload → persistDay<br/>→ 後端存檔 → 回來重 render"]
+  n_nfq4x2rd["<b>setupInteract(block)</b><br/><small>CORE</small><br/><br/>interact.js<br/>拖曳 / 縮放 / 跨日<br/>（能力注入，不是狀態）"]
+  n_nqp6dqkg --> n_nbw37bv6
+  n_nqp6dqkg --> n_nfq4x2rd
+  n_nfq4x2rd --> n_nxllvjvj
+  n_nbw37bv6 --> n_nac3vzom
+
+  classDef CORE fill:#fff8dc,stroke:#ead68f,color:#8a6510
+  classDef DOM fill:#eef6ff,stroke:#b9d7f8,color:#1759b7
+  classDef API fill:#f2fbf6,stroke:#a9dcc2,color:#27885c
+  classDef RISK fill:#fff7f7,stroke:#efb5b5,color:#bf4a4a
+  class n_nqp6dqkg CORE
+  class n_nbw37bv6 DOM
+  class n_nac3vzom CORE
+  class n_nyigec1g API
+  class n_nooxhqfw CORE
+  class n_nxllvjvj RISK
+  class n_nfq4x2rd CORE

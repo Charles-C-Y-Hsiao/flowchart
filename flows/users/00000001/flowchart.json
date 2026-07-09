@@ -10,7 +10,7 @@
     "scale": 0.9499999999999998
   },
   "display": {
-    "viewMode": "flowchart",
+    "viewMode": "knowledge",
     "knowledgeBodyLines": 1,
     "flowchartTitleSize": 20
   },
@@ -29,7 +29,7 @@
       "x": -169.8079385403329,
       "y": 57.336747759283,
       "w": 248.16901408450704,
-      "h": 90,
+      "h": 91,
       "tags": [
         "CORE"
       ],
@@ -99,7 +99,7 @@
       "x": 164.19494238156216,
       "y": 253.65236875800252,
       "w": 248.16901408450704,
-      "h": 92,
+      "h": 93,
       "tags": [
         "RISK"
       ],
@@ -130,7 +130,7 @@
       "to": "nbw37bv6",
       "fromPort": {
         "side": "right",
-        "offset": 45
+        "offset": 46
       },
       "toPort": {
         "side": "left",
@@ -138,7 +138,7 @@
       },
       "elbow": {
         "x": 104.34246387415402,
-        "y": 102.336747759283
+        "y": 103.336747759283
       },
       "flowId": "main",
       "manualElbow": false
@@ -172,7 +172,7 @@
       },
       "toPort": {
         "side": "left",
-        "offset": 46
+        "offset": 47
       },
       "elbow": {
         "x": 136.19494238156216,

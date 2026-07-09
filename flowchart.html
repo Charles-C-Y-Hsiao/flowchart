@@ -715,9 +715,11 @@
       box-shadow: 0 0 0 2px rgba(47,126,230,.14);
       background:#ffffff;
     }
-    .tag.core{ color:#8a6510; border-color: #ead68f; background: #fff8dc; }
-    .tag.dom{ color:#1759b7; border-color: #b9d7f8; background: #eef6ff; }
+    .tag.feol{ color:#1759b7; border-color: #b9d7f8; background: #eef6ff; }
+    .tag.beol{ color:#7950a8; border-color: #d6c2eb; background: #f8f3fc; }
     .tag.api{ color:#27885c; border-color: #a9dcc2; background: #f2fbf6; }
+    .tag.db{ color:#9a5b13; border-color: #eccb9f; background: #fff8ee; }
+    .tag.util{ color:#52606d; border-color: #c9d2da; background: #f5f7f9; }
     .tag.risk{ color:#bf4a4a; border-color: #efb5b5; background: #fff7f7; }
     .tag-picker{
       position:relative;
@@ -799,9 +801,11 @@
       border:1px solid var(--line);
       background:#f7f9fc;
     }
-    .tag-menu-option.core .tag-menu-swatch{ border-color:#ead68f; background:#fff8dc; }
-    .tag-menu-option.dom .tag-menu-swatch{ border-color:#b9d7f8; background:#eef6ff; }
+    .tag-menu-option.feol .tag-menu-swatch{ border-color:#b9d7f8; background:#eef6ff; }
+    .tag-menu-option.beol .tag-menu-swatch{ border-color:#d6c2eb; background:#f8f3fc; }
     .tag-menu-option.api .tag-menu-swatch{ border-color:#a9dcc2; background:#f2fbf6; }
+    .tag-menu-option.db .tag-menu-swatch{ border-color:#eccb9f; background:#fff8ee; }
+    .tag-menu-option.util .tag-menu-swatch{ border-color:#c9d2da; background:#f5f7f9; }
     .tag-menu-option.risk .tag-menu-swatch{ border-color:#efb5b5; background:#fff7f7; }
 
     .node .title{
@@ -1206,6 +1210,19 @@
       padding:5px 8px;
     }
     .flow-nav.can-back .flow-back{ display:inline-flex; }
+    .flow-remove{
+      padding:5px 8px;
+      border-color:#efb5b5;
+      background:#fff7f7;
+      color:#bf4a4a;
+    }
+    .flow-remove:hover,
+    .flow-remove:focus{
+      border-color:#dc7373;
+      background:#fff0f0;
+      outline:none;
+    }
+    .flow-remove[hidden]{ display:none; }
     .node-move-handle{
       position:absolute;
       right:10px;
@@ -1647,6 +1664,7 @@
     <div class="flow-nav" id="flowNav">
       <button class="flow-back" id="btnFlowBack" type="button">上層</button>
       <div class="flow-nav-path" id="flowBreadcrumb"></div>
+      <button class="flow-remove" id="btnRemoveCurrentSubflow" type="button" hidden>移除空白 Subflow</button>
     </div>
 
     <!-- SVG 線層 -->
@@ -1745,6 +1763,7 @@
   const selectionTools = document.getElementById('selectionTools');
   const flowNav = document.getElementById('flowNav');
   const btnFlowBack = document.getElementById('btnFlowBack');
+  const btnRemoveCurrentSubflow = document.getElementById('btnRemoveCurrentSubflow');
   const flowBreadcrumb = document.getElementById('flowBreadcrumb');
   const toolbar = document.getElementById('toolbar');
   const toolbarActions = toolbar.querySelector('.toolbar-actions');
@@ -1799,6 +1818,7 @@
 
   const toast = document.getElementById('toast');
   const userConfirmOverlay = document.getElementById('userConfirmOverlay');
+  const userConfirmTitle = document.getElementById('userConfirmTitle');
   const userConfirmMessage = document.getElementById('userConfirmMessage');
   const userConfirmId = document.getElementById('userConfirmId');
   const btnUserConfirmCancel = document.getElementById('btnUserConfirmCancel');
@@ -1806,7 +1826,7 @@
   const moveHint = document.getElementById('moveHint');
   const CONNECTOR_POINT_SPACING = 30; // px: change this to adjust the point interval on each node edge.
   const CONNECTOR_CLEARANCE = 28; // px: distance a connector leaves a box before turning.
-  const TAG_PRESETS = ['CORE', 'DOM', 'API', 'RISK'];
+  const TAG_PRESETS = ['FEoL', 'BEoL', 'API', 'DB', 'UTIL', 'RISK'];
   const STORAGE_KEY = 'flow-editor-state-v2';
   const CURRENT_PROJECT_KEY = 'flow-editor-current-project';
   const CURRENT_USER_KEY = 'flow-editor-current-user';
@@ -1867,7 +1887,10 @@
     resize: null, // {id, startW, startH, startX, startY}
     view: { x: 0, y: 0, scale: 1 }, // viewport transform
     display: { ...DEFAULT_DISPLAY },
-    panning: null // {startX,startY, ox, oy}
+    panning: null, // {startX,startY, ox, oy}
+    undoStack: [],
+    isRestoringUndo: false,
+    editUndoSnapshot: null
   };
 
   // ─────────────────────────────────────────────────────────────
@@ -1881,6 +1904,16 @@
     clearTimeout(showToast._t);
     showToast._t = setTimeout(() => toast.classList.remove('show'), 1400);
   }
+
+  function finishTextEditingOnOutsideAction(event){
+    const active = document.activeElement;
+    if (!active || active.getAttribute?.('contenteditable') !== 'true') return;
+    if (active === event.target || active.contains(event.target)) return;
+    active.blur();
+    window.getSelection()?.removeAllRanges();
+  }
+
+  document.addEventListener('mousedown', finishTextEditingOnOutsideAction, true);
 
   function normalizeDisplaySettings(display = {}){
     const viewMode = display.viewMode === 'flowchart' ? 'flowchart' : 'knowledge';
@@ -1930,7 +1963,9 @@
   }
 
   function setViewMode(viewMode){
-    state.display.viewMode = viewMode === 'flowchart' ? 'flowchart' : 'knowledge';
+    const nextViewMode = viewMode === 'flowchart' ? 'flowchart' : 'knowledge';
+    if (state.display.viewMode !== nextViewMode) captureUndo('切換顯示模式');
+    state.display.viewMode = nextViewMode;
     applyDisplaySettings({ save: true });
     redrawEdges();
   }
@@ -1996,9 +2031,11 @@
     el.classList.add(`shape-${normalizeShape(shape)}`);
   }
 
-  function confirmUserCreation(userId){
-    userConfirmMessage.textContent = '請確認要新增並切換到這個使用者 ID。';
-    userConfirmId.textContent = userId;
+  function confirmAction({ title, message, detail = '' }){
+    userConfirmTitle.textContent = title;
+    userConfirmMessage.textContent = message;
+    userConfirmId.textContent = detail;
+    userConfirmId.hidden = !detail;
     userConfirmOverlay.classList.add('open');
     btnUserConfirmOk.focus();
 
@@ -2023,6 +2060,14 @@
       btnUserConfirmCancel.addEventListener('click', onCancel);
       userConfirmOverlay.addEventListener('click', onOverlay);
       document.addEventListener('keydown', onKeydown);
+    });
+  }
+
+  function confirmUserCreation(userId){
+    return confirmAction({
+      title: '確認新增使用者',
+      message: '請確認要新增並切換到這個使用者 ID。',
+      detail: userId
     });
   }
 
@@ -2254,6 +2299,17 @@
         : escapeHtml(flow.name || flow.id))
       .join(' / ');
     flowNav.classList.toggle('can-back', state.currentFlowId !== 'main');
+    btnRemoveCurrentSubflow.hidden = !isCurrentSubflowEmpty();
+  }
+
+  function isCurrentSubflowEmpty(){
+    if (state.currentFlowId === 'main') return false;
+    const flowId = state.currentFlowId;
+    const hasNodes = [...state.nodes.values()].some(node => nodeFlowId(node) === flowId);
+    const hasEdges = [...state.edges.values()].some(edge => edgeFlowId(edge) === flowId);
+    const hasGroups = [...state.groups.values()].some(group => groupFlowId(group) === flowId);
+    const hasChildFlows = [...state.flows.values()].some(flow => flow.parentFlowId === flowId);
+    return !hasNodes && !hasEdges && !hasGroups && !hasChildFlows;
   }
 
   function escapeHtml(value){
@@ -2299,6 +2355,7 @@
     const node = state.nodes.get(nodeId);
     if (!node) return null;
     if (node.subflowId && state.flows.has(node.subflowId)) return node.subflowId;
+    captureUndo('建立 Subflow');
     const flowId = `flow_${nodeId}`;
     node.subflowId = flowId;
     state.flows.set(flowId, {
@@ -2333,6 +2390,26 @@
     for (const [groupId, group] of [...state.groups.entries()]){
       if (flowIds.has(groupFlowId(group))) state.groups.delete(groupId);
     }
+  }
+
+  async function removeCurrentEmptySubflow(){
+    if (!isCurrentSubflowEmpty()) return;
+    const flow = currentFlow();
+    const parentFlowId = flow.parentFlowId || 'main';
+    const ownerNode = state.nodes.get(flow.ownerNodeId);
+    const confirmed = await confirmAction({
+      title: '移除空白 Subflow',
+      message: '確定要移除目前這個空白子流程嗎？',
+      detail: flow.name || flow.id
+    });
+    if (!confirmed) return;
+    captureUndo('移除 Subflow');
+    if (ownerNode?.subflowId === flow.id) ownerNode.subflowId = null;
+    deleteFlows(new Set([flow.id]));
+    state.currentFlowId = parentFlowId;
+    renderCurrentFlow();
+    saveState();
+    showToast('Subflow 已移除');
   }
 
   function renderUserList(){
@@ -2604,6 +2681,66 @@
       clearTimeout(saveTimer);
       saveTimer = setTimeout(() => saveProjectFile(json), 260);
     }catch{}
+  }
+
+  function snapshotState(){
+    normalizeAllEdges();
+    return exportJSON();
+  }
+
+  function pushUndoSnapshot(snapshot, label = '操作'){
+    if (isBooting || state.isRestoringUndo || !snapshot) return;
+    const current = snapshotState();
+    if (snapshot === current) return;
+    const last = state.undoStack[state.undoStack.length - 1];
+    if (last?.json === snapshot) return;
+    state.undoStack.push({ json: snapshot, label });
+    if (state.undoStack.length > 80) state.undoStack.shift();
+  }
+
+  function captureUndo(label = '操作'){
+    if (isBooting || state.isRestoringUndo) return null;
+    const snapshot = snapshotState();
+    const last = state.undoStack[state.undoStack.length - 1];
+    if (last?.json !== snapshot){
+      state.undoStack.push({ json: snapshot, label });
+      if (state.undoStack.length > 80) state.undoStack.shift();
+    }
+    return snapshot;
+  }
+
+  function beginEditableUndo(label = '文字編輯'){
+    if (isBooting || state.isRestoringUndo || state.editUndoSnapshot) return;
+    state.editUndoSnapshot = { json: snapshotState(), label };
+  }
+
+  function commitEditableUndo(){
+    if (!state.editUndoSnapshot) return;
+    const { json, label } = state.editUndoSnapshot;
+    state.editUndoSnapshot = null;
+    pushUndoSnapshot(json, label);
+  }
+
+  function isNativeUndoTarget(target){
+    const el = target?.closest?.('input, textarea, select, [contenteditable="true"]');
+    if (!el) return false;
+    return el.matches('input, textarea, select') || el.getAttribute('contenteditable') === 'true';
+  }
+
+  function undoLastAction(){
+    if (state.undoStack.length === 0){
+      showToast('沒有可復原的上一動');
+      return;
+    }
+    const entry = state.undoStack.pop();
+    state.isRestoringUndo = true;
+    try{
+      importJSON(entry.json, { skipSave: true, quiet: true });
+      saveState();
+      showToast(`已復原：${entry.label || '上一動'}`);
+    }finally{
+      state.isRestoringUndo = false;
+    }
   }
 
   async function saveProjectFile(json = exportJSON()){
@@ -3023,6 +3160,7 @@
       showToast('請先框選至少兩個元素');
       return;
     }
+    captureUndo('排列節點');
 
     if (mode === 'center-x'){
       const centerX = nodes.reduce((sum, node) => sum + node.x + node.w / 2, 0) / nodes.length;
@@ -3077,6 +3215,7 @@
       updateAlignToolState();
       return;
     }
+    captureUndo('統一大小');
     const maxWidth = Math.max(...nodes.map(node => node.w));
     nodes.forEach(node => {
       node.w = maxWidth;
@@ -3437,12 +3576,12 @@
     if (ev.preventDefault) ev.preventDefault();
     select('edge', edgeId);
     if (axis === 'from' || axis === 'to'){
-      state.connectorDrag = { id: edgeId, endpoint: axis };
+      state.connectorDrag = { id: edgeId, endpoint: axis, undoSnapshot: snapshotState() };
       stage.classList.add('reconnecting');
       showToast(axis === 'from' ? 'Drag start point to reconnect' : 'Drag arrow point to reconnect');
       return;
     }
-    state.connectorDrag = { id: edgeId, axis };
+    state.connectorDrag = { id: edgeId, axis, undoSnapshot: snapshotState() };
   }
 
   function finishEndpointReconnect(ev){
@@ -3748,8 +3887,12 @@
     tagEl.textContent = normalizeTagText(tag) || 'TAG';
     tagEl.title = 'Edit tag. Clear it to remove.';
     tagEl.addEventListener('mousedown', ev => ev.stopPropagation());
+    tagEl.addEventListener('focus', () => beginEditableUndo('編輯 tag'));
     tagEl.addEventListener('input', () => syncTagsFromRow(nodeId, tagrow));
-    tagEl.addEventListener('blur', () => syncTagsFromRow(nodeId, tagrow, true));
+    tagEl.addEventListener('blur', () => {
+      syncTagsFromRow(nodeId, tagrow, true);
+      commitEditableUndo();
+    });
     tagEl.addEventListener('keydown', ev => {
       if (ev.key === 'Enter'){
         ev.preventDefault();
@@ -3805,6 +3948,7 @@
       option.addEventListener('click', () => {
         const node = state.nodes.get(n.id);
         if (!node) return;
+        if (normalizeShape(node.shape) !== shape.id) captureUndo('變更形狀');
         node.shape = shape.id;
         const nodeEl = viewport.querySelector(`.node[data-id="${n.id}"]`);
         applyNodeDisplay(nodeEl);
@@ -3834,6 +3978,7 @@
     const tag = value === '__custom' ? 'TAG' : value;
     const exists = (state.nodes.get(nodeId)?.tags || []).some(item => item.toLowerCase() === tag.toLowerCase());
     let tagEl = [...tagrow.querySelectorAll('.tag-edit')].find(item => item.textContent.trim().toLowerCase() === tag.toLowerCase());
+    if (!exists && !tagEl) captureUndo('新增 tag');
     if (!exists && !tagEl) tagEl = createTagPill(nodeId, tag, tagrow);
     syncTagsFromRow(nodeId, tagrow, true);
     if (value === '__custom' || tag === 'TAG') focusTag(tagEl);
@@ -3905,6 +4050,7 @@
     label.spellcheck = false;
     label.textContent = group.label || 'Group';
     label.addEventListener('mousedown', ev => ev.stopPropagation());
+    label.addEventListener('focus', () => beginEditableUndo('編輯群組標題'));
     label.addEventListener('input', () => {
       const item = state.groups.get(group.id);
       if (item) item.label = label.textContent.trim() || 'Group';
@@ -3913,6 +4059,7 @@
       const item = state.groups.get(group.id);
       if (item) item.label = label.textContent.trim() || 'Group';
       saveState();
+      commitEditableUndo();
     });
     label.addEventListener('keydown', ev => {
       if (ev.key === 'Enter'){
@@ -3956,6 +4103,7 @@
     state.groupDrag = {
       id: group.id,
       nodeIds,
+      undoSnapshot: snapshotState(),
       origins: nodeIds.map(id => {
         const node = state.nodes.get(id);
         return { id, x: node.x, y: node.y };
@@ -3982,6 +4130,7 @@
       label: `Group ${currentGroups().length + 1}`,
       nodeIds
     };
+    captureUndo('建立群組');
     state.groups.set(id, group);
     renderGroup(group);
     select('group', id);
@@ -4005,6 +4154,7 @@
     const dragIdSet = new Set(dragIds);
     state.drag = {
       ids: dragIds,
+      undoSnapshot: snapshotState(),
       origins: dragIds.map(id => {
         const node = state.nodes.get(id);
         return { id, x: node.x, y: node.y };
@@ -4091,7 +4241,11 @@
       saveState();
       setCurrentFlow(flowId);
     });
-    controls.appendChild(subflowButton);
+    if (n.subflowId){
+      tagrow.appendChild(subflowButton);
+    } else {
+      controls.appendChild(subflowButton);
+    }
 
     const title = document.createElement('div');
     title.className = 'title';
@@ -4131,6 +4285,7 @@
     });
 
     // update state on edit
+    title.addEventListener('focus', () => beginEditableUndo('編輯標題'));
     title.addEventListener('input', () => {
       const nn = state.nodes.get(n.id);
       if (nn) {
@@ -4147,6 +4302,8 @@
       }
       saveState();
     });
+    title.addEventListener('blur', commitEditableUndo);
+    body.addEventListener('focus', () => beginEditableUndo('編輯內容'));
     body.addEventListener('input', () => {
       const nn = state.nodes.get(n.id);
       if (nn) nn.body = body.textContent;
@@ -4157,6 +4314,7 @@
       }
       saveState();
     });
+    body.addEventListener('blur', commitEditableUndo);
 
     resize.addEventListener('mousedown', (ev) => {
       ev.preventDefault();
@@ -4165,6 +4323,7 @@
       state.resize = {
         id: n.id,
         mode: 'both',
+        undoSnapshot: snapshotState(),
         startW: n.w, startH: n.h,
         startX: ev.clientX, startY: ev.clientY
       };
@@ -4176,6 +4335,7 @@
       state.resize = {
         id: n.id,
         mode: 'height',
+        undoSnapshot: snapshotState(),
         startW: n.w, startH: n.h,
         startX: ev.clientX, startY: ev.clientY
       };
@@ -4235,6 +4395,7 @@
   }
 
   function addNode(partial = {}){
+    captureUndo('新增節點');
     const id = uid('n');
     const n = {
       id,
@@ -4253,6 +4414,7 @@
     renderNode(n);
     redrawEdges();
     select('node', id);
+    updateFlowNav();
     saveState();
     return id;
   }
@@ -4263,6 +4425,7 @@
     for (const e of currentEdges()){
       if (e.from !== from || e.to !== to) continue;
       if (fromPort || toPort){
+        captureUndo('更新連線');
         e.fromPort = fromPort || e.fromPort;
         e.toPort = toPort || e.toPort;
         normalizeEdge(e);
@@ -4271,6 +4434,7 @@
       }
       return e.id;
     }
+    captureUndo('新增連線');
     const id = uid('e');
     const edge = { id, from, to, fromPort, toPort, flowId: state.currentFlowId };
     normalizeEdge(edge);
@@ -4284,6 +4448,8 @@
   function deleteSelected(){
     const {kind,id} = state.selected;
     if (!kind || !id) return;
+
+    captureUndo(kind === 'node' ? '刪除節點' : kind === 'edge' ? '刪除連線' : '刪除群組');
 
     if (kind === 'node'){
       const ids = state.selectedNodeIds.size ? [...state.selectedNodeIds] : [id];
@@ -4304,6 +4470,7 @@
       });
       refreshGroups();
       redrawEdges();
+      updateFlowNav();
       clearSelection();
       showToast('已刪除節點（含相關連線）');
     } else if (kind === 'edge'){
@@ -4314,6 +4481,7 @@
     } else if (kind === 'group'){
       state.groups.delete(id);
       refreshGroups();
+      updateFlowNav();
       clearSelection();
       showToast('已刪除群組');
     }
@@ -4323,6 +4491,13 @@
   // Viewport pan & zoom
   // ─────────────────────────────────────────────────────────────
   window.addEventListener('keydown', (e) => {
+    const key = String(e.key || '').toLowerCase();
+    if ((e.ctrlKey || e.metaKey) && key === 'z' && !e.shiftKey){
+      if (isNativeUndoTarget(e.target)) return;
+      e.preventDefault();
+      undoLastAction();
+      return;
+    }
     if (e.key === 'Escape'){
       state.pendingPort = null;
       state.connectFrom = null;
@@ -4390,9 +4565,12 @@
 
   window.addEventListener('pointerup', (e) => {
     if (state.connectorDrag){
+      const connectorUndoSnapshot = state.connectorDrag.undoSnapshot;
+      const connectorUndoLabel = state.connectorDrag.endpoint ? '重接連線' : '調整連線';
       if (state.connectorDrag.endpoint){
         finishEndpointReconnect(e);
       }
+      pushUndoSnapshot(connectorUndoSnapshot, connectorUndoLabel);
       state.connectorDrag = null;
       stage.classList.remove('reconnecting');
       saveState();
@@ -4503,10 +4681,15 @@
     // finish node drag/resize
     const changedLayout = Boolean(state.drag || state.resize || state.groupDrag);
     const wasMovingNodes = Boolean(state.drag);
+    const layoutUndoSnapshot = state.drag?.undoSnapshot || state.groupDrag?.undoSnapshot || state.resize?.undoSnapshot || null;
+    const layoutUndoLabel = state.resize ? '調整大小' : state.groupDrag ? '移動群組' : '移動節點';
     if (state.drag) state.drag = null;
     if (state.groupDrag) state.groupDrag = null;
     if (state.resize) state.resize = null;
-    if (changedLayout) saveState();
+    if (changedLayout) {
+      pushUndoSnapshot(layoutUndoSnapshot, layoutUndoLabel);
+      saveState();
+    }
     if (wasMovingNodes) hideMoveHint();
 
     const finishedMarquee = stopMarquee();
@@ -4626,9 +4809,11 @@
     const lines = ['flowchart TD'];
     const classLines = [];
     const classDefs = new Map([
-      ['CORE', 'fill:#fff8dc,stroke:#ead68f,color:#8a6510'],
-      ['DOM', 'fill:#eef6ff,stroke:#b9d7f8,color:#1759b7'],
+      ['FEoL', 'fill:#eef6ff,stroke:#b9d7f8,color:#1759b7'],
+      ['BEoL', 'fill:#f8f3fc,stroke:#d6c2eb,color:#7950a8'],
       ['API', 'fill:#f2fbf6,stroke:#a9dcc2,color:#27885c'],
+      ['DB', 'fill:#fff8ee,stroke:#eccb9f,color:#9a5b13'],
+      ['UTIL', 'fill:#f5f7f9,stroke:#c9d2da,color:#52606d'],
       ['RISK', 'fill:#fff7f7,stroke:#efb5b5,color:#bf4a4a']
     ]);
 
@@ -4700,6 +4885,7 @@
       showToast('JSON 解析失敗');
       return;
     }
+    if (!options.skipUndo) captureUndo('匯入 JSON');
     clearAll();
     state.flows.clear();
     const importedFlows = Array.isArray(obj.flows) && obj.flows.length
@@ -4789,7 +4975,7 @@
   "y": 數字,
   "w": 280,
   "h": 100,
-  "tags": ["CORE"],
+  "tags": ["FEoL"],
   "title": "函數名稱()",
   "body": "30字內繁體中文說明",
   "shape": "rect",
@@ -4843,11 +5029,29 @@ shape 可使用：
 6. 呼叫順序不明確時，只建立節點，不要亂連線。
 
 tags 規則：
-1. 核心邏輯用 ["CORE"]。
-2. 前端 DOM、UI、事件處理用 ["DOM"]。
-3. API、路由、HTTP、資料交換用 ["API"]。
-4. 錯誤處理、風險、驗證、安全相關用 ["RISK"]。
-5. 不確定時用 ["CORE"]。
+1. tags 是節點的語意分類，不是檔名或呼叫來源；請依函式實際責任判斷。
+2. 先選主要責任標籤，再視需要加入輔助標籤。
+3. ["FEoL"]：前端函式，負責 DOM、UI 狀態、瀏覽器事件、畫面渲染、使用者互動或前端資料整理。
+4. ["BEoL"]：後端函式，負責伺服器端流程、服務層、商業邏輯、排程、權限或後端資料加工。
+5. ["API"]：API 邊界，包含路由 handler、controller、HTTP endpoint、API client、request/response mapping 或前後端資料交換格式。
+6. ["DB"]：資料庫、持久化、查詢、交易、migration、repository 或 ORM 存取。
+7. ["UTIL"]：跨層共用的純函式、格式轉換、計算、常數整理、無副作用輔助工具。
+8. ["RISK"]：錯誤處理、輸入驗證、權限、安全、併發、資料遺失、例外流程或高風險副作用；通常作為輔助標籤加入。
+9. tags 可複選，但不要過度標記：
+   - 前端呼叫 API 的函式可用 ["FEoL", "API"]。
+   - 後端 API route 若包含商業邏輯可用 ["API", "BEoL"]。
+   - 後端資料存取函式可用 ["BEoL", "DB"]。
+   - 驗證使用者輸入的前端函式可用 ["FEoL", "RISK"]。
+10. 不要只因為某函式被前端呼叫就標成 FEoL；也不要只因為參數像資料交換就標成 API。
+11. 不確定執行位置時不要猜測；若是純工具函式用 ["UTIL"]，完全無法判斷則 tags 使用 []。
+12. 僅使用這些標籤：FEoL、BEoL、API、DB、UTIL、RISK；不要輸出 CORE、DOM 或其他自創 tag。
+
+輸出前自我檢查：
+1. 確認每個 node 的 flowId 都存在於 flows。
+2. 確認每個 edge 的 flowId、from、to 都指向同一個 flow 內存在的 node。
+3. 確認每個 group.nodeIds 都指向同一個 flow 內存在的 node。
+4. 確認有 subflowId 的 node，在 flows 中有對應子流程，且 ownerNodeId 指回該 node。
+5. 確認 tags 只使用允許標籤，並符合 FEoL/BEoL/API/DB/UTIL/RISK 的語意。
 
 id 命名規則：
 1. 只能用英文字母、數字、底線。
@@ -4938,6 +5142,7 @@ id 命名規則：
   btnModeKnowledge.addEventListener('click', () => setViewMode('knowledge'));
   btnModeFlowchart.addEventListener('click', () => setViewMode('flowchart'));
   btnBodyLines.addEventListener('click', () => {
+    captureUndo('調整內容行數');
     const index = BODY_LINE_OPTIONS.indexOf(state.display.knowledgeBodyLines);
     state.display.knowledgeBodyLines = BODY_LINE_OPTIONS[(index + 1) % BODY_LINE_OPTIONS.length];
     if (state.display.viewMode !== 'knowledge') state.display.viewMode = 'knowledge';
@@ -4949,6 +5154,7 @@ id 命名規則：
     redrawEdges();
   });
   btnFlowTitleSize.addEventListener('click', () => {
+    captureUndo('調整標題大小');
     const index = FLOW_TITLE_SIZE_OPTIONS.indexOf(state.display.flowchartTitleSize);
     state.display.flowchartTitleSize = FLOW_TITLE_SIZE_OPTIONS[(index + 1) % FLOW_TITLE_SIZE_OPTIONS.length];
     if (state.display.viewMode !== 'flowchart') state.display.viewMode = 'flowchart';
@@ -4973,6 +5179,7 @@ id 命名規則：
     const flow = currentFlow();
     if (flow.parentFlowId) setCurrentFlow(flow.parentFlowId);
   });
+  btnRemoveCurrentSubflow.addEventListener('click', removeCurrentEmptySubflow);
   projectTrigger.addEventListener('click', (event) => {
     event.stopPropagation();
     closeHelpPanel();
@@ -5057,19 +5264,19 @@ id 命名規則：
     // nodes
     const nInput = addNode({
       x: 60, y: 120, w: 280, h: 92,
-      tags: ['CORE'],
+      tags: ['FEoL'],
       title: 'User Input Layer',
       body: '滑鼠/鍵盤/雙擊/輸入/刪除\n（事件觸發點）'
     });
     const nDOM = addNode({
       x: 420, y: 120, w: 300, h: 105,
-      tags: ['DOM'],
+      tags: ['FEoL'],
       title: 'DOM Layer',
       body: 'dayCols / block / ghost\nrenderWeekFromMap → renderDayFromData'
     });
     const nState = addNode({
       x: 820, y: 120, w: 320, h: 105,
-      tags: ['CORE'],
+      tags: ['FEoL'],
       title: 'State/Data Layer',
       body: 'allSchedules（前端單一真相）\n{ yyyy-mm-dd: [items...] }'
     });
@@ -5082,7 +5289,7 @@ id 命名規則：
 
     const nRead = addNode({
       x: 820, y: 320, w: 420, h: 118,
-      tags: ['CORE'],
+      tags: ['FEoL'],
       title: '[READ FLOW]',
       body: 'loadWeek → merge allSchedules\n→ renderWeekFromMap → renderDayFromData'
     });
@@ -5096,7 +5303,7 @@ id 命名規則：
 
     const nInteract = addNode({
       x: 60, y: 520, w: 320, h: 120,
-      tags: ['CORE'],
+      tags: ['FEoL'],
       title: 'setupInteract(block)',
       body: 'interact.js\n拖曳 / 縮放 / 跨日\n（能力注入，不是狀態）'
     });

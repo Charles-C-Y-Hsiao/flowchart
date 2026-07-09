@@ -3,14 +3,14 @@
   "user": "87654321",
   "projectName": "flowchart",
   "version": 2,
-  "currentFlowId": "main",
+  "currentFlowId": "flow_nac3vzom",
   "view": {
-    "x": 350.0999258972568,
-    "y": 174.28482271101336,
-    "scale": 0.8699999999999999
+    "x": 370.99420602700144,
+    "y": 226.89500230204146,
+    "scale": 0.55
   },
   "display": {
-    "viewMode": "flowchart",
+    "viewMode": "knowledge",
     "knowledgeBodyLines": 1,
     "flowchartTitleSize": 20
   },
@@ -20,6 +20,12 @@
       "name": "主流程",
       "parentFlowId": null,
       "ownerNodeId": null
+    },
+    {
+      "id": "flow_nac3vzom",
+      "name": "State/Data Layer",
+      "parentFlowId": "main",
+      "ownerNodeId": "nac3vzom"
     }
   ],
   "groups": [],
@@ -41,9 +47,9 @@
       "x": 5.964728242874983,
       "y": 205.36966524887728,
       "w": 320,
-      "h": 92,
+      "h": 94,
       "tags": [
-        "DOM"
+        "FEoL"
       ],
       "title": "DOM Layer",
       "body": "dayCols / block / ghost\nrenderWeekFromMap → renderDayFromData",
@@ -55,21 +61,22 @@
       "x": 5.964728242874983,
       "y": 14.008776286410452,
       "w": 320,
-      "h": 89,
+      "h": 91,
       "tags": [
-        "CORE"
+        "FEoL"
       ],
       "title": "State/Data Layer",
       "body": "allSchedules（前端單一真相）\n{ yyyy-mm-dd: [items...] }",
       "flowId": "main",
-      "shape": "rect"
+      "shape": "rect",
+      "subflowId": "flow_nac3vzom"
     },
     {
       "id": "nyigec1g",
       "x": 444.1977115216554,
       "y": 14.008776286410452,
       "w": 320,
-      "h": 89,
+      "h": 91,
       "tags": [
         "API"
       ],
@@ -83,9 +90,9 @@
       "x": 444.1977115216554,
       "y": -122.08442574639751,
       "w": 320,
-      "h": 88,
+      "h": 90,
       "tags": [
-        "CORE"
+        "FEoL"
       ],
       "title": "[READ]",
       "body": "loadWeek → merge allSchedules\n→ renderWeekFromMap → renderDayFromData",
@@ -97,7 +104,7 @@
       "x": 8.26357881758763,
       "y": -141.53141942005593,
       "w": 320,
-      "h": 88,
+      "h": 95,
       "tags": [],
       "title": "[WRITE FLOW]",
       "body": "create/drag/resize/edit/delete\n→ serialize payload → persistDay\n→ 後端存檔 → 回來重 render",
