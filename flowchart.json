@@ -10,7 +10,7 @@
     "scale": 0.71
   },
   "display": {
-    "viewMode": "knowledge",
+    "viewMode": "flowchart",
     "knowledgeBodyLines": 1,
     "flowchartTitleSize": 20
   },
@@ -29,7 +29,7 @@
       "x": -169.8079385403329,
       "y": 57.336747759283,
       "w": 280,
-      "h": 115,
+      "h": 119,
       "tags": [
         "CORE"
       ],
@@ -84,12 +84,12 @@
       "id": "nooxhqfw",
       "x": 686.9398207426377,
       "y": 221.76696542893728,
-      "w": 420,
-      "h": 132,
+      "w": 232.67605633802816,
+      "h": 88.33802816901408,
       "tags": [
         "CORE"
       ],
-      "title": "[READ                   ",
+      "title": "[READ And go next step to to to to",
       "body": "loadWeek → merge allSchedules\n→ renderWeekFromMap → renderDayFromData",
       "flowId": "main",
       "shape": "rect"
@@ -99,7 +99,7 @@
       "x": 705.0400128040974,
       "y": 460.6946222791293,
       "w": 205.4545454545455,
-      "h": 136,
+      "h": 141,
       "tags": [
         "RISK"
       ],
@@ -130,15 +130,15 @@
       "to": "nbw37bv6",
       "fromPort": {
         "side": "right",
-        "offset": 46
+        "offset": 60
       },
       "toPort": {
         "side": "left",
-        "offset": 52
+        "offset": 63
       },
       "elbow": {
         "x": 143.7790835924639,
-        "y": 103.336747759283
+        "y": 117.336747759283
       },
       "flowId": "main"
     },
@@ -152,11 +152,11 @@
       },
       "toPort": {
         "side": "top",
-        "offset": 140
+        "offset": 160
       },
       "elbow": {
-        "x": -31.216389244558258,
-        "y": 200.336747759283
+        "x": -11.216389244558258,
+        "y": 204.336747759283
       },
       "flowId": "main"
     },
@@ -166,15 +166,15 @@
       "to": "nxllvjvj",
       "fromPort": {
         "side": "right",
-        "offset": 60
+        "offset": 68
       },
       "toPort": {
         "side": "left",
-        "offset": 66
+        "offset": 71
       },
       "elbow": {
         "x": 677.0400128040974,
-        "y": 365.2240717029449
+        "y": 373.2240717029449
       },
       "flowId": "main"
     },
@@ -188,7 +188,7 @@
       },
       "toPort": {
         "side": "left",
-        "offset": 55
+        "offset": 56
       },
       "elbow": {
         "x": 619.8633162612035,

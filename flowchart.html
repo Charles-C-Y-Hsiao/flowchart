@@ -1205,6 +1205,52 @@
       color:var(--text);
       font-weight:700;
     }
+    .flow-search{
+      display:flex;
+      align-items:center;
+      gap:4px;
+      margin-left:4px;
+      padding-left:8px;
+      border-left:1px solid var(--line);
+    }
+    .flow-search-input{
+      width:190px;
+      max-width:28vw;
+      height:30px;
+      padding:5px 9px;
+      border:1px solid #c9d8eb;
+      border-radius:10px;
+      background:#ffffff;
+      color:var(--text);
+      font-size:12px;
+      outline:none;
+    }
+    .flow-search-input:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 2px rgba(47,126,230,.14);
+    }
+    .flow-search-button{
+      width:30px;
+      height:30px;
+      padding:0;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:10px;
+      font-size:13px;
+      line-height:1;
+    }
+    .flow-search-status{
+      min-width:42px;
+      color:var(--muted);
+      font-size:11px;
+      text-align:center;
+      white-space:nowrap;
+    }
+    .flow-search.has-results .flow-search-status{
+      color:var(--accent-deep);
+      font-weight:700;
+    }
     .flow-back{
       display:none;
       padding:5px 8px;
@@ -1664,6 +1710,12 @@
     <div class="flow-nav" id="flowNav">
       <button class="flow-back" id="btnFlowBack" type="button">上層</button>
       <div class="flow-nav-path" id="flowBreadcrumb"></div>
+      <div class="flow-search" id="flowSearch">
+        <input class="flow-search-input" id="flowSearchInput" type="search" placeholder="搜尋此專案" autocomplete="off" />
+        <button class="flow-search-button" id="btnSearchPrev" type="button" title="上一筆搜尋結果" aria-label="上一筆搜尋結果">‹</button>
+        <span class="flow-search-status" id="flowSearchStatus">0/0</span>
+        <button class="flow-search-button" id="btnSearchNext" type="button" title="下一筆搜尋結果" aria-label="下一筆搜尋結果">›</button>
+      </div>
       <button class="flow-remove" id="btnRemoveCurrentSubflow" type="button" hidden>移除空白 Subflow</button>
     </div>
 
@@ -1765,6 +1817,11 @@
   const btnFlowBack = document.getElementById('btnFlowBack');
   const btnRemoveCurrentSubflow = document.getElementById('btnRemoveCurrentSubflow');
   const flowBreadcrumb = document.getElementById('flowBreadcrumb');
+  const flowSearch = document.getElementById('flowSearch');
+  const flowSearchInput = document.getElementById('flowSearchInput');
+  const btnSearchPrev = document.getElementById('btnSearchPrev');
+  const btnSearchNext = document.getElementById('btnSearchNext');
+  const flowSearchStatus = document.getElementById('flowSearchStatus');
   const toolbar = document.getElementById('toolbar');
   const toolbarActions = toolbar.querySelector('.toolbar-actions');
   const toolbarOverflow = document.getElementById('toolbarOverflow');
@@ -1890,7 +1947,12 @@
     panning: null, // {startX,startY, ox, oy}
     undoStack: [],
     isRestoringUndo: false,
-    editUndoSnapshot: null
+    editUndoSnapshot: null,
+    search: {
+      query: '',
+      results: [],
+      index: -1
+    }
   };
 
   // ─────────────────────────────────────────────────────────────
@@ -2300,6 +2362,186 @@
       .join(' / ');
     flowNav.classList.toggle('can-back', state.currentFlowId !== 'main');
     btnRemoveCurrentSubflow.hidden = !isCurrentSubflowEmpty();
+    updateFlowSearchStatus();
+  }
+
+  function normalizeSearchText(value){
+    return String(value || '').trim().toLowerCase();
+  }
+
+  function flowPathLabel(flowId){
+    return flowPath(flowId).map(flow => flow.name || flow.id).join(' / ');
+  }
+
+  function searchTextMatches(parts, query){
+    return parts
+      .filter(part => part != null)
+      .map(part => String(part).toLowerCase())
+      .some(part => part.includes(query));
+  }
+
+  function buildProjectSearchResults(query){
+    const needle = normalizeSearchText(query);
+    if (!needle) return [];
+    const results = [];
+    const flowOrder = new Map([...state.flows.keys()].map((id, index) => [id, index]));
+
+    [...state.nodes.values()].forEach(node => {
+      const flowId = nodeFlowId(node);
+      const tags = Array.isArray(node.tags) ? node.tags.join(' ') : '';
+      const flowLabel = flowPathLabel(flowId);
+      if (!searchTextMatches([node.title, node.body, tags, flowLabel, node.id], needle)) return;
+      results.push({
+        kind: 'node',
+        id: node.id,
+        flowId,
+        label: node.title || 'Untitled',
+        detail: flowLabel,
+        sort: [flowOrder.get(flowId) ?? 9999, node.y ?? 0, node.x ?? 0, 0]
+      });
+    });
+
+    [...state.groups.values()].forEach(group => {
+      const flowId = groupFlowId(group);
+      const flowLabel = flowPathLabel(flowId);
+      const nodeTitles = (group.nodeIds || [])
+        .map(id => state.nodes.get(id)?.title || '')
+        .join(' ');
+      if (!searchTextMatches([group.label, nodeTitles, flowLabel, group.id], needle)) return;
+      const boundsNodes = (group.nodeIds || []).map(id => state.nodes.get(id)).filter(Boolean);
+      results.push({
+        kind: 'group',
+        id: group.id,
+        flowId,
+        label: group.label || 'Group',
+        detail: flowLabel,
+        sort: [
+          flowOrder.get(flowId) ?? 9999,
+          Math.min(...boundsNodes.map(node => node.y ?? 0), 0),
+          Math.min(...boundsNodes.map(node => node.x ?? 0), 0),
+          1
+        ]
+      });
+    });
+
+    [...state.flows.values()].forEach(flow => {
+      const flowLabel = flowPathLabel(flow.id);
+      if (!searchTextMatches([flow.name, flow.id, flowLabel], needle)) return;
+      results.push({
+        kind: 'flow',
+        id: flow.id,
+        flowId: flow.id,
+        label: flow.name || flow.id,
+        detail: flowLabel,
+        sort: [flowOrder.get(flow.id) ?? 9999, -1, -1, 2]
+      });
+    });
+
+    return results.sort((a, b) => {
+      for (let i = 0; i < a.sort.length; i += 1){
+        if (a.sort[i] !== b.sort[i]) return a.sort[i] - b.sort[i];
+      }
+      return a.label.localeCompare(b.label);
+    });
+  }
+
+  function updateFlowSearchStatus(){
+    const total = state.search.results.length;
+    const current = total && state.search.index >= 0 ? state.search.index + 1 : 0;
+    flowSearchStatus.textContent = `${current}/${total}`;
+    flowSearch.classList.toggle('has-results', total > 0);
+    btnSearchPrev.disabled = total === 0;
+    btnSearchNext.disabled = total === 0;
+  }
+
+  function refreshProjectSearchResults({ keepCurrent = false } = {}){
+    const query = flowSearchInput.value;
+    const previous = keepCurrent ? state.search.results[state.search.index] : null;
+    state.search.query = query;
+    state.search.results = buildProjectSearchResults(query);
+    state.search.index = -1;
+    if (previous){
+      const nextIndex = state.search.results.findIndex(result => result.kind === previous.kind && result.id === previous.id);
+      state.search.index = nextIndex;
+    }
+    updateFlowSearchStatus();
+  }
+
+  function centerWorldRect(rect){
+    if (!rect) return;
+    const scale = state.view.scale || 1;
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    state.view.x = stage.clientWidth / 2 - centerX * scale;
+    state.view.y = stage.clientHeight / 2 - centerY * scale;
+    setViewportTransform();
+    saveState();
+  }
+
+  function focusProjectSearchResult(result){
+    if (!result) return;
+    if (result.flowId && result.flowId !== state.currentFlowId) setCurrentFlow(result.flowId);
+
+    if (result.kind === 'node'){
+      const node = state.nodes.get(result.id);
+      if (!node) return;
+      select('node', result.id);
+      centerWorldRect({ left: node.x, top: node.y, width: node.w, height: node.h });
+      showToast(`搜尋 ${state.search.index + 1}/${state.search.results.length}：${result.label}`);
+      return;
+    }
+
+    if (result.kind === 'group'){
+      const group = state.groups.get(result.id);
+      if (!group) return;
+      select('group', result.id);
+      centerWorldRect(groupBounds(group));
+      showToast(`搜尋 ${state.search.index + 1}/${state.search.results.length}：${result.label}`);
+      return;
+    }
+
+    if (result.kind === 'flow'){
+      clearSelection();
+      showToast(`搜尋 ${state.search.index + 1}/${state.search.results.length}：${result.label}`);
+    }
+  }
+
+  function jumpProjectSearch(direction = 1){
+    const query = flowSearchInput.value.trim();
+    if (!query){
+      refreshProjectSearchResults();
+      showToast('請輸入搜尋關鍵字');
+      flowSearchInput.focus();
+      return;
+    }
+    if (query !== state.search.query || state.search.results.length === 0){
+      refreshProjectSearchResults();
+    }
+    const total = state.search.results.length;
+    if (!total){
+      showToast('找不到相關資料');
+      updateFlowSearchStatus();
+      return;
+    }
+    state.search.index = (state.search.index + direction + total) % total;
+    updateFlowSearchStatus();
+    focusProjectSearchResult(state.search.results[state.search.index]);
+  }
+
+  function isSearchNavButton(target){
+    return target === btnSearchPrev || target === btnSearchNext;
+  }
+
+  function releaseSearchNavFocus(){
+    if (isSearchNavButton(document.activeElement)){
+      document.activeElement.blur();
+    }
+  }
+
+  function releaseFlowSearchFocus(){
+    if (flowSearch.contains(document.activeElement)){
+      document.activeElement.blur();
+    }
   }
 
   function isCurrentSubflowEmpty(){
@@ -4514,7 +4756,7 @@
     if (e.key === 'Delete' || e.key === 'Backspace'){
       // avoid deleting while editing text
       const ae = document.activeElement;
-      if (ae && ae.getAttribute && ae.getAttribute('contenteditable') === 'true') return;
+      if (isNativeUndoTarget(ae)) return;
       deleteSelected();
       saveState();
     }
@@ -5180,6 +5422,41 @@ id 命名規則：
     if (flow.parentFlowId) setCurrentFlow(flow.parentFlowId);
   });
   btnRemoveCurrentSubflow.addEventListener('click', removeCurrentEmptySubflow);
+  flowSearch.addEventListener('mousedown', event => event.stopPropagation());
+  flowSearch.addEventListener('click', event => event.stopPropagation());
+  document.addEventListener('mousedown', event => {
+    if (!flowSearch.contains(event.target)) releaseFlowSearchFocus();
+  }, true);
+  flowSearchInput.addEventListener('input', () => refreshProjectSearchResults({ keepCurrent: true }));
+  flowSearchInput.addEventListener('keydown', event => {
+    if (event.key === 'Enter'){
+      event.preventDefault();
+      jumpProjectSearch(event.shiftKey ? -1 : 1);
+    }
+    if (event.key === 'Escape'){
+      event.preventDefault();
+      flowSearchInput.value = '';
+      refreshProjectSearchResults();
+      flowSearchInput.blur();
+    }
+  });
+  [btnSearchPrev, btnSearchNext].forEach(button => {
+    button.addEventListener('keydown', event => {
+      if (event.code === 'Space' || event.key === ' ' || event.key === 'Spacebar'){
+        event.preventDefault();
+        event.stopPropagation();
+        releaseSearchNavFocus();
+      }
+    });
+  });
+  btnSearchPrev.addEventListener('click', () => {
+    jumpProjectSearch(-1);
+    releaseSearchNavFocus();
+  });
+  btnSearchNext.addEventListener('click', () => {
+    jumpProjectSearch(1);
+    releaseSearchNavFocus();
+  });
   projectTrigger.addEventListener('click', (event) => {
     event.stopPropagation();
     closeHelpPanel();
