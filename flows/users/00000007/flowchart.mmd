@@ -1,0 +1,48 @@
+flowchart TD
+  n_buildImportPrompt["<b>buildImportPrompt()</b><br/><small>FEoL, UTIL</small><br/><br/>組合提示詞供外部 Codex 分析程式碼"]
+  n_updatePromptOutput["<b>updatePromptOutput()</b><br/><small>FEoL</small><br/><br/>將提示詞寫入題詞輸出欄位"]
+  n_docs_architecture_display_theme["<b>docs/architecture.md:Display / Theme</b><br/><small>UTIL</small><br/><br/>定義顯示模組責任邊界"]
+  n_docs_feature_map_toolbar_display_controls["<b>docs/feature-map.md:Toolbar / Display Controls</b><br/><small>UTIL</small><br/><br/>列出顯示功能入口"]
+  n_normalizeDisplaySettings["<b>normalizeDisplaySettings()</b><br/><small>FEoL, RISK</small><br/><br/>正規化顯示設定"]
+  n_currentFlowchartTheme["<b>currentFlowchartTheme()</b><br/><small>FEoL, UTIL</small><br/><br/>取得目前流程圖配色"]
+  n_applyFlowchartTheme["<b>applyFlowchartTheme()</b><br/><small>FEoL</small><br/><br/>套用舞台配色變數"]
+  n_renderFlowchartThemePanel["<b>renderFlowchartThemePanel()</b><br/><small>FEoL</small><br/><br/>渲染配色選單"]
+  n_setFlowThemePanel["<b>setFlowThemePanel()</b><br/><small>FEoL</small><br/><br/>開關配色選單"]
+  n_updateDisplayControls["<b>updateDisplayControls()</b><br/><small>FEoL</small><br/><br/>同步顯示控制狀態"]
+  n_applyNodeDisplay["<b>applyNodeDisplay()</b><br/><small>FEoL</small><br/><br/>套用節點顯示樣式"]
+  n_applyDisplaySettings["<b>applyDisplaySettings()</b><br/><small>FEoL, RISK</small><br/><br/>集中套用顯示設定"]
+  n_setViewMode["<b>setViewMode()</b><br/><small>FEoL</small><br/><br/>切換知識或流程圖模式"]
+  n_btnModeKnowledge_click["<b>btnModeKnowledge click handler</b><br/><small>FEoL</small><br/><br/>觸發知識模式切換"]
+  n_btnModeFlowchart_click["<b>btnModeFlowchart click handler</b><br/><small>FEoL</small><br/><br/>觸發流程圖模式切換"]
+  n_btnBodyLines_click["<b>btnBodyLines click handler</b><br/><small>FEoL</small><br/><br/>循環調整內容行數"]
+  n_btnFlowTitleSize_click["<b>btnFlowTitleSize click handler</b><br/><small>FEoL</small><br/><br/>循環調整標題大小"]
+  n_btnFlowTheme_click["<b>btnFlowTheme click handler</b><br/><small>FEoL</small><br/><br/>開關配色面板"]
+  n_flowThemePanel_click["<b>flowThemePanel click handler</b><br/><small>FEoL</small><br/><br/>處理配色與可見清單"]
+  n_buildImportPrompt --> n_updatePromptOutput
+  n_docs_architecture_display_theme --> n_docs_feature_map_toolbar_display_controls
+  n_docs_feature_map_toolbar_display_controls --> n_normalizeDisplaySettings
+  n_docs_feature_map_toolbar_display_controls --> n_applyDisplaySettings
+  n_applyDisplaySettings --> n_normalizeDisplaySettings
+  n_applyDisplaySettings --> n_applyFlowchartTheme
+  n_applyFlowchartTheme --> n_currentFlowchartTheme
+  n_applyDisplaySettings --> n_setFlowThemePanel
+  n_applyDisplaySettings --> n_applyNodeDisplay
+  n_applyDisplaySettings --> n_updateDisplayControls
+  n_updateDisplayControls --> n_renderFlowchartThemePanel
+  n_renderFlowchartThemePanel --> n_currentFlowchartTheme
+  n_setViewMode --> n_applyDisplaySettings
+  n_btnModeKnowledge_click --> n_setViewMode
+  n_btnModeFlowchart_click --> n_setViewMode
+  n_btnBodyLines_click --> n_applyDisplaySettings
+  n_btnFlowTitleSize_click --> n_applyDisplaySettings
+  n_btnFlowTheme_click --> n_setFlowThemePanel
+  n_flowThemePanel_click --> n_renderFlowchartThemePanel
+  n_flowThemePanel_click --> n_applyDisplaySettings
+  n_flowThemePanel_click --> n_setFlowThemePanel
+
+  classDef CORE fill:#fff8dc,stroke:#ead68f,color:#8a6510
+  classDef DOM fill:#eef6ff,stroke:#b9d7f8,color:#1759b7
+  classDef API fill:#f2fbf6,stroke:#a9dcc2,color:#27885c
+  classDef RISK fill:#fff7f7,stroke:#efb5b5,color:#bf4a4a
+  class n_normalizeDisplaySettings RISK
+  class n_applyDisplaySettings RISK

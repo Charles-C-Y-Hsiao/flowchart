@@ -1,0 +1,744 @@
+{
+  "project": "flowchart",
+  "user": "00000007",
+  "projectName": "讀取檔案流程",
+  "version": 2,
+  "currentFlowId": "main",
+  "view": {
+    "x": 30.603715170278633,
+    "y": 157.26795623472233,
+    "scale": 0.55
+  },
+  "display": {
+    "viewMode": "knowledge",
+    "knowledgeBodyLines": 1,
+    "flowchartTitleSize": 20,
+    "flowchartTheme": "blue"
+  },
+  "flows": [
+    {
+      "id": "main",
+      "name": "主流程",
+      "parentFlowId": null,
+      "ownerNodeId": null
+    }
+  ],
+  "groups": [
+    {
+      "id": "group_display_theme",
+      "flowId": "main",
+      "label": "Display / Theme",
+      "nodeIds": [
+        "docs_architecture_display_theme",
+        "docs_feature_map_toolbar_display_controls",
+        "normalizeDisplaySettings",
+        "currentFlowchartTheme",
+        "applyFlowchartTheme",
+        "renderFlowchartThemePanel",
+        "setFlowThemePanel",
+        "updateDisplayControls",
+        "applyNodeDisplay",
+        "applyDisplaySettings",
+        "setViewMode",
+        "btnModeKnowledge_click",
+        "btnModeFlowchart_click",
+        "btnBodyLines_click",
+        "btnFlowTitleSize_click",
+        "btnFlowTheme_click",
+        "flowThemePanel_click"
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "buildImportPrompt",
+      "flowId": "main",
+      "x": 80,
+      "y": 100,
+      "w": 280,
+      "h": 100,
+      "tags": [
+        "FEoL",
+        "UTIL"
+      ],
+      "title": "buildImportPrompt()",
+      "body": "組合提示詞供外部 Codex 分析程式碼",
+      "shape": "parallelogram",
+      "subflowId": null
+    },
+    {
+      "id": "updatePromptOutput",
+      "flowId": "main",
+      "x": 80,
+      "y": 250,
+      "w": 280,
+      "h": 100,
+      "tags": [
+        "FEoL"
+      ],
+      "title": "updatePromptOutput()",
+      "body": "將提示詞寫入題詞輸出欄位",
+      "shape": "rect",
+      "subflowId": null
+    },
+    {
+      "id": "docs_architecture_display_theme",
+      "flowId": "main",
+      "x": 892.6555023923443,
+      "y": -168.92344497607652,
+      "w": 280,
+      "h": 100,
+      "tags": [
+        "UTIL"
+      ],
+      "title": "docs/architecture.md:Display / Theme",
+      "body": "定義顯示模組責任邊界",
+      "shape": "parallelogram",
+      "subflowId": null
+    },
+    {
+      "id": "docs_feature_map_toolbar_display_controls",
+      "flowId": "main",
+      "x": 892.6555023923443,
+      "y": -18.92344497607653,
+      "w": 280,
+      "h": 123,
+      "tags": [
+        "UTIL"
+      ],
+      "title": "docs/feature-map.md:Toolbar / Display Controls",
+      "body": "列出顯示功能入口",
+      "shape": "parallelogram",
+      "subflowId": null
+    },
+    {
+      "id": "normalizeDisplaySettings",
+      "flowId": "main",
+      "x": 892.6555023923443,
+      "y": 131.07655502392348,
+      "w": 280,
+      "h": 100,
+      "tags": [
+        "FEoL",
+        "RISK"
+      ],
+      "title": "normalizeDisplaySettings()",
+      "body": "正規化顯示設定",
+      "shape": "rect",
+      "subflowId": null
+    },
+    {
+      "id": "currentFlowchartTheme",
+      "flowId": "main",
+      "x": 1232.6555023923447,
+      "y": 131.07655502392348,
+      "w": 280,
+      "h": 100,
+      "tags": [
+        "FEoL",
+        "UTIL"
+      ],
+      "title": "currentFlowchartTheme()",
+      "body": "取得目前流程圖配色",
+      "shape": "rect",
+      "subflowId": null
+    },
+    {
+      "id": "applyFlowchartTheme",
+      "flowId": "main",
+      "x": 1232.6555023923447,
+      "y": 281.07655502392345,
+      "w": 280,
+      "h": 103,
+      "tags": [
+        "FEoL"
+      ],
+      "title": "applyFlowchartTheme()",
+      "body": "套用舞台配色變數",
+      "shape": "rect",
+      "subflowId": null
+    },
+    {
+      "id": "renderFlowchartThemePanel",
+      "flowId": "main",
+      "x": 1572.6555023923447,
+      "y": 131.07655502392348,
+      "w": 280,
+      "h": 100,
+      "tags": [
+        "FEoL"
+      ],
+      "title": "renderFlowchartThemePanel()",
+      "body": "渲染配色選單",
+      "shape": "rect",
+      "subflowId": null
+    },
+    {
+      "id": "setFlowThemePanel",
+      "flowId": "main",
+      "x": 1572.6555023923447,
+      "y": 281.07655502392345,
+      "w": 280,
+      "h": 103,
+      "tags": [
+        "FEoL"
+      ],
+      "title": "setFlowThemePanel()",
+      "body": "開關配色選單",
+      "shape": "rect",
+      "subflowId": null
+    },
+    {
+      "id": "updateDisplayControls",
+      "flowId": "main",
+      "x": 892.6555023923443,
+      "y": 431.07655502392356,
+      "w": 280,
+      "h": 100,
+      "tags": [
+        "FEoL"
+      ],
+      "title": "updateDisplayControls()",
+      "body": "同步顯示控制狀態",
+      "shape": "rect",
+      "subflowId": null
+    },
+    {
+      "id": "applyNodeDisplay",
+      "flowId": "main",
+      "x": 1232.6555023923447,
+      "y": 431.07655502392356,
+      "w": 280,
+      "h": 100,
+      "tags": [
+        "FEoL"
+      ],
+      "title": "applyNodeDisplay()",
+      "body": "套用節點顯示樣式",
+      "shape": "rect",
+      "subflowId": null
+    },
+    {
+      "id": "applyDisplaySettings",
+      "flowId": "main",
+      "x": 892.6555023923443,
+      "y": 581.0765550239234,
+      "w": 280,
+      "h": 101,
+      "tags": [
+        "FEoL",
+        "RISK"
+      ],
+      "title": "applyDisplaySettings()",
+      "body": "集中套用顯示設定",
+      "shape": "rect",
+      "subflowId": null
+    },
+    {
+      "id": "setViewMode",
+      "flowId": "main",
+      "x": 892.6555023923443,
+      "y": 731.0765550239234,
+      "w": 280,
+      "h": 100,
+      "tags": [
+        "FEoL"
+      ],
+      "title": "setViewMode()",
+      "body": "切換知識或流程圖模式",
+      "shape": "rect",
+      "subflowId": null
+    },
+    {
+      "id": "btnModeKnowledge_click",
+      "flowId": "main",
+      "x": 1232.6555023923447,
+      "y": 731.0765550239234,
+      "w": 280,
+      "h": 100,
+      "tags": [
+        "FEoL"
+      ],
+      "title": "btnModeKnowledge click handler",
+      "body": "觸發知識模式切換",
+      "shape": "rounded",
+      "subflowId": null
+    },
+    {
+      "id": "btnModeFlowchart_click",
+      "flowId": "main",
+      "x": 1572.6555023923447,
+      "y": 731.0765550239234,
+      "w": 280,
+      "h": 100,
+      "tags": [
+        "FEoL"
+      ],
+      "title": "btnModeFlowchart click handler",
+      "body": "觸發流程圖模式切換",
+      "shape": "rounded",
+      "subflowId": null
+    },
+    {
+      "id": "btnBodyLines_click",
+      "flowId": "main",
+      "x": 1232.6555023923447,
+      "y": 881.0765550239233,
+      "w": 280,
+      "h": 100,
+      "tags": [
+        "FEoL"
+      ],
+      "title": "btnBodyLines click handler",
+      "body": "循環調整內容行數",
+      "shape": "rounded",
+      "subflowId": null
+    },
+    {
+      "id": "btnFlowTitleSize_click",
+      "flowId": "main",
+      "x": 1572.6555023923447,
+      "y": 881.0765550239233,
+      "w": 280,
+      "h": 100,
+      "tags": [
+        "FEoL"
+      ],
+      "title": "btnFlowTitleSize click handler",
+      "body": "循環調整標題大小",
+      "shape": "rounded",
+      "subflowId": null
+    },
+    {
+      "id": "btnFlowTheme_click",
+      "flowId": "main",
+      "x": 1232.6555023923447,
+      "y": 1031.0765550239234,
+      "w": 280,
+      "h": 100,
+      "tags": [
+        "FEoL"
+      ],
+      "title": "btnFlowTheme click handler",
+      "body": "開關配色面板",
+      "shape": "rounded",
+      "subflowId": null
+    },
+    {
+      "id": "flowThemePanel_click",
+      "flowId": "main",
+      "x": 1572.6555023923447,
+      "y": 1031.0765550239234,
+      "w": 280,
+      "h": 100,
+      "tags": [
+        "FEoL"
+      ],
+      "title": "flowThemePanel click handler",
+      "body": "處理配色與可見清單",
+      "shape": "rounded",
+      "subflowId": null
+    }
+  ],
+  "edges": [
+    {
+      "id": "e_001",
+      "flowId": "main",
+      "from": "buildImportPrompt",
+      "to": "updatePromptOutput",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 140
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 140
+      },
+      "elbow": {
+        "x": 220,
+        "y": 222
+      },
+      "manualElbow": false
+    },
+    {
+      "id": "e_display_001",
+      "flowId": "main",
+      "from": "docs_architecture_display_theme",
+      "to": "docs_feature_map_toolbar_display_controls",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 140
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 140
+      },
+      "elbow": {
+        "x": 1032.6555023923443,
+        "y": -46.92344497607653
+      },
+      "manualElbow": false
+    },
+    {
+      "id": "e_display_002",
+      "flowId": "main",
+      "from": "docs_feature_map_toolbar_display_controls",
+      "to": "normalizeDisplaySettings",
+      "fromPort": {
+        "side": "bottom",
+        "offset": 140
+      },
+      "toPort": {
+        "side": "top",
+        "offset": 140
+      },
+      "elbow": {
+        "x": 1032.6555023923443,
+        "y": 103.07655502392348
+      },
+      "manualElbow": false
+    },
+    {
+      "id": "e_display_003",
+      "flowId": "main",
+      "from": "docs_feature_map_toolbar_display_controls",
+      "to": "applyDisplaySettings",
+      "fromPort": {
+        "side": "right",
+        "offset": 60
+      },
+      "toPort": {
+        "side": "right",
+        "offset": 51
+      },
+      "elbow": {
+        "x": 1200.6555023923443,
+        "y": 41.07655502392347
+      },
+      "manualElbow": false
+    },
+    {
+      "id": "e_display_004",
+      "flowId": "main",
+      "from": "applyDisplaySettings",
+      "to": "normalizeDisplaySettings",
+      "fromPort": {
+        "side": "right",
+        "offset": 51
+      },
+      "toPort": {
+        "side": "right",
+        "offset": 50
+      },
+      "elbow": {
+        "x": 1200.6555023923443,
+        "y": 632.0765550239234
+      },
+      "manualElbow": false
+    },
+    {
+      "id": "e_display_005",
+      "flowId": "main",
+      "from": "applyDisplaySettings",
+      "to": "applyFlowchartTheme",
+      "fromPort": {
+        "side": "right",
+        "offset": 51
+      },
+      "toPort": {
+        "side": "left",
+        "offset": 50
+      },
+      "elbow": {
+        "x": 1204.6555023923447,
+        "y": 632.0765550239234
+      },
+      "manualElbow": false
+    },
+    {
+      "id": "e_display_006",
+      "flowId": "main",
+      "from": "applyFlowchartTheme",
+      "to": "currentFlowchartTheme",
+      "fromPort": {
+        "side": "left",
+        "offset": 50
+      },
+      "toPort": {
+        "side": "left",
+        "offset": 50
+      },
+      "elbow": {
+        "x": 1204.6555023923447,
+        "y": 331.07655502392345
+      },
+      "manualElbow": false
+    },
+    {
+      "id": "e_display_007",
+      "flowId": "main",
+      "from": "applyDisplaySettings",
+      "to": "setFlowThemePanel",
+      "fromPort": {
+        "side": "right",
+        "offset": 51
+      },
+      "toPort": {
+        "side": "bottom",
+        "offset": 140
+      },
+      "elbow": {
+        "x": 1712.6555023923447,
+        "y": 632.0765550239234
+      },
+      "manualElbow": false
+    },
+    {
+      "id": "e_display_008",
+      "flowId": "main",
+      "from": "applyDisplaySettings",
+      "to": "applyNodeDisplay",
+      "fromPort": {
+        "side": "right",
+        "offset": 51
+      },
+      "toPort": {
+        "side": "left",
+        "offset": 50
+      },
+      "elbow": {
+        "x": 1204.6555023923447,
+        "y": 632.0765550239234
+      },
+      "manualElbow": false
+    },
+    {
+      "id": "e_display_009",
+      "flowId": "main",
+      "from": "applyDisplaySettings",
+      "to": "updateDisplayControls",
+      "fromPort": {
+        "side": "top",
+        "offset": 140
+      },
+      "toPort": {
+        "side": "bottom",
+        "offset": 140
+      },
+      "elbow": {
+        "x": 1032.6555023923443,
+        "y": 559.0765550239236
+      },
+      "manualElbow": false
+    },
+    {
+      "id": "e_display_010",
+      "flowId": "main",
+      "from": "updateDisplayControls",
+      "to": "renderFlowchartThemePanel",
+      "fromPort": {
+        "side": "right",
+        "offset": 50
+      },
+      "toPort": {
+        "side": "bottom",
+        "offset": 140
+      },
+      "elbow": {
+        "x": 1200.6555023923443,
+        "y": 259.07655502392345
+      },
+      "manualElbow": false
+    },
+    {
+      "id": "e_display_011",
+      "flowId": "main",
+      "from": "renderFlowchartThemePanel",
+      "to": "currentFlowchartTheme",
+      "fromPort": {
+        "side": "top",
+        "offset": 140
+      },
+      "toPort": {
+        "side": "left",
+        "offset": 50
+      },
+      "elbow": {
+        "x": 1204.6555023923447,
+        "y": 103.07655502392348
+      },
+      "manualElbow": false
+    },
+    {
+      "id": "e_display_012",
+      "flowId": "main",
+      "from": "setViewMode",
+      "to": "applyDisplaySettings",
+      "fromPort": {
+        "side": "top",
+        "offset": 140
+      },
+      "toPort": {
+        "side": "bottom",
+        "offset": 140
+      },
+      "elbow": {
+        "x": 1032.6555023923443,
+        "y": 710.0765550239234
+      },
+      "manualElbow": false
+    },
+    {
+      "id": "e_display_013",
+      "flowId": "main",
+      "from": "btnModeKnowledge_click",
+      "to": "setViewMode",
+      "fromPort": {
+        "side": "left",
+        "offset": 50
+      },
+      "toPort": {
+        "side": "right",
+        "offset": 50
+      },
+      "elbow": {
+        "x": 1200.6555023923443,
+        "y": 781.0765550239234
+      },
+      "manualElbow": false
+    },
+    {
+      "id": "e_display_014",
+      "flowId": "main",
+      "from": "btnModeFlowchart_click",
+      "to": "setViewMode",
+      "fromPort": {
+        "side": "left",
+        "offset": 50
+      },
+      "toPort": {
+        "side": "right",
+        "offset": 50
+      },
+      "elbow": {
+        "x": 1544.6555023923447,
+        "y": 724.0765550239234
+      },
+      "manualElbow": false
+    },
+    {
+      "id": "e_display_015",
+      "flowId": "main",
+      "from": "btnBodyLines_click",
+      "to": "applyDisplaySettings",
+      "fromPort": {
+        "side": "left",
+        "offset": 50
+      },
+      "toPort": {
+        "side": "right",
+        "offset": 51
+      },
+      "elbow": {
+        "x": 1200.6555023923443,
+        "y": 931.0765550239233
+      },
+      "manualElbow": false
+    },
+    {
+      "id": "e_display_016",
+      "flowId": "main",
+      "from": "btnFlowTitleSize_click",
+      "to": "applyDisplaySettings",
+      "fromPort": {
+        "side": "left",
+        "offset": 50
+      },
+      "toPort": {
+        "side": "right",
+        "offset": 51
+      },
+      "elbow": {
+        "x": 1544.6555023923447,
+        "y": 632.0765550239234
+      },
+      "manualElbow": false
+    },
+    {
+      "id": "e_display_017",
+      "flowId": "main",
+      "from": "btnFlowTheme_click",
+      "to": "setFlowThemePanel",
+      "fromPort": {
+        "side": "right",
+        "offset": 50
+      },
+      "toPort": {
+        "side": "bottom",
+        "offset": 140
+      },
+      "elbow": {
+        "x": 1540.6555023923447,
+        "y": 412.07655502392345
+      },
+      "manualElbow": false
+    },
+    {
+      "id": "e_display_018",
+      "flowId": "main",
+      "from": "flowThemePanel_click",
+      "to": "renderFlowchartThemePanel",
+      "fromPort": {
+        "side": "right",
+        "offset": 50
+      },
+      "toPort": {
+        "side": "right",
+        "offset": 50
+      },
+      "elbow": {
+        "x": 1880.6555023923447,
+        "y": 1081.0765550239234
+      },
+      "manualElbow": false
+    },
+    {
+      "id": "e_display_019",
+      "flowId": "main",
+      "from": "flowThemePanel_click",
+      "to": "applyDisplaySettings",
+      "fromPort": {
+        "side": "left",
+        "offset": 50
+      },
+      "toPort": {
+        "side": "right",
+        "offset": 51
+      },
+      "elbow": {
+        "x": 1544.6555023923447,
+        "y": 632.0765550239234
+      },
+      "manualElbow": false
+    },
+    {
+      "id": "e_display_020",
+      "flowId": "main",
+      "from": "flowThemePanel_click",
+      "to": "setFlowThemePanel",
+      "fromPort": {
+        "side": "right",
+        "offset": 50
+      },
+      "toPort": {
+        "side": "right",
+        "offset": 50
+      },
+      "elbow": {
+        "x": 1880.6555023923447,
+        "y": 1081.0765550239234
+      },
+      "manualElbow": false
+    }
+  ]
+}

@@ -5,14 +5,15 @@
   "version": 2,
   "currentFlowId": "main",
   "view": {
-    "x": 125.11745733956812,
-    "y": 68.14793623570571,
-    "scale": 0.71
+    "x": 376.43672502308,
+    "y": 133.22579942184228,
+    "scale": 0.7899999999999999
   },
   "display": {
     "viewMode": "flowchart",
     "knowledgeBodyLines": 1,
-    "flowchartTitleSize": 20
+    "flowchartTitleSize": 20,
+    "flowchartTheme": "violet"
   },
   "flows": [
     {
@@ -26,10 +27,10 @@
   "nodes": [
     {
       "id": "nqp6dqkg",
-      "x": -169.8079385403329,
-      "y": 57.336747759283,
-      "w": 280,
-      "h": 119,
+      "x": -170.51216389244559,
+      "y": 18.81680995061278,
+      "w": 180,
+      "h": 98,
       "tags": [
         "CORE"
       ],
@@ -41,9 +42,9 @@
     {
       "id": "nbw37bv6",
       "x": 171.7790835924639,
-      "y": 50.214011340771904,
-      "w": 300,
-      "h": 125,
+      "y": 22.81680995061278,
+      "w": 180,
+      "h": 90,
       "tags": [
         "DOM"
       ],
@@ -54,8 +55,8 @@
     },
     {
       "id": "nac3vzom",
-      "x": 647.8633162612035,
-      "y": -33.473568684836266,
+      "x": 461.947823303457,
+      "y": 11.316809950612779,
       "w": 189.0909090909091,
       "h": 111,
       "tags": [
@@ -64,14 +65,14 @@
       "title": "State/Data Layer",
       "body": "allSchedules（前端單一真相）\n{ yyyy-mm-dd: [items...] }",
       "flowId": "main",
-      "shape": "rect"
+      "shape": "diamond"
     },
     {
       "id": "nyigec1g",
-      "x": 1169.0396927016648,
-      "y": 232.44558258642766,
-      "w": 280,
-      "h": 125,
+      "x": 177.49039692701692,
+      "y": 346.8668373879642,
+      "w": 180,
+      "h": 90,
       "tags": [
         "API"
       ],
@@ -82,24 +83,24 @@
     },
     {
       "id": "nooxhqfw",
-      "x": 686.9398207426377,
-      "y": 221.76696542893728,
-      "w": 232.67605633802816,
-      "h": 88.33802816901408,
+      "x": -163.76440460947498,
+      "y": 339.7400768245839,
+      "w": 180,
+      "h": 115,
       "tags": [
         "CORE"
       ],
-      "title": "[READ And go next step to to to to",
+      "title": "[READ And go next step",
       "body": "loadWeek → merge allSchedules\n→ renderWeekFromMap → renderDayFromData",
       "flowId": "main",
       "shape": "rect"
     },
     {
       "id": "nxllvjvj",
-      "x": 705.0400128040974,
-      "y": 460.6946222791293,
-      "w": 205.4545454545455,
-      "h": 141,
+      "x": 126.16677336747762,
+      "y": 186.04673495518563,
+      "w": 180,
+      "h": 96,
       "tags": [
         "RISK"
       ],
@@ -110,10 +111,10 @@
     },
     {
       "id": "nfq4x2rd",
-      "x": -171.21638924455826,
-      "y": 305.2240717029449,
-      "w": 320,
-      "h": 136,
+      "x": -170.51216389244559,
+      "y": 186.9142125480153,
+      "w": 180,
+      "h": 96,
       "tags": [
         "CORE"
       ],
@@ -130,17 +131,18 @@
       "to": "nbw37bv6",
       "fromPort": {
         "side": "right",
-        "offset": 60
+        "offset": 49
       },
       "toPort": {
         "side": "left",
-        "offset": 63
+        "offset": 45
       },
       "elbow": {
         "x": 143.7790835924639,
-        "y": 117.336747759283
+        "y": 67.81680995061278
       },
-      "flowId": "main"
+      "flowId": "main",
+      "manualElbow": false
     },
     {
       "id": "e0e1efli",
@@ -148,17 +150,18 @@
       "to": "nfq4x2rd",
       "fromPort": {
         "side": "bottom",
-        "offset": 140
+        "offset": 90
       },
       "toPort": {
         "side": "top",
-        "offset": 160
+        "offset": 90
       },
       "elbow": {
-        "x": -11.216389244558258,
-        "y": 204.336747759283
+        "x": -80.51216389244559,
+        "y": 144.81680995061276
       },
-      "flowId": "main"
+      "flowId": "main",
+      "manualElbow": false
     },
     {
       "id": "evzs3ser",
@@ -166,17 +169,18 @@
       "to": "nxllvjvj",
       "fromPort": {
         "side": "right",
-        "offset": 68
+        "offset": 48
       },
       "toPort": {
         "side": "left",
-        "offset": 71
+        "offset": 48
       },
       "elbow": {
-        "x": 677.0400128040974,
-        "y": 373.2240717029449
+        "x": 98.16677336747762,
+        "y": 234.9142125480153
       },
-      "flowId": "main"
+      "flowId": "main",
+      "manualElbow": false
     },
     {
       "id": "e68ejqqj",
@@ -184,17 +188,18 @@
       "to": "nac3vzom",
       "fromPort": {
         "side": "right",
-        "offset": 63
+        "offset": 45
       },
       "toPort": {
         "side": "left",
         "offset": 56
       },
       "elbow": {
-        "x": 619.8633162612035,
-        "y": 113.2140113407719
+        "x": 433.947823303457,
+        "y": 67.81680995061278
       },
-      "flowId": "main"
+      "flowId": "main",
+      "manualElbow": false
     }
   ]
 }

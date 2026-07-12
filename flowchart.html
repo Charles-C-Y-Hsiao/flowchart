@@ -254,6 +254,7 @@
     .toolbar-view{
       flex-wrap:nowrap;
       justify-content:flex-end;
+      overflow:visible;
     }
     .segmented{
       display:inline-flex;
@@ -286,6 +287,215 @@
     .view-setting-button{
       border-color:var(--line);
       background:#ffffff;
+    }
+    .flow-theme-tool{
+      position:relative;
+      flex:0 0 auto;
+    }
+    .flow-theme-tool[hidden]{
+      display:none;
+    }
+    .flow-theme-button{
+      min-width:72px;
+    }
+    .flow-theme-panel{
+      position:absolute;
+      right:0;
+      top:calc(100% + 8px);
+      width:356px;
+      display:none;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:8px;
+      padding:10px;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:rgba(255,255,255,.97);
+      box-shadow:var(--shadow);
+      z-index:45;
+    }
+    .flow-theme-panel.editing{
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+    }
+    .flow-theme-tool.open .flow-theme-panel{
+      display:grid;
+    }
+    .flow-theme-option{
+      position:relative;
+      height:68px;
+      padding:7px;
+      display:block;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:#ffffff;
+      overflow:hidden;
+    }
+    .flow-theme-option.active{
+      border-color:#7db2f0;
+      background:#f4f9ff;
+      box-shadow:0 0 0 2px rgba(47,126,230,.22);
+    }
+    .flow-theme-select{
+      position:absolute;
+      left:8px;
+      top:8px;
+      width:18px;
+      height:18px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:0;
+      border:2px solid rgba(47,126,230,.78);
+      border-radius:999px;
+      background:#ffffff;
+      color:#ffffff;
+      box-shadow:0 2px 8px rgba(23,32,51,.18);
+      z-index:4;
+      opacity:.95;
+    }
+    .flow-theme-select::after{
+      content:"";
+      width:6px;
+      height:6px;
+      border-radius:999px;
+      background:transparent;
+    }
+    .flow-theme-option.selected-for-panel .flow-theme-select{
+      background:linear-gradient(135deg, #2f7ee6, #0d55d8);
+      border-color:#ffffff;
+      box-shadow:0 0 0 2px rgba(47,126,230,.55), 0 2px 8px rgba(23,32,51,.2);
+    }
+    .flow-theme-option.selected-for-panel .flow-theme-select::after{
+      background:#ffffff;
+    }
+    .flow-theme-select[disabled]{
+      cursor:default;
+      opacity:.72;
+    }
+    .flow-theme-panel:not(.editing) .flow-theme-select{
+      display:none;
+      pointer-events:none;
+    }
+    .flow-theme-preview{
+      position:relative;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:0;
+      min-width:0;
+      height:52px;
+      border-radius:6px;
+      background:linear-gradient(180deg, #fbfdff, #f4f8fc);
+      overflow:hidden;
+    }
+    .flow-theme-mini-node{
+      position:relative;
+      width:112px;
+      height:34px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:1px solid var(--preview-node-border);
+      border-radius:5px;
+      background:var(--preview-node-bg);
+      color:var(--preview-node-text);
+      font-size:11px;
+      font-weight:800;
+      line-height:1;
+      outline:2px solid rgba(47,126,230,.52);
+      outline-offset:2px;
+      box-shadow:0 4px 10px rgba(23,32,51,.1), inset 0 1px 0 rgba(255,255,255,.28);
+      z-index:2;
+    }
+    .flow-theme-mini-control{
+      position:absolute;
+      right:7px;
+      top:6px;
+      bottom:6px;
+      width:12px;
+      border:1px dashed var(--preview-control-border);
+      border-radius:5px;
+      background:var(--preview-control-bg);
+      box-shadow:0 0 0 1px rgba(255,255,255,.18);
+    }
+    .flow-theme-mini-edge{
+      position:relative;
+      width:18px;
+      height:2px;
+      background:var(--preview-edge);
+      border-radius:999px;
+      flex:0 0 auto;
+      z-index:1;
+    }
+    .flow-theme-mini-edge::after{
+      content:"";
+      position:absolute;
+      right:-1px;
+      top:50%;
+      width:7px;
+      height:7px;
+      border-right:2px solid var(--preview-edge);
+      border-bottom:2px solid var(--preview-edge);
+      transform:translateY(-50%) rotate(-45deg);
+      box-sizing:border-box;
+    }
+    .flow-theme-toggle{
+      grid-column:2;
+      justify-self:end;
+      align-self:end;
+      width:96px;
+      height:24px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:6px;
+      padding:3px 5px 3px 8px;
+      border-color:#b8d3f5;
+      background:#f5f9ff;
+      color:var(--accent-deep);
+    }
+    .flow-theme-toggle-label{
+      font-size:10px;
+      font-weight:700;
+    }
+    .flow-theme-switch{
+      position:relative;
+      width:34px;
+      height:16px;
+      border-radius:999px;
+      background:linear-gradient(135deg, #2f7ee6, #0d55d8);
+      box-shadow:inset 0 -2px 0 rgba(23,32,51,.14);
+    }
+    .flow-theme-switch::before{
+      content:"";
+      position:absolute;
+      left:20px;
+      top:2px;
+      width:12px;
+      height:12px;
+      border-radius:999px;
+      background:#ffffff;
+      box-shadow:0 3px 9px rgba(23,32,51,.24);
+      transition:left .16s ease;
+    }
+    .flow-theme-switch::after{
+      content:"";
+      position:absolute;
+      left:24px;
+      top:6px;
+      width:4px;
+      height:2px;
+      border-left:1.5px solid #0d55d8;
+      border-bottom:1.5px solid #0d55d8;
+      transform:rotate(-45deg);
+      opacity:1;
+      transition:left .16s ease, opacity .12s ease;
+    }
+    .flow-theme-toggle.editing .flow-theme-switch::before{
+      left:2px;
+    }
+    .flow-theme-toggle.editing .flow-theme-switch::after{
+      left:6px;
+      opacity:0;
     }
     .toolbar-more{
       position:absolute;
@@ -384,6 +594,7 @@
     .stage{
       position:relative;
       overflow:hidden;
+      background:var(--flow-theme-stage-bg, transparent);
     }
     /* 背景格線 */
     .grid{
@@ -395,6 +606,9 @@
       opacity:.75;
       pointer-events:none;
       transform: translateZ(0);
+    }
+    .stage.mode-flowchart[data-flow-theme="blue"] .grid{
+      display:none;
     }
 
     /* 可縮放/平移的 viewport */
@@ -415,7 +629,7 @@
       z-index:3;
     }
     .edge{
-      stroke: rgba(47,126,230,.74);
+      stroke: var(--flow-theme-edge, rgba(47,126,230,.74));
       stroke-width: 1.55;
       fill: none;
       stroke-linecap: round;
@@ -449,7 +663,7 @@
       pointer-events: none;
     }
     .edge.preview{
-      stroke: rgba(47,126,230,.74);
+      stroke: var(--flow-theme-edge, rgba(47,126,230,.74));
       stroke-dasharray: 5 4;
       opacity:.78;
     }
@@ -833,6 +1047,9 @@
       justify-content:center;
       text-align:center;
       padding:22px 32px;
+      background:var(--flow-theme-node-bg, linear-gradient(180deg, #ffffff, #f8fbff));
+      border-color:var(--flow-theme-node-border, var(--line));
+      color:var(--flow-theme-node-text, var(--text));
     }
     .node.flowchart-node .body{
       display:none;
@@ -868,6 +1085,7 @@
       font-size:var(--flow-title-size, 20px);
       font-weight:800;
       line-height:1.22;
+      color:var(--flow-theme-node-text, var(--text));
     }
     .node.shape-diamond,
     .node.shape-parallelogram{
@@ -882,8 +1100,8 @@
       inset:0;
       z-index:-1;
       pointer-events:none;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.92);
+      border:1px solid var(--flow-theme-node-border, var(--line));
+      background:var(--flow-theme-special-bg, rgba(255,255,255,.92));
       box-shadow:var(--shadow);
     }
     .node.shape-diamond.selected,
@@ -1041,6 +1259,7 @@
     }
     .node .title[contenteditable="true"]{ color: var(--text); }
     .node .body[contenteditable="true"]{ color: var(--muted); }
+    .node.flowchart-node .title[contenteditable="true"]{ color:var(--flow-theme-node-text, var(--text)); }
 
     /* resize handle */
     .resize{
@@ -1237,7 +1456,13 @@
       align-items:center;
       justify-content:center;
       border-radius:10px;
-      font-size:13px;
+      font-size:18px;
+      line-height:1;
+    }
+    .flow-search-button > i{
+      display:flex;
+      align-items:center;
+      justify-content:center;
       line-height:1;
     }
     .flow-search-status{
@@ -1338,6 +1563,21 @@
       right:12%;
       top:25%;
       bottom:25%;
+    }
+    .stage.mode-flowchart[data-flow-theme="blue"] .node.flowchart-node.selected .node-ctrl-toggle-zone{
+      border-color:rgba(255,255,255,.76);
+      background:rgba(255,255,255,.16);
+      box-shadow:0 0 0 1px rgba(43,111,167,.32);
+      right:10px;
+      top:10px;
+      bottom:10px;
+      width:20px;
+    }
+    .stage.mode-flowchart[data-flow-theme="blue"] .node.flowchart-node.selected .node-ctrl-toggle-zone:hover,
+    .stage.mode-flowchart[data-flow-theme="blue"] .node.flowchart-node.selected .node-ctrl-toggle-zone:focus{
+      border-color:#ffffff;
+      background:rgba(255,255,255,.26);
+      box-shadow:0 0 0 2px rgba(255,255,255,.22);
     }
     /* .node-move-icon{
       width:15px;
@@ -1683,6 +1923,10 @@
         </div>
         <button id="btnBodyLines" class="view-setting-button" type="button" hidden>內容 1 行</button>
         <button id="btnFlowTitleSize" class="view-setting-button" type="button" hidden>標題 20px</button>
+        <div class="flow-theme-tool" id="flowThemeTool" hidden>
+          <button id="btnFlowTheme" class="view-setting-button flow-theme-button" type="button" aria-expanded="false" aria-controls="flowThemePanel">配色</button>
+          <div class="flow-theme-panel" id="flowThemePanel" role="menu" aria-label="流程圖配色"></div>
+        </div>
         <button class="help-toggle" id="btnHelpToggle" aria-expanded="false">更多說明</button>
       </div>
       <div class="toolbar-more" id="toolbarMore" aria-label="更多操作說明">
@@ -1712,9 +1956,9 @@
       <div class="flow-nav-path" id="flowBreadcrumb"></div>
       <div class="flow-search" id="flowSearch">
         <input class="flow-search-input" id="flowSearchInput" type="search" placeholder="搜尋此專案" autocomplete="off" />
-        <button class="flow-search-button" id="btnSearchPrev" type="button" title="上一筆搜尋結果" aria-label="上一筆搜尋結果">‹</button>
+        <button class="flow-search-button" id="btnSearchPrev" type="button" title="上一筆搜尋結果" aria-label="上一筆搜尋結果"><i class="fi fi-rr-angle-small-left" aria-hidden="true"></i></button>
         <span class="flow-search-status" id="flowSearchStatus">0/0</span>
-        <button class="flow-search-button" id="btnSearchNext" type="button" title="下一筆搜尋結果" aria-label="下一筆搜尋結果">›</button>
+        <button class="flow-search-button" id="btnSearchNext" type="button" title="下一筆搜尋結果" aria-label="下一筆搜尋結果"><i class="fi fi-rr-angle-small-right" aria-hidden="true"></i></button>
       </div>
       <button class="flow-remove" id="btnRemoveCurrentSubflow" type="button" hidden>移除空白 Subflow</button>
     </div>
@@ -1852,6 +2096,9 @@
   const btnModeFlowchart = document.getElementById('btnModeFlowchart');
   const btnBodyLines = document.getElementById('btnBodyLines');
   const btnFlowTitleSize = document.getElementById('btnFlowTitleSize');
+  const flowThemeTool = document.getElementById('flowThemeTool');
+  const btnFlowTheme = document.getElementById('btnFlowTheme');
+  const flowThemePanel = document.getElementById('flowThemePanel');
   const btnAlignCenterX = document.getElementById('btnAlignCenterX');
   const btnAlignCenterY = document.getElementById('btnAlignCenterY');
   const btnDistributeX = document.getElementById('btnDistributeX');
@@ -1888,14 +2135,95 @@
   const CURRENT_PROJECT_KEY = 'flow-editor-current-project';
   const CURRENT_USER_KEY = 'flow-editor-current-user';
   const USER_LIST_KEY = 'flow-editor-users';
+  const FLOW_THEME_VISIBILITY_KEY = 'flow-editor-visible-themes-v1';
   const API_BASE = '';
   const DEFAULT_DISPLAY = {
     viewMode: 'knowledge',
     knowledgeBodyLines: 1,
-    flowchartTitleSize: 20
+    flowchartTitleSize: 20,
+    flowchartTheme: 'default'
   };
   const BODY_LINE_OPTIONS = [1, 2, 3, 0];
   const FLOW_TITLE_SIZE_OPTIONS = [16, 18, 20, 24];
+  const FLOWCHART_THEMES = [
+    {
+      id: 'default',
+      label: '原始',
+      previewLabel: 'Default',
+      nodeBg: 'linear-gradient(180deg, #ffffff, #f8fbff)',
+      specialBg: 'rgba(255,255,255,.92)',
+      nodeBorder: '#d7e1ef',
+      nodeText: '#172033',
+      edge: 'rgba(47,126,230,.74)',
+      stageBg: 'transparent'
+    },
+    {
+      id: 'blue',
+      label: '藍色',
+      previewLabel: 'Blue',
+      nodeBg: '#5c9ed8',
+      specialBg: '#5c9ed8',
+      nodeBorder: '#2b6fa7',
+      nodeText: 'rgb(255,255,255)',
+      edge: 'rgb(89,89,89)',
+      stageBg: '#ffffff'
+    },
+    {
+      id: 'orange',
+      label: '橘色',
+      previewLabel: 'Orange',
+      nodeBg: '#f5a267',
+      specialBg: '#f5a267',
+      nodeBorder: '#c76825',
+      nodeText: '#3a1f0d',
+      edge: '#d97706',
+      stageBg: 'transparent'
+    },
+    {
+      id: 'gray',
+      label: '灰階',
+      previewLabel: 'Gray',
+      nodeBg: '#e8eaee',
+      specialBg: '#e8eaee',
+      nodeBorder: '#8f97a3',
+      nodeText: '#222833',
+      edge: '#64748b',
+      stageBg: 'transparent'
+    },
+    {
+      id: 'yellow',
+      label: '黃色',
+      previewLabel: 'Yellow',
+      nodeBg: '#ffd766',
+      specialBg: '#ffd766',
+      nodeBorder: '#c99700',
+      nodeText: '#332600',
+      edge: '#d6a100',
+      stageBg: 'transparent'
+    },
+    {
+      id: 'violet',
+      label: '紫色',
+      previewLabel: 'Violet',
+      nodeBg: '#8ea4e8',
+      specialBg: '#8ea4e8',
+      nodeBorder: '#526ec2',
+      nodeText: '#ffffff',
+      edge: '#5b6fd6',
+      stageBg: 'transparent'
+    },
+    {
+      id: 'green',
+      label: '綠色',
+      previewLabel: 'Green',
+      nodeBg: '#8fcf81',
+      specialBg: '#8fcf81',
+      nodeBorder: '#4c9a47',
+      nodeText: '#123017',
+      edge: '#3d9b5f',
+      stageBg: 'transparent'
+    }
+  ];
   const SHAPES = [
     { id: 'rect', label: '矩形', mermaid: value => `[${value}]` },
     { id: 'rounded', label: '圓角', mermaid: value => `(${value})` },
@@ -1912,6 +2240,8 @@
   let isBooting = true;
   let saveTimer = null;
   let toolbarLayoutTimer = null;
+  let flowThemeEditMode = false;
+  let visibleFlowThemeIds = loadVisibleFlowThemeIds();
   const toolbarRows = {
     actions: toolbarActions
   };
@@ -1985,11 +2315,130 @@
     const flowchartTitleSize = FLOW_TITLE_SIZE_OPTIONS.includes(Number(display.flowchartTitleSize))
       ? Number(display.flowchartTitleSize)
       : DEFAULT_DISPLAY.flowchartTitleSize;
-    return { viewMode, knowledgeBodyLines, flowchartTitleSize };
+    const flowchartTheme = FLOWCHART_THEMES.some(theme => theme.id === display.flowchartTheme)
+      ? display.flowchartTheme
+      : DEFAULT_DISPLAY.flowchartTheme;
+    return { viewMode, knowledgeBodyLines, flowchartTitleSize, flowchartTheme };
   }
 
   function bodyLineLabel(value){
     return value === 0 ? '內容 全部' : `內容 ${value} 行`;
+  }
+
+  function currentFlowchartTheme(){
+    return FLOWCHART_THEMES.find(theme => theme.id === state.display.flowchartTheme) || FLOWCHART_THEMES[0];
+  }
+
+  function normalizeVisibleFlowThemeIds(value){
+    const fallbackIds = FLOWCHART_THEMES.slice(0, 4).map(theme => theme.id);
+    const ids = Array.isArray(value) ? value : fallbackIds;
+    const seen = new Set();
+    const validIds = ids.filter(id => {
+      if (seen.has(id) || !FLOWCHART_THEMES.some(theme => theme.id === id)) return false;
+      seen.add(id);
+      return true;
+    }).slice(0, 4);
+    return validIds.length ? validIds : fallbackIds;
+  }
+
+  function loadVisibleFlowThemeIds(){
+    try {
+      return normalizeVisibleFlowThemeIds(JSON.parse(localStorage.getItem(FLOW_THEME_VISIBILITY_KEY) || 'null'));
+    } catch (error) {
+      return normalizeVisibleFlowThemeIds();
+    }
+  }
+
+  function saveVisibleFlowThemeIds(){
+    visibleFlowThemeIds = normalizeVisibleFlowThemeIds(visibleFlowThemeIds);
+    try {
+      localStorage.setItem(FLOW_THEME_VISIBILITY_KEY, JSON.stringify(visibleFlowThemeIds));
+    } catch (error) {
+      // Ignore unavailable localStorage; the panel still works for the current session.
+    }
+  }
+
+  function applyFlowchartTheme(){
+    const theme = state.display.viewMode === 'flowchart' ? currentFlowchartTheme() : FLOWCHART_THEMES[0];
+    stage.dataset.flowTheme = theme.id;
+    stage.style.setProperty('--flow-theme-node-bg', theme.nodeBg);
+    stage.style.setProperty('--flow-theme-special-bg', theme.specialBg);
+    stage.style.setProperty('--flow-theme-node-border', theme.nodeBorder);
+    stage.style.setProperty('--flow-theme-node-text', theme.nodeText);
+    stage.style.setProperty('--flow-theme-edge', theme.edge);
+    stage.style.setProperty('--flow-theme-stage-bg', theme.stageBg || 'transparent');
+  }
+
+  function renderFlowchartThemePanel(){
+    const activeTheme = currentFlowchartTheme();
+    visibleFlowThemeIds = normalizeVisibleFlowThemeIds(visibleFlowThemeIds);
+    const visibleThemes = flowThemeEditMode
+      ? FLOWCHART_THEMES
+      : visibleFlowThemeIds
+        .map(id => FLOWCHART_THEMES.find(theme => theme.id === id))
+        .filter(Boolean);
+    btnFlowTheme.textContent = `配色：${activeTheme.label}`;
+    flowThemePanel.innerHTML = '';
+    flowThemePanel.classList.toggle('editing', flowThemeEditMode);
+    visibleThemes.forEach(theme => {
+      const selectedForPanel = visibleFlowThemeIds.includes(theme.id);
+      const option = document.createElement('button');
+      option.type = 'button';
+      option.className = 'flow-theme-option';
+      option.dataset.themeId = theme.id;
+      option.setAttribute('role', 'menuitemradio');
+      option.setAttribute('aria-checked', String(theme.id === activeTheme.id));
+      option.classList.toggle('active', theme.id === activeTheme.id);
+      option.classList.toggle('selected-for-panel', selectedForPanel);
+      option.title = theme.label;
+
+      const selectButton = document.createElement('span');
+      selectButton.className = 'flow-theme-select';
+      selectButton.dataset.themeSelect = theme.id;
+      selectButton.setAttribute('aria-hidden', 'true');
+      if (!flowThemeEditMode) selectButton.setAttribute('disabled', '');
+
+      const preview = document.createElement('span');
+      preview.className = 'flow-theme-preview';
+      preview.style.setProperty('--preview-node-bg', theme.nodeBg);
+      preview.style.setProperty('--preview-node-border', theme.nodeBorder);
+      preview.style.setProperty('--preview-node-text', theme.nodeText);
+      preview.style.setProperty('--preview-edge', theme.edge);
+      const brightText = String(theme.nodeText || '').includes('255') || String(theme.nodeText || '').toLowerCase() === '#ffffff';
+      preview.style.setProperty('--preview-control-bg', brightText ? 'rgba(255,255,255,.18)' : 'rgba(47,126,230,.10)');
+      preview.style.setProperty('--preview-control-border', brightText ? 'rgba(255,255,255,.78)' : 'rgba(47,126,230,.42)');
+
+      const miniNode = document.createElement('span');
+      miniNode.className = 'flow-theme-mini-node';
+      miniNode.textContent = theme.previewLabel || theme.label;
+
+      const miniControl = document.createElement('span');
+      miniControl.className = 'flow-theme-mini-control';
+      miniNode.appendChild(miniControl);
+
+      const miniEdge = document.createElement('span');
+      miniEdge.className = 'flow-theme-mini-edge';
+
+      preview.append(miniNode, miniEdge);
+      option.append(selectButton, preview);
+      flowThemePanel.appendChild(option);
+    });
+
+    if (FLOWCHART_THEMES.length > 4){
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'flow-theme-toggle';
+      toggle.classList.toggle('editing', flowThemeEditMode);
+      toggle.dataset.themeToggle = flowThemeEditMode ? 'view' : 'edit';
+      toggle.title = flowThemeEditMode ? 'View selected themes' : 'Edit visible themes';
+      toggle.innerHTML = `<span class="flow-theme-toggle-label">${flowThemeEditMode ? 'View' : 'Edit'}</span><span class="flow-theme-switch" aria-hidden="true"></span>`;
+      flowThemePanel.appendChild(toggle);
+    }
+  }
+
+  function setFlowThemePanel(open){
+    flowThemeTool.classList.toggle('open', open);
+    btnFlowTheme.setAttribute('aria-expanded', open ? 'true' : 'false');
   }
 
   function updateDisplayControls(){
@@ -1999,6 +2448,9 @@
     btnBodyLines.classList.toggle('active', state.display.viewMode === 'knowledge');
     btnFlowTitleSize.textContent = `標題 ${state.display.flowchartTitleSize}px`;
     btnFlowTitleSize.classList.toggle('active', state.display.viewMode === 'flowchart');
+    flowThemeTool.hidden = state.display.viewMode !== 'flowchart';
+    btnFlowTheme.classList.toggle('active', state.display.viewMode === 'flowchart');
+    renderFlowchartThemePanel();
   }
 
   function applyNodeDisplay(el){
@@ -2018,6 +2470,8 @@
     state.display = normalizeDisplaySettings(state.display);
     stage.classList.toggle('mode-flowchart', state.display.viewMode === 'flowchart');
     stage.classList.toggle('mode-knowledge', state.display.viewMode !== 'flowchart');
+    applyFlowchartTheme();
+    if (state.display.viewMode !== 'flowchart') setFlowThemePanel(false);
     viewport.querySelectorAll('.node').forEach(applyNodeDisplay);
     currentNodes().forEach(node => refreshNodePosition(node.id));
     updateDisplayControls();
@@ -2227,6 +2681,34 @@
   function saveLocalUsers(){
     window.localStorage.setItem(USER_LIST_KEY, JSON.stringify(users));
     window.localStorage.setItem(CURRENT_USER_KEY, currentUser.id);
+  }
+
+  async function syncUsersFromServer(){
+    let remoteUsers = [];
+    try{
+      const response = await fetch(`${API_BASE}/api/users`);
+      if (response.ok){
+        const data = await response.json();
+        remoteUsers = Array.isArray(data.users) ? data.users.map(normalizeUser) : [];
+      }
+    }catch{}
+
+    const selectedId = currentUser.id || userSlug(window.localStorage.getItem(CURRENT_USER_KEY) || DEFAULT_USER.id);
+    const byId = new Map([[DEFAULT_USER.id, { ...DEFAULT_USER }]]);
+    users.forEach(user => byId.set(user.id, user));
+    remoteUsers.forEach(user => {
+      const local = byId.get(user.id);
+      byId.set(user.id, {
+        ...user,
+        name: local?.name || user.name || user.id
+      });
+    });
+    users = [...byId.values()].sort((a, b) => a.id.localeCompare(b.id));
+    currentUser = users.find(user => user.id === selectedId) ||
+      users.find(user => user.id === DEFAULT_USER.id) ||
+      users[0] ||
+      { ...DEFAULT_USER };
+    saveLocalUsers();
   }
 
   function projectStorageKey(projectId = currentProject.id){
@@ -5119,12 +5601,160 @@
     }
   }
 
+  function nodeImportKey(node){
+    return `${nodeFlowId(node)}:${String(node.title || '').trim().toLowerCase()}`;
+  }
+
+  function edgeImportKey(edge){
+    return `${edgeFlowId(edge)}:${edge.from}->${edge.to}`;
+  }
+
+  function mergeImportedJSON(obj){
+    rootFlow();
+    const stats = { flows: 0, nodes: 0, edges: 0, groups: 0, skippedNodes: 0, skippedEdges: 0 };
+    const nodeIdMap = new Map();
+    const importedFlows = Array.isArray(obj.flows) ? obj.flows.filter(flow => flow && flow.id) : [];
+    const importedFlowIds = new Set(importedFlows.map(flow => flow.id));
+    const existingNodeByTitle = new Map();
+    state.nodes.forEach(node => {
+      const key = nodeImportKey(node);
+      if (key !== `${nodeFlowId(node)}:` && !existingNodeByTitle.has(key)) existingNodeByTitle.set(key, node.id);
+    });
+
+    (Array.isArray(obj.nodes) ? obj.nodes : []).forEach(source => {
+      if (!source || !source.id) return;
+      const sourceFlowId = source.flowId || 'main';
+      const flowId = state.flows.has(sourceFlowId) || importedFlowIds.has(sourceFlowId) ? sourceFlowId : 'main';
+      const title = String(source.title || '').trim();
+      const titleKey = `${flowId}:${title.toLowerCase()}`;
+      if (state.nodes.has(source.id)){
+        nodeIdMap.set(source.id, source.id);
+        stats.skippedNodes++;
+        return;
+      }
+      if (title && existingNodeByTitle.has(titleKey)){
+        nodeIdMap.set(source.id, existingNodeByTitle.get(titleKey));
+        stats.skippedNodes++;
+        return;
+      }
+      const node = {
+        ...source,
+        id: source.id,
+        flowId,
+        x: Number.isFinite(source.x) ? source.x : 80,
+        y: Number.isFinite(source.y) ? source.y : 80,
+        w: Number.isFinite(source.w) ? source.w : 280,
+        h: Number.isFinite(source.h) ? source.h : 100,
+        tags: Array.isArray(source.tags) ? source.tags : [],
+        title: source.title || source.id,
+        body: source.body || '',
+        shape: normalizeShape(source.shape),
+        subflowId: source.subflowId || null
+      };
+      state.nodes.set(node.id, node);
+      nodeIdMap.set(source.id, node.id);
+      if (title) existingNodeByTitle.set(titleKey, node.id);
+      stats.nodes++;
+    });
+
+    importedFlows.forEach(flow => {
+      if (state.flows.has(flow.id)) return;
+      let ownerNodeId = flow.ownerNodeId || null;
+      if (ownerNodeId && nodeIdMap.has(ownerNodeId)){
+        const mappedOwnerId = nodeIdMap.get(ownerNodeId);
+        if (mappedOwnerId !== ownerNodeId && !state.nodes.has(ownerNodeId)) return;
+        ownerNodeId = mappedOwnerId;
+      }
+      if (ownerNodeId && !state.nodes.has(ownerNodeId)) return;
+      const parentFlowId = flow.parentFlowId && (state.flows.has(flow.parentFlowId) || importedFlowIds.has(flow.parentFlowId))
+        ? flow.parentFlowId
+        : null;
+      state.flows.set(flow.id, {
+        id: flow.id,
+        name: flow.name || flow.id,
+        parentFlowId,
+        ownerNodeId
+      });
+      stats.flows++;
+    });
+
+    const existingEdgeKeys = new Set([...state.edges.values()].map(edgeImportKey));
+    (Array.isArray(obj.edges) ? obj.edges : []).forEach(source => {
+      if (!source) return;
+      const from = nodeIdMap.get(source.from) || source.from;
+      const to = nodeIdMap.get(source.to) || source.to;
+      if (!state.nodes.has(from) || !state.nodes.has(to) || from === to) return;
+      const fromNode = state.nodes.get(from);
+      const toNode = state.nodes.get(to);
+      const flowId = state.flows.has(source.flowId) ? source.flowId : nodeFlowId(fromNode);
+      if (nodeFlowId(fromNode) !== flowId || nodeFlowId(toNode) !== flowId) return;
+      const edge = {
+        ...source,
+        id: source.id && !state.edges.has(source.id) ? source.id : uid('e'),
+        flowId,
+        from,
+        to
+      };
+      const key = edgeImportKey(edge);
+      if (existingEdgeKeys.has(key)){
+        stats.skippedEdges++;
+        return;
+      }
+      state.edges.set(edge.id, edge);
+      existingEdgeKeys.add(key);
+      stats.edges++;
+    });
+
+    (Array.isArray(obj.groups) ? obj.groups : []).forEach(source => {
+      if (!source || !source.id) return;
+      const flowId = state.flows.has(source.flowId) ? source.flowId : 'main';
+      const nodeIds = (Array.isArray(source.nodeIds) ? source.nodeIds : [])
+        .map(id => nodeIdMap.get(id) || id)
+        .filter(id => state.nodes.has(id) && nodeFlowId(state.nodes.get(id)) === flowId);
+      if (!nodeIds.length) return;
+      if (state.groups.has(source.id)){
+        const group = state.groups.get(source.id);
+        const currentNodeIds = Array.isArray(group.nodeIds) ? group.nodeIds : [];
+        const merged = new Set([...currentNodeIds, ...nodeIds]);
+        const before = currentNodeIds.length;
+        group.nodeIds = [...merged];
+        if (group.nodeIds.length > before) stats.groups++;
+        return;
+      }
+      state.groups.set(source.id, {
+        id: source.id,
+        flowId,
+        label: source.label || 'Group',
+        nodeIds
+      });
+      stats.groups++;
+    });
+
+    dedupeEdges();
+    normalizeAllEdges();
+    renderCurrentFlow();
+    applyDisplaySettings();
+    return stats;
+  }
+
   function importJSON(text, options = {}){
     let obj;
     try{
       obj = JSON.parse(text);
     }catch{
       showToast('JSON 解析失敗');
+      return;
+    }
+    if (options.mode === 'merge'){
+      if (!options.skipUndo) captureUndo('補強匯入 JSON');
+      const stats = mergeImportedJSON(obj);
+      if (!options.skipSave) saveState();
+      if (!options.quiet){
+        const added = stats.flows + stats.nodes + stats.edges + stats.groups;
+        showToast(added
+          ? `已補強匯入：新增 ${stats.nodes} 節點、${stats.edges} 連線`
+          : '沒有可新增的匯入內容');
+      }
       return;
     }
     if (!options.skipUndo) captureUndo('匯入 JSON');
@@ -5184,7 +5814,7 @@
   // ─────────────────────────────────────────────────────────────
   function buildImportPrompt(){
     const feature = promptFeatureInput.value.trim() || '請依目前需求判斷主要功能';
-    return `請分析目前專案中「${feature}」相關的程式碼，逐個整理主要函數與其呼叫關係，輸出可直接匯入 flowchart 專案的 JSON。
+    return `請分析目前專案中「${feature}」相關的程式碼，逐個整理主要函數與其呼叫關係，輸出可補強匯入 flowchart 專案的 JSON。
 
 重要規則：
 1. 只輸出純 JSON，不要 Markdown，不要說明文字。
@@ -5192,9 +5822,17 @@
 3. version 固定為 2。
 4. currentFlowId 固定為 "main"。
 5. view 使用 { "x": 0, "y": 0, "scale": 1 }。
-6. display 使用 { "viewMode": "knowledge", "knowledgeBodyLines": 1, "flowchartTitleSize": 20 }。
+6. display 使用 { "viewMode": "knowledge", "knowledgeBodyLines": 1, "flowchartTitleSize": 20, "flowchartTheme": "default" }。
 7. flows 至少要有 { "id": "main", "name": "主流程", "parentFlowId": null, "ownerNodeId": null }。
 8. 沒有群組時 groups 必須是空陣列 []。
+
+補強匯入規則：
+1. 這份 JSON 會被 Flow Editor 以 merge 方式套用：既有節點、連線、群組與流程會保留，不會清空重建。
+2. nodes、edges、groups 請只放本次分析新增或補強的內容，不要重新輸出已經存在、功能重複的項目。
+3. 若某函數或流程已經在既有圖中出現，請不要再建立同義節點；只輸出尚未被表達的新函數、新連線或新群組。
+4. node id 必須穩定且可重複判斷，同一個函數每次都應使用同一個 id，讓重複匯入能被略過。
+5. edge 只輸出本次新增的關係；同一個 flowId、from、to 組合不可重複。
+6. view、display、currentFlowId 只是相容外殼，匯入時不會覆蓋既有畫面設定。
 
 分析內容規則：
 1. 只分析「${feature}」相關流程，不要展開無關功能。
@@ -5207,6 +5845,9 @@
 8. body 用繁體中文描述函數作用。
 9. 不要放程式碼片段，只描述用途。
 10. 優先分析專案自定義函數，不要展開標準函式庫、框架內建 API、DOM API、console、JSON、fetch 等。
+11. title 必須盡量與原始程式中的函式、方法、handler、route 或事件名稱一致，方便回到程式碼搜尋。
+12. 不要把 title 翻譯成中文或摘要句；中文描述只放在 body。
+13. 若來源是 API route 或事件流程，title 可使用原始 route、handler 名稱或事件 handler 名稱，例如 "POST /api/llm-extract" 或 "handleLlmExtract()"。
 
 節點格式：
 每個 node 必須符合：
@@ -5300,6 +5941,7 @@ id 命名規則：
 2. 不要使用中文。
 3. 若同名函數出現在不同層，後面加上層級或父函數，例如 parseData_in_handleSubmit。
 4. edge id 可用 e_001、e_002 依序命名。
+5. node id 盡量由原始 title 轉換而來，以便查詢；例如 handleLlmExtract() 使用 handleLlmExtract，POST /api/llm-extract 使用 post_api_llm_extract。
 
 輸出 JSON 範例結構：
 {
@@ -5316,7 +5958,8 @@ id 命名規則：
   "display": {
     "viewMode": "knowledge",
     "knowledgeBodyLines": 1,
-    "flowchartTitleSize": 20
+    "flowchartTitleSize": 20,
+    "flowchartTheme": "default"
   },
   "flows": [
     {
@@ -5331,7 +5974,7 @@ id 命名規則：
   "edges": []
 }
 
-請現在開始分析並產生完整 JSON。`;
+請現在開始分析並產生可補強匯入的 JSON。`;
   }
 
   function updatePromptOutput(){
@@ -5406,6 +6049,53 @@ id 命名規則：
     });
     refreshGroups();
     redrawEdges();
+  });
+  btnFlowTheme.addEventListener('click', event => {
+    event.stopPropagation();
+    setFlowThemePanel(!flowThemeTool.classList.contains('open'));
+  });
+  flowThemeTool.addEventListener('click', event => event.stopPropagation());
+  flowThemePanel.addEventListener('click', event => {
+    const toggle = event.target.closest('.flow-theme-toggle');
+    if (toggle){
+      flowThemeEditMode = toggle.dataset.themeToggle === 'edit';
+      renderFlowchartThemePanel();
+      return;
+    }
+    const selectButton = event.target.closest('.flow-theme-select');
+    if (selectButton){
+      event.preventDefault();
+      event.stopPropagation();
+      if (!flowThemeEditMode) return;
+      const themeId = selectButton.dataset.themeSelect;
+      if (!FLOWCHART_THEMES.some(theme => theme.id === themeId)) return;
+      if (visibleFlowThemeIds.includes(themeId)){
+        if (visibleFlowThemeIds.length <= 1){
+          showToast('至少保留一個配色');
+          return;
+        }
+        visibleFlowThemeIds = visibleFlowThemeIds.filter(id => id !== themeId);
+      }else{
+        if (visibleFlowThemeIds.length >= 4){
+          showToast('最多顯示 4 個配色');
+          return;
+        }
+        visibleFlowThemeIds = [...visibleFlowThemeIds, themeId];
+      }
+      saveVisibleFlowThemeIds();
+      renderFlowchartThemePanel();
+      return;
+    }
+    const option = event.target.closest('.flow-theme-option');
+    if (!option) return;
+    const themeId = option.dataset.themeId;
+    if (!FLOWCHART_THEMES.some(theme => theme.id === themeId)) return;
+    if (state.display.flowchartTheme !== themeId) captureUndo('調整流程圖配色');
+    state.display.flowchartTheme = themeId;
+    if (state.display.viewMode !== 'flowchart') state.display.viewMode = 'flowchart';
+    applyDisplaySettings({ save: true });
+    redrawEdges();
+    setFlowThemePanel(false);
   });
   btnAlignCenterX.addEventListener('click', () => arrangeSelectedNodes('center-x'));
   btnAlignCenterY.addEventListener('click', () => arrangeSelectedNodes('center-y'));
@@ -5486,6 +6176,7 @@ id 命名規則：
   document.addEventListener('click', () => {
     closeTagPickers();
     closeShapePickers();
+    setFlowThemePanel(false);
     setProjectMenu(false);
     setAccountMenu(false);
   });
@@ -5532,7 +6223,7 @@ id 命名規則：
     showToast('Mermaid exported');
   });
 
-  btnApply.addEventListener('click', () => importJSON(ioArea.value));
+  btnApply.addEventListener('click', () => importJSON(ioArea.value, { mode: 'merge' }));
 
   // ─────────────────────────────────────────────────────────────
   // Seed: create a diagram similar to your "資料流 × DOM × API"
@@ -5603,6 +6294,7 @@ id 命名規則：
 
   // init
   loadLocalUsers();
+  await syncUsersFromServer();
   saveLocalUsers();
   updateAccountLabel();
   renderUserList();

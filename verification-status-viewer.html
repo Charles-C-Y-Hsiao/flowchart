@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Feature Verification Status Viewer</title>
+  <!-- Includes all JS & CSS for the JavaScript Data Grid -->
+  <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f8fb;
+      --panel: #ffffff;
+      --line: #d8e0ec;
+      --text: #172033;
+      --muted: #667085;
+      --accent: #2563eb;
+      --accent-soft: #eff6ff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      flex: 0 0 auto;
+      padding: 16px 24px 10px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      line-height: 1.25;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    main {
+      flex: 1 1 auto;
+      min-height: 0;
+      padding: 12px 24px 16px;
+      display: grid;
+      grid-template-rows: auto auto minmax(0, 1fr) auto;
+      gap: 10px;
+      overflow: hidden;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 10px;
+      align-items: end;
+      margin-bottom: 0;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel);
+      box-shadow: 0 12px 28px rgba(15, 23, 42, .04);
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: thin;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      min-width: 132px;
+      flex: 0 0 150px;
+    }
+
+    label.search-filter {
+      min-width: 220px;
+      flex: 1 1 300px;
+    }
+
+    label.compact-filter {
+      flex-basis: 132px;
+    }
+
+    input,
+    select,
+    button {
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--text);
+      font: inherit;
+      font-size: 14px;
+    }
+
+    input,
+    select {
+      padding: 0 11px;
+    }
+
+    button {
+      padding: 0 14px;
+      cursor: pointer;
+      font-weight: 700;
+      white-space: nowrap;
+      writing-mode: horizontal-tb;
+    }
+
+    button.primary {
+      border-color: #bfdbfe;
+      background: var(--accent-soft);
+      color: var(--accent);
+      flex: 0 0 104px;
+      min-width: 104px;
+    }
+
+    .toolbar::-webkit-scrollbar,
+    .ag-body-horizontal-scroll-viewport::-webkit-scrollbar,
+    .ag-body-vertical-scroll-viewport::-webkit-scrollbar {
+      height: 6px;
+      width: 6px;
+    }
+
+    .toolbar::-webkit-scrollbar-track,
+    .ag-body-horizontal-scroll-viewport::-webkit-scrollbar-track,
+    .ag-body-vertical-scroll-viewport::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .toolbar::-webkit-scrollbar-thumb,
+    .ag-body-horizontal-scroll-viewport::-webkit-scrollbar-thumb,
+    .ag-body-vertical-scroll-viewport::-webkit-scrollbar-thumb {
+      border-radius: 999px;
+      background: rgba(15, 23, 42, .38);
+    }
+
+    .status-bar {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 10px;
+      align-items: center;
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      overflow: hidden;
+      white-space: nowrap;
+      min-width: 0;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex: 0 0 auto;
+      max-width: 100%;
+      padding: 5px 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .pill code {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    #optionSummary {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .grid-wrap {
+      min-height: 0;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      background: var(--panel);
+    }
+
+    .ag-theme-quartz {
+      --ag-font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+      --ag-font-size: 13px;
+      --ag-header-background-color: #f8fafc;
+      --ag-border-color: #d8e0ec;
+      --ag-row-hover-color: #f8fbff;
+      --ag-scrollbar-size: 6px;
+      height: 100%;
+      width: 100%;
+    }
+
+    .notes-cell {
+      display: block;
+      max-width: 100%;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      line-height: 1.28;
+      padding-top: 3px;
+      padding-bottom: 3px;
+    }
+
+    .status-done,
+    .status-pass {
+      color: #15803d;
+      font-weight: 800;
+    }
+
+    .status-partial {
+      color: #b45309;
+      font-weight: 800;
+    }
+
+    .status-blocked,
+    .status-needs {
+      color: #b91c1c;
+      font-weight: 800;
+    }
+
+    .fallback {
+      display: none;
+      margin: 0;
+      padding: 14px;
+      border: 1px solid #fecaca;
+      border-radius: 12px;
+      background: #fff7f7;
+      color: #991b1b;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .file-load-button {
+      flex: 0 0 auto;
+      height: 32px;
+      padding: 0 10px;
+      border-color: #d8e0ec;
+      background: #fff;
+      color: var(--accent);
+      font-size: 13px;
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    @media (max-width: 1100px) {
+      .toolbar {
+        overflow-x: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Feature Verification Status</h1>
+    <p class="subtitle">讀取 <code>docs/verification-status.md</code>，用 AG Grid 檢視 feature 驗證進度。</p>
+  </header>
+
+  <main>
+    <section class="toolbar" aria-label="Filters">
+      <label class="search-filter">
+        搜尋
+        <input id="quickSearch" type="search" placeholder="Feature / Module / Notes...">
+      </label>
+
+      <label>
+        Primary Module
+        <select id="moduleFilter">
+          <option value="">All</option>
+        </select>
+      </label>
+
+      <label class="compact-filter">
+        Status
+        <select id="statusFilter">
+          <option value="">All</option>
+        </select>
+      </label>
+
+      <label class="compact-filter">
+        Browser/API
+        <select id="browserFilter">
+          <option value="">All</option>
+        </select>
+      </label>
+
+      <label class="compact-filter">
+        Docs Updated
+        <select id="docsFilter">
+          <option value="">All</option>
+        </select>
+      </label>
+
+      <label class="compact-filter">
+        Last Verified
+        <select id="dateFilter">
+          <option value="">All</option>
+          <option value="7">近 7 天</option>
+          <option value="30">近 1 個月</option>
+        </select>
+      </label>
+
+      <button id="resetFilters" class="primary" type="button">清除篩選</button>
+    </section>
+
+    <div class="status-bar">
+      <span class="pill">Rows: <strong id="rowCount">0</strong></span>
+      <span class="pill">Source: <code>docs/verification-status.md</code></span>
+      <span class="pill" id="loadedAt">Loaded: -</span>
+      <span class="pill" id="optionSummary">Options: -</span>
+      <button id="chooseMarkdown" class="file-load-button" type="button">選擇 markdown</button>
+      <input id="markdownFile" class="file-input" type="file" accept=".md,text/markdown,text/plain">
+    </div>
+
+    <section class="grid-wrap">
+      <div id="grid" class="ag-theme-quartz"></div>
+    </section>
+
+    <div id="fallback" class="fallback">
+      無法自動載入 AG Grid 或 markdown。若你是用 <code>file://</code> 開啟，請按「選擇 markdown」並選取
+      <code>docs/verification-status.md</code>；若要自動載入，請透過本專案 server 開啟，例如
+      <code>http://192.168.1.119:3013/verification-status-viewer.html</code>。
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+  <script>
+    const markdownPath = 'docs/verification-status.md';
+    let gridApi = null;
+    let allRows = [];
+
+    const columns = [
+      { field: 'Feature', pinned: 'left', minWidth: 220, filter: true },
+      { field: 'Primary Module', minWidth: 190, filter: true },
+      { field: 'Related Modules', minWidth: 260, filter: true, flex: 1 },
+      {
+        field: 'Status',
+        minWidth: 135,
+        filter: true,
+        cellRenderer: params => statusBadge(params.value)
+      },
+      { field: 'Last Verified', minWidth: 145, filter: 'agDateColumnFilter' },
+      {
+        field: 'Browser/API',
+        minWidth: 130,
+        filter: true,
+        cellRenderer: params => statusBadge(params.value)
+      },
+      { field: 'Docs Updated', minWidth: 135, filter: true },
+      {
+        field: 'Notes',
+        minWidth: 360,
+        flex: 1,
+        wrapText: true,
+        autoHeight: true,
+        cellRenderer: params => `<span class="notes-cell">${escapeHtml(params.value || '')}</span>`
+      }
+    ];
+
+    const gridOptions = {
+      columnDefs: columns,
+      rowData: [],
+      defaultColDef: {
+        sortable: true,
+        resizable: true,
+        filter: true,
+        floatingFilter: false,
+      },
+      enableCellTextSelection: true,
+      // pagination: true,
+      // paginationPageSize: 20,
+      animateRows: true,
+      getRowId: params => params.data.Feature,
+      onFilterChanged: updateRowCount,
+      onModelUpdated: updateRowCount
+    };
+
+    function statusBadge(value) {
+      const text = escapeHtml(value || '');
+      const normalized = String(value || '').toLowerCase();
+      let className = '';
+      if (normalized.includes('done')) className = 'status-done';
+      else if (normalized.includes('pass')) className = 'status-pass';
+      else if (normalized.includes('partial')) className = 'status-partial';
+      else if (normalized.includes('blocked')) className = 'status-blocked';
+      else if (normalized.includes('needs')) className = 'status-needs';
+      return `<span class="${className}">${text}</span>`;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function parseMarkdownTable(markdown) {
+      const lines = markdown.split(/\r?\n/);
+      const headerIndex = lines.findIndex(line => line.trim().startsWith('| Feature | Primary Module |'));
+      if (headerIndex < 0) return [];
+
+      const header = splitMarkdownRow(lines[headerIndex]);
+      const rows = [];
+
+      for (let index = headerIndex + 2; index < lines.length; index += 1) {
+        const line = lines[index].trim();
+        if (!line.startsWith('|')) break;
+        const cells = splitMarkdownRow(line);
+        if (cells.length !== header.length) continue;
+        const row = {};
+        header.forEach((key, cellIndex) => {
+          row[key] = cleanupMarkdown(cells[cellIndex]);
+        });
+        rows.push(row);
+      }
+
+      return rows;
+    }
+
+    function splitMarkdownRow(line) {
+      return line
+        .trim()
+        .replace(/^\|/, '')
+        .replace(/\|$/, '')
+        .split('|')
+        .map(cell => cell.trim());
+    }
+
+    function cleanupMarkdown(value) {
+      return String(value || '')
+        .replace(/`([^`]+)`/g, '$1')
+        .replace(/<br\s*\/?>/gi, ' ')
+        .trim();
+    }
+
+    function uniqueValues(field) {
+      return [...new Set(allRows.map(row => row[field]).filter(Boolean))];
+    }
+
+    function orderedValues(values, preferredOrder) {
+      const order = new Map(preferredOrder.map((value, index) => [value, index]));
+      return [...values].sort((a, b) => {
+        const aRank = order.has(a) ? order.get(a) : 999;
+        const bRank = order.has(b) ? order.get(b) : 999;
+        if (aRank !== bRank) return aRank - bRank;
+        return String(a).localeCompare(String(b));
+      });
+    }
+
+    function populateSelect(selectId, field, preferredOrder = []) {
+      const select = document.getElementById(selectId);
+      const currentValue = select.value;
+      const values = orderedValues(uniqueValues(field), preferredOrder);
+      select.innerHTML = '<option value="">All</option>';
+      values.forEach(value => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = value;
+        select.appendChild(option);
+      });
+      select.value = values.includes(currentValue) ? currentValue : '';
+      return values;
+    }
+
+    function populateFilterOptions() {
+      const moduleValues = populateSelect('moduleFilter', 'Primary Module');
+      const statusValues = populateSelect('statusFilter', 'Status', [
+        'Done',
+        'Partial',
+        'Needs Docs Update',
+        'Blocked',
+        'In Progress',
+        'Not Started'
+      ]);
+      const browserValues = populateSelect('browserFilter', 'Browser/API', [
+        'Pass',
+        'Partial',
+        'Blocked',
+        'Not Checked'
+      ]);
+      const docsValues = populateSelect('docsFilter', 'Docs Updated', [
+        'Yes',
+        'No',
+        'N/A'
+      ]);
+      document.getElementById('optionSummary').textContent = [
+        `Modules: ${moduleValues.join(', ') || '-'}`,
+        `Status: ${statusValues.join(', ') || '-'}`,
+        `Browser/API: ${browserValues.join(', ') || '-'}`,
+        `Docs Updated: ${docsValues.join(', ') || '-'}`
+      ].join(' | ');
+    }
+
+    function dateWithinRange(dateValue, days) {
+      if (!days) return true;
+      if (!dateValue) return false;
+
+      const target = new Date(dateValue + 'T00:00:00');
+      if (Number.isNaN(target.getTime())) return false;
+
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const start = new Date(today);
+      start.setDate(today.getDate() - Number(days) + 1);
+      return target >= start && target <= today;
+    }
+
+    function applyExternalFilters() {
+      const search = document.getElementById('quickSearch').value.trim().toLowerCase();
+      const module = document.getElementById('moduleFilter').value;
+      const status = document.getElementById('statusFilter').value;
+      const browser = document.getElementById('browserFilter').value;
+      const docs = document.getElementById('docsFilter').value;
+      const days = document.getElementById('dateFilter').value;
+
+      const filtered = allRows.filter(row => {
+        const text = Object.values(row).join(' ').toLowerCase();
+        if (search && !text.includes(search)) return false;
+        if (module && row['Primary Module'] !== module) return false;
+        if (status && row.Status !== status) return false;
+        if (browser && row['Browser/API'] !== browser) return false;
+        if (docs && row['Docs Updated'] !== docs) return false;
+        if (!dateWithinRange(row['Last Verified'], days)) return false;
+        return true;
+      });
+
+      gridApi.setGridOption('rowData', filtered);
+      updateRowCount();
+    }
+
+    function updateRowCount() {
+      const count = gridApi ? gridApi.getDisplayedRowCount() : 0;
+      document.getElementById('rowCount').textContent = String(count);
+    }
+
+    function resetFilters() {
+      document.getElementById('quickSearch').value = '';
+      document.getElementById('moduleFilter').value = '';
+      document.getElementById('statusFilter').value = '';
+      document.getElementById('browserFilter').value = '';
+      document.getElementById('docsFilter').value = '';
+      document.getElementById('dateFilter').value = '';
+      if (gridApi) {
+        gridApi.setFilterModel(null);
+      }
+      applyExternalFilters();
+    }
+
+    function loadMarkdownText(markdown, sourceLabel = markdownPath) {
+      allRows = parseMarkdownTable(markdown);
+      populateFilterOptions();
+      gridApi.setGridOption('rowData', allRows);
+      document.querySelector('.status-bar .pill:nth-child(2) code').textContent = sourceLabel;
+      document.getElementById('loadedAt').textContent = `Loaded: ${new Date().toLocaleString()}`;
+      updateRowCount();
+    }
+
+    async function loadMarkdown() {
+      const response = await fetch(markdownPath, { cache: 'no-store' });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const markdown = await response.text();
+      loadMarkdownText(markdown, markdownPath);
+    }
+
+    function loadMarkdownFile(file) {
+      const reader = new FileReader();
+      reader.addEventListener('load', () => {
+        loadMarkdownText(String(reader.result || ''), file.name || 'selected markdown');
+        document.getElementById('fallback').style.display = 'none';
+      });
+      reader.addEventListener('error', () => {
+        document.getElementById('fallback').style.display = 'block';
+      });
+      reader.readAsText(file);
+    }
+
+    function bindControls() {
+      ['quickSearch', 'moduleFilter', 'statusFilter', 'browserFilter', 'docsFilter', 'dateFilter'].forEach(id => {
+        document.getElementById(id).addEventListener('input', applyExternalFilters);
+        document.getElementById(id).addEventListener('change', applyExternalFilters);
+      });
+      document.getElementById('resetFilters').addEventListener('click', resetFilters);
+      document.getElementById('chooseMarkdown').addEventListener('click', () => {
+        document.getElementById('markdownFile').click();
+      });
+      document.getElementById('markdownFile').addEventListener('change', event => {
+        const file = event.target.files?.[0];
+        if (file) loadMarkdownFile(file);
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      try {
+        if (!window.agGrid) throw new Error('AG Grid not loaded');
+        gridApi = agGrid.createGrid(document.getElementById('grid'), gridOptions);
+        bindControls();
+        await loadMarkdown();
+      } catch (error) {
+        console.error(error);
+        document.getElementById('fallback').style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -194,6 +194,38 @@ async function readFlowchart(project = DEFAULT_PROJECT, user = DEFAULT_USER) {
   }
 }
 
+async function listUsers() {
+  await ensureFlowsDir();
+  const users = new Map();
+  const addUser = async (id, dirPath, stats = null) => {
+    const user = slugUser(id);
+    if (!user) return;
+    users.set(user, {
+      id: user,
+      name: user,
+      path: `flows/users/${user}`,
+      updatedAt: (stats || await fs.stat(dirPath)).mtime.toISOString()
+    });
+  };
+
+  try {
+    const entries = await fs.readdir(USERS_DIR, { withFileTypes: true });
+    for (const entry of entries) {
+      if (!entry.isDirectory()) continue;
+      const id = slugUser(entry.name);
+      const dirPath = path.join(USERS_DIR, entry.name);
+      await addUser(id, dirPath);
+    }
+  } catch {}
+
+  if (!users.has(DEFAULT_USER)) {
+    await ensureUserDir(DEFAULT_USER);
+    await addUser(DEFAULT_USER, userDir(DEFAULT_USER));
+  }
+
+  return [...users.values()].sort((a, b) => a.id.localeCompare(b.id));
+}
+
 async function listProjects(user = DEFAULT_USER) {
   await ensureFlowsDir();
   await ensureUserDir(user);
@@ -271,6 +303,12 @@ async function serveStatic(req, res) {
 const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, `http://localhost:${PORT}`);
+
+    if (req.method === 'GET' && url.pathname === '/api/users') {
+      const users = await listUsers();
+      send(res, 200, JSON.stringify({ users }), 'application/json; charset=utf-8');
+      return;
+    }
 
     if (req.method === 'GET' && url.pathname === '/api/projects') {
       const user = url.searchParams.get('user') || DEFAULT_USER;

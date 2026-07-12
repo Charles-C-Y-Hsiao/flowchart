@@ -1,166 +1,346 @@
 {
+  "user": "000666888",
   "project": "flowchart",
-  "projectName": "flowchart",
-  "version": 1,
+  "projectName": "讀取檔案流程",
+  "version": 2,
+  "currentFlowId": "main",
   "view": {
-    "x": 125.11745733956812,
-    "y": 68.14793623570571,
-    "scale": 0.71
+    "x": 0,
+    "y": 0,
+    "scale": 1
   },
+  "display": {
+    "viewMode": "knowledge",
+    "knowledgeBodyLines": 1,
+    "flowchartTitleSize": 20,
+    "flowchartTheme": "default"
+  },
+  "flows": [
+    { "id": "main", "name": "主流程", "parentFlowId": null, "ownerNodeId": null },
+    { "id": "flow_importJSON", "name": "importJSON() 子流程", "parentFlowId": "main", "ownerNodeId": "importJSON" },
+    { "id": "flow_saveProjectFile", "name": "saveProjectFile() 子流程", "parentFlowId": "main", "ownerNodeId": "saveProjectFile" },
+    { "id": "flow_post_api_flowchart", "name": "POST /api/flowchart 子流程", "parentFlowId": "flow_saveProjectFile", "ownerNodeId": "post_api_flowchart" },
+    { "id": "flow_saveFlowchart", "name": "saveFlowchart() 子流程", "parentFlowId": "flow_post_api_flowchart", "ownerNodeId": "saveFlowchart" },
+    { "id": "flow_loadSavedState", "name": "loadSavedState() 子流程", "parentFlowId": "main", "ownerNodeId": "loadSavedState" },
+    { "id": "flow_get_api_flowchart", "name": "GET /api/flowchart 子流程", "parentFlowId": "flow_loadSavedState", "ownerNodeId": "get_api_flowchart" },
+    { "id": "flow_loadProjects", "name": "loadProjects() 子流程", "parentFlowId": "main", "ownerNodeId": "loadProjects" },
+    { "id": "flow_get_api_projects", "name": "GET /api/projects 子流程", "parentFlowId": "flow_loadProjects", "ownerNodeId": "get_api_projects" },
+    { "id": "flow_listProjects", "name": "listProjects() 子流程", "parentFlowId": "flow_get_api_projects", "ownerNodeId": "listProjects" }
+  ],
+  "groups": [],
   "nodes": [
     {
-      "id": "nqp6dqkg",
-      "x": -169.8079385403329,
-      "y": 57.336747759283,
+      "id": "buildImportPrompt",
+      "flowId": "main",
+      "x": 80,
+      "y": 100,
       "w": 280,
-      "h": 115,
-      "tags": [
-        "CORE"
-      ],
-      "title": "User Input Layer",
-      "body": "滑鼠/鍵盤/雙擊/輸入/刪除\n（事件觸發點）"
+      "h": 100,
+      "tags": ["FEoL", "UTIL"],
+      "title": "buildImportPrompt()",
+      "body": "組合提示詞供外部 Codex 分析程式碼",
+      "shape": "parallelogram",
+      "subflowId": null
     },
     {
-      "id": "nbw37bv6",
-      "x": 171.7790835924639,
-      "y": 50.214011340771904,
-      "w": 300,
-      "h": 125,
-      "tags": [
-        "DOM"
-      ],
-      "title": "DOM Layer",
-      "body": "dayCols / block / ghost\nrenderWeekFromMap → renderDayFromData"
-    },
-    {
-      "id": "nac3vzom",
-      "x": 647.8633162612035,
-      "y": -33.473568684836266,
-      "w": 189.0909090909091,
-      "h": 110,
-      "tags": [
-        "CORE"
-      ],
-      "title": "State/Data Layer",
-      "body": "allSchedules（前端單一真相）\n{ yyyy-mm-dd: [items...] }"
-    },
-    {
-      "id": "nyigec1g",
-      "x": 1169.0396927016648,
-      "y": 232.44558258642766,
+      "id": "updatePromptOutput",
+      "flowId": "main",
+      "x": 80,
+      "y": 250,
       "w": 280,
-      "h": 125,
-      "tags": [
-        "API"
-      ],
-      "title": "API Layer",
-      "body": "GET /week?from&to\nPOST /day  /week"
+      "h": 100,
+      "tags": ["FEoL"],
+      "title": "updatePromptOutput()",
+      "body": "將提示詞寫入題詞輸出欄位",
+      "shape": "rect",
+      "subflowId": null
     },
     {
-      "id": "nooxhqfw",
-      "x": 686.9398207426377,
-      "y": 221.76696542893728,
-      "w": 420,
-      "h": 132,
-      "tags": [
-        "CORE"
-      ],
-      "title": "[READ                   ",
-      "body": "loadWeek → merge allSchedules\n→ renderWeekFromMap → renderDayFromData"
+      "id": "loadProjects",
+      "flowId": "main",
+      "x": 420,
+      "y": 100,
+      "w": 280,
+      "h": 100,
+      "tags": ["FEoL", "API"],
+      "title": "loadProjects()",
+      "body": "取得目前使用者可選擇的流程專案",
+      "shape": "rect",
+      "subflowId": "flow_loadProjects"
     },
     {
-      "id": "nxllvjvj",
-      "x": 705.0400128040974,
-      "y": 460.6946222791293,
-      "w": 205.4545454545455,
-      "h": 135,
-      "tags": [
-        "RISK"
-      ],
-      "title": "[WRITE FLOW]",
-      "body": "create/drag/resize/edit/delete\n→ serialize payload → persistDay\n→ 後端存檔 → 回來重 render"
+      "id": "loadSavedState",
+      "flowId": "main",
+      "x": 420,
+      "y": 250,
+      "w": 280,
+      "h": 100,
+      "tags": ["FEoL", "API", "RISK"],
+      "title": "loadSavedState()",
+      "body": "讀取專案流程，失敗時回退瀏覽器快取",
+      "shape": "rect",
+      "subflowId": "flow_loadSavedState"
     },
     {
-      "id": "nfq4x2rd",
-      "x": -171.21638924455826,
-      "y": 305.2240717029449,
-      "w": 320,
-      "h": 135,
-      "tags": [
-        "CORE"
-      ],
-      "title": "setupInteract(block)",
-      "body": "interact.js\n拖曳 / 縮放 / 跨日\n（能力注入，不是狀態）"
+      "id": "importJSON",
+      "flowId": "main",
+      "x": 420,
+      "y": 400,
+      "w": 280,
+      "h": 100,
+      "tags": ["FEoL", "RISK"],
+      "title": "importJSON()",
+      "body": "驗證並匯入外部分析產生的流程 JSON",
+      "shape": "parallelogram",
+      "subflowId": "flow_importJSON"
+    },
+    {
+      "id": "saveProjectFile",
+      "flowId": "main",
+      "x": 420,
+      "y": 550,
+      "w": 280,
+      "h": 100,
+      "tags": ["FEoL", "API", "RISK"],
+      "title": "saveProjectFile()",
+      "body": "將流程 JSON 送往伺服器保存",
+      "shape": "parallelogram",
+      "subflowId": "flow_saveProjectFile"
+    },
+    {
+      "id": "clearAll_in_importJSON",
+      "flowId": "flow_importJSON",
+      "x": 80,
+      "y": 100,
+      "w": 280,
+      "h": 100,
+      "tags": ["FEoL"],
+      "title": "clearAll()",
+      "body": "清除既有節點、連線與群組狀態",
+      "shape": "rect",
+      "subflowId": null
+    },
+    {
+      "id": "normalizeAllEdges_in_importJSON",
+      "flowId": "flow_importJSON",
+      "x": 80,
+      "y": 250,
+      "w": 280,
+      "h": 100,
+      "tags": ["FEoL", "UTIL"],
+      "title": "normalizeAllEdges()",
+      "body": "整理匯入連線的流程與連接點資料",
+      "shape": "rect",
+      "subflowId": null
+    },
+    {
+      "id": "renderCurrentFlow_in_importJSON",
+      "flowId": "flow_importJSON",
+      "x": 80,
+      "y": 400,
+      "w": 280,
+      "h": 100,
+      "tags": ["FEoL"],
+      "title": "renderCurrentFlow()",
+      "body": "依目前流程重建節點與連線畫面",
+      "shape": "rect",
+      "subflowId": null
+    },
+    {
+      "id": "applyDisplaySettings_in_importJSON",
+      "flowId": "flow_importJSON",
+      "x": 80,
+      "y": 550,
+      "w": 280,
+      "h": 100,
+      "tags": ["FEoL"],
+      "title": "applyDisplaySettings()",
+      "body": "套用知識或流程圖顯示設定",
+      "shape": "rect",
+      "subflowId": null
+    },
+    {
+      "id": "saveState_in_importJSON",
+      "flowId": "flow_importJSON",
+      "x": 80,
+      "y": 700,
+      "w": 280,
+      "h": 100,
+      "tags": ["FEoL", "RISK"],
+      "title": "saveState()",
+      "body": "同步瀏覽器快取並排程儲存專案",
+      "shape": "rect",
+      "subflowId": null
+    },
+    {
+      "id": "post_api_flowchart",
+      "flowId": "flow_saveProjectFile",
+      "x": 80,
+      "y": 100,
+      "w": 280,
+      "h": 100,
+      "tags": ["API", "BEoL"],
+      "title": "POST /api/flowchart",
+      "body": "接收流程 JSON 並交由儲存流程處理",
+      "shape": "parallelogram",
+      "subflowId": "flow_post_api_flowchart"
+    },
+    {
+      "id": "readRequestBody",
+      "flowId": "flow_post_api_flowchart",
+      "x": 80,
+      "y": 100,
+      "w": 280,
+      "h": 100,
+      "tags": ["API", "RISK"],
+      "title": "readRequestBody()",
+      "body": "讀取請求內容並限制最大資料量",
+      "shape": "rect",
+      "subflowId": null
+    },
+    {
+      "id": "saveFlowchart",
+      "flowId": "flow_post_api_flowchart",
+      "x": 80,
+      "y": 250,
+      "w": 280,
+      "h": 100,
+      "tags": ["BEoL", "DB", "RISK"],
+      "title": "saveFlowchart()",
+      "body": "驗證流程資料並寫入 JSON 與 Mermaid",
+      "shape": "rect",
+      "subflowId": "flow_saveFlowchart"
+    },
+    {
+      "id": "projectPaths_in_saveFlowchart",
+      "flowId": "flow_saveFlowchart",
+      "x": 80,
+      "y": 100,
+      "w": 280,
+      "h": 100,
+      "tags": ["UTIL"],
+      "title": "projectPaths()",
+      "body": "建立使用者專案的 JSON 與 Mermaid 路徑",
+      "shape": "rect",
+      "subflowId": null
+    },
+    {
+      "id": "ensureUserDir_in_saveFlowchart",
+      "flowId": "flow_saveFlowchart",
+      "x": 80,
+      "y": 250,
+      "w": 280,
+      "h": 100,
+      "tags": ["BEoL", "DB"],
+      "title": "ensureUserDir()",
+      "body": "建立使用者流程資料夾",
+      "shape": "rect",
+      "subflowId": null
+    },
+    {
+      "id": "toMermaid_in_saveFlowchart",
+      "flowId": "flow_saveFlowchart",
+      "x": 80,
+      "y": 400,
+      "w": 280,
+      "h": 100,
+      "tags": ["BEoL", "UTIL"],
+      "title": "toMermaid()",
+      "body": "將節點與連線轉成 Mermaid 文字",
+      "shape": "rect",
+      "subflowId": null
+    },
+    {
+      "id": "get_api_flowchart",
+      "flowId": "flow_loadSavedState",
+      "x": 80,
+      "y": 100,
+      "w": 280,
+      "h": 100,
+      "tags": ["API", "BEoL"],
+      "title": "GET /api/flowchart",
+      "body": "依使用者與專案回傳流程 JSON",
+      "shape": "parallelogram",
+      "subflowId": "flow_get_api_flowchart"
+    },
+    {
+      "id": "readFlowchart",
+      "flowId": "flow_get_api_flowchart",
+      "x": 80,
+      "y": 100,
+      "w": 280,
+      "h": 100,
+      "tags": ["BEoL", "DB", "RISK"],
+      "title": "readFlowchart()",
+      "body": "讀取使用者專案，必要時使用舊檔回退",
+      "shape": "rect",
+      "subflowId": null
+    },
+    {
+      "id": "get_api_projects",
+      "flowId": "flow_loadProjects",
+      "x": 80,
+      "y": 100,
+      "w": 280,
+      "h": 100,
+      "tags": ["API", "BEoL"],
+      "title": "GET /api/projects",
+      "body": "取得使用者可用的流程專案清單",
+      "shape": "parallelogram",
+      "subflowId": "flow_get_api_projects"
+    },
+    {
+      "id": "listProjects",
+      "flowId": "flow_get_api_projects",
+      "x": 80,
+      "y": 100,
+      "w": 280,
+      "h": 100,
+      "tags": ["BEoL", "DB"],
+      "title": "listProjects()",
+      "body": "讀取流程資料夾中的專案 JSON 清單",
+      "shape": "rect",
+      "subflowId": "flow_listProjects"
+    },
+    {
+      "id": "ensureUserDir_in_listProjects",
+      "flowId": "flow_listProjects",
+      "x": 80,
+      "y": 100,
+      "w": 280,
+      "h": 100,
+      "tags": ["BEoL", "DB"],
+      "title": "ensureUserDir()",
+      "body": "確認使用者流程資料夾存在",
+      "shape": "rect",
+      "subflowId": null
+    },
+    {
+      "id": "addProject_in_listProjects",
+      "flowId": "flow_listProjects",
+      "x": 80,
+      "y": 250,
+      "w": 280,
+      "h": 100,
+      "tags": ["BEoL", "DB", "RISK"],
+      "title": "addProject()",
+      "body": "解析單一流程檔並整理專案摘要",
+      "shape": "rect",
+      "subflowId": null
     }
   ],
   "edges": [
-    {
-      "id": "egz5vre9",
-      "from": "nqp6dqkg",
-      "to": "nbw37bv6",
-      "fromPort": {
-        "side": "right",
-        "offset": 46
-      },
-      "toPort": {
-        "side": "left",
-        "offset": 52
-      },
-      "elbow": {
-        "x": 141.0089628681178,
-        "y": 100.57606219344082
-      }
-    },
-    {
-      "id": "e0e1efli",
-      "from": "nqp6dqkg",
-      "to": "nfq4x2rd",
-      "fromPort": {
-        "side": "bottom",
-        "offset": 140
-      },
-      "toPort": {
-        "side": "top",
-        "offset": 140
-      },
-      "elbow": {
-        "x": -29.53924294572367,
-        "y": 277.2240717029449
-      }
-    },
-    {
-      "id": "evzs3ser",
-      "from": "nfq4x2rd",
-      "to": "nxllvjvj",
-      "fromPort": {
-        "side": "right",
-        "offset": 60
-      },
-      "toPort": {
-        "side": "left",
-        "offset": 66
-      },
-      "elbow": {
-        "x": 531.3290653008962,
-        "y": 423.23932303065874
-      }
-    },
-    {
-      "id": "e68ejqqj",
-      "from": "nbw37bv6",
-      "to": "nac3vzom",
-      "fromPort": {
-        "side": "right",
-        "offset": 63
-      },
-      "toPort": {
-        "side": "left",
-        "offset": 55
-      },
-      "elbow": {
-        "x": 567.1360435339308,
-        "y": 102.82476678251327
-      }
-    }
+    { "id": "e_001", "flowId": "main", "from": "buildImportPrompt", "to": "updatePromptOutput" },
+    { "id": "e_002", "flowId": "main", "from": "loadProjects", "to": "loadSavedState" },
+    { "id": "e_003", "flowId": "main", "from": "loadSavedState", "to": "importJSON" },
+    { "id": "e_004", "flowId": "main", "from": "importJSON", "to": "saveProjectFile" },
+    { "id": "e_005", "flowId": "flow_importJSON", "from": "clearAll_in_importJSON", "to": "normalizeAllEdges_in_importJSON" },
+    { "id": "e_006", "flowId": "flow_importJSON", "from": "normalizeAllEdges_in_importJSON", "to": "renderCurrentFlow_in_importJSON" },
+    { "id": "e_007", "flowId": "flow_importJSON", "from": "renderCurrentFlow_in_importJSON", "to": "applyDisplaySettings_in_importJSON" },
+    { "id": "e_008", "flowId": "flow_importJSON", "from": "applyDisplaySettings_in_importJSON", "to": "saveState_in_importJSON" },
+    { "id": "e_009", "flowId": "flow_post_api_flowchart", "from": "readRequestBody", "to": "saveFlowchart" },
+    { "id": "e_010", "flowId": "flow_saveFlowchart", "from": "projectPaths_in_saveFlowchart", "to": "ensureUserDir_in_saveFlowchart" },
+    { "id": "e_011", "flowId": "flow_saveFlowchart", "from": "ensureUserDir_in_saveFlowchart", "to": "toMermaid_in_saveFlowchart" },
+    { "id": "e_012", "flowId": "flow_listProjects", "from": "ensureUserDir_in_listProjects", "to": "addProject_in_listProjects" }
   ]
 }
